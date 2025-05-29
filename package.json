@@ -8,12 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
-    "@builder.io/dev-tools": "^1.6.49",
-    "@builder.io/react": "^8.2.0",
-    "@builder.io/sdk": "^6.0.9",
     "next": "^15.3.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "@builder.io/react": "^x.x.x",
+    "@builder.io/sdk": "^x.x.x"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
