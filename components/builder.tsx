@@ -1,10 +1,20 @@
 import { builder } from "@builder.io/sdk"
-// Use the path alias that matches your tsconfig.json
-import { RenderBuilderContent } from "@/components/builder-content"
+// Fix the import path to correctly point to src/components/builder.tsx
+import RenderBuilderContent from "./builder"
 import type { Metadata } from "next"
 
 // Builder Public API Key set in .env file
 builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!)
+
+// Define a single, correct props interface
+interface PageProps {
+  params: {
+    page?: string[]
+  }
+  searchParams?: {
+    [key: string]: string | string[] | undefined
+  }
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -15,10 +25,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const builderModelName = "page" // or the appropriate model name you want to use
 
-// Use any type for props to bypass TypeScript checking
-export default async function Page(props: any) {
-  const { params, searchParams } = props
-
+// Make sure this is the only default export
+export default async function Page({ params, searchParams }: PageProps) {
   // Use optional chaining and nullish coalescing for safer access
   const urlPath = "/" + (params?.page?.join("/") || "")
 

@@ -1,26 +1,43 @@
-"use client";
-import { ComponentProps } from "react";
-import { BuilderComponent, useIsPreviewing } from "@builder.io/react";
-import { builder } from "@builder.io/react";
-import DefaultErrorPage from "next/error";
-import "../builder-registry";
+"use client"
 
-type BuilderPageProps = ComponentProps<typeof BuilderComponent>;
+import { BuilderComponent, useIsPreviewing } from "@builder.io/react"
+import { Builder } from "@builder.io/sdk"
+import { useEffect, useState } from "react"
 
-// Builder Public API Key set in .env file
-builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!);
+// Initialize Builder with your public API key on the client side
+if (typeof window !== "undefined") {
+  Builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!)
+}
 
-export function RenderBuilderContent({ content, model }: BuilderPageProps) {
-  // Call the useIsPreviewing hook to determine if
-  // the page is being previewed in Builder
-  const isPreviewing = useIsPreviewing();
-  // If "content" has a value or the page is being previewed in Builder,
-  // render the BuilderComponent with the specified content and model props.
-  if (content || isPreviewing) {
-    return <BuilderComponent content={content} model={model} />;
+interface RenderBuilderContentProps {
+  content: any
+  model: string
+}
+
+// Make sure this is exported correctly
+export function RenderBuilderContent({ content, model }: RenderBuilderContentProps) {
+  const isPreviewing = useIsPreviewing()
+  const [hydrated, setHydrated] = useState(false)
+
+  // Handle client-side hydration
+  useEffect(() => {
+    setHydrated(true)
+  }, [])
+
+  // If no content and not in preview mode
+  if (!content && !isPreviewing) {
+    return (
+      <div className="builder-no-content">
+        <h1>No content found</h1>
+        <p>Please check the URL or create content in Builder.io</p>
+      </div>
+    )
   }
-  // If the "content" is falsy and the page is
-  // not being previewed in Builder, render the
-  // DefaultErrorPage with a 404.
-  return <DefaultErrorPage statusCode={404} />;
+
+  return (
+    <>
+      {/* Only render the BuilderComponent after hydration to avoid hydration mismatch */}
+      {hydrated && <BuilderComponent model={model} content={content} options={{ includeRefs: true }} />}
+    </>
+  )
 }
