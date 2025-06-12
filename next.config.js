@@ -19,4 +19,10 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+//** @type {import('next').NextConfig} */
+module.exports = {
+  experimental: {
+    pagesRouter: false,  // ignore everything in src/pages/
+  },
+};
+

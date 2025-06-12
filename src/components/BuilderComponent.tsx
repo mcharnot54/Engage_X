@@ -1,5 +1,5 @@
 // src/components/builder-content.tsx
-"use client";
+'use client';
 
 import { BuilderComponent, builder, useIsPreviewing } from "@builder.io/react";
 

@@ -1,3 +1,4 @@
+'use client'
 import type React from "react"
 import { Button } from "./Button"
 import "./Card.css" // Adjust based on your styling approach
@@ -25,7 +26,7 @@ export const Card: React.FC<CardProps> = ({
     <div className={`card card--elevation-${elevation} ${className}`}>
       {image && (
         <div className="card__image-container">
-          <img src={image || "/placeholder.svg"} alt={title} className="card__image" />
+          <img src={image} alt={title} className="card__image" />
         </div>
       )}
       <div className="card__content">

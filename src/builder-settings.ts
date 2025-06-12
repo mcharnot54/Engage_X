@@ -1,20 +1,23 @@
-import { Builder } from "@builder.io/react"
-
-// This file can be used to configure global Builder.io settings
+'use client'
+import { Builder, builder } from "@builder.io/react";
 
 export function initializeBuilder() {
-  // Set global Builder.io options
+  // 1️⃣ Global options —- use the **class**
   Builder.set({
-    // Customize default options
-    canTrack: false, // Disable tracking by default
+    canTrack: false,
     env: process.env.NODE_ENV === "production" ? "production" : "development",
-    // Add other global settings as needed
-  })
+  });
 
-  // You can add custom targeting attributes
-  Builder.setUserAttributes({
-    // Example: device type
-    device: typeof window !== "undefined" && window.innerWidth < 768 ? "mobile" : "desktop",
-    // Add other targeting attributes as needed
-  })
+  // 2️⃣ Targeting attributes —- use the **instance**
+  builder.setUserAttributes({
+    device:
+      typeof window !== "undefined" && window.innerWidth < 768
+        ? "mobile"
+        : "desktop",
+  });
+
+  // 3️⃣ Initialise (if you haven’t elsewhere) —- use the **instance**
+  if (!builder.apiKey && process.env.NEXT_PUBLIC_BUILDER_API_KEY) {
+    builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY);
+  }
 }

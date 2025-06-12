@@ -9,5 +9,6 @@
   ],
   "routes": [
     { "src": "/(.*)", "dest": "/" }
-  ]
+  ],
+  "buildCommand": "bash -c 'npm ci && npm run build'"
 }

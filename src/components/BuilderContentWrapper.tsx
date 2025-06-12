@@ -1,9 +1,9 @@
-// src/components/builder-content.tsx
+// src/components/BuilderContentWrapper.tsx
 'use client'
 
 import { BuilderComponent } from "@builder.io/react"
 
-export function RenderBuilderContent({
+export default function BuilderContentWrapper({
   model,
   content
 }: {

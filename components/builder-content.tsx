@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { BuilderComponent, useIsPreviewing } from "@builder.io/react"
 import DefaultErrorPage from "next/error"

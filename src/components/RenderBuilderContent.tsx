@@ -1,4 +1,4 @@
-// src/components/builder-content.tsx
+// src/components/RenderBuilderContent.tsx
 'use client'
 
 import { BuilderComponent } from "@builder.io/react"

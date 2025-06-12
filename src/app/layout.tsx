@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import RegisterComponents from "@/components/RegisterComponents";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 

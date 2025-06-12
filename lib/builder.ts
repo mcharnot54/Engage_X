@@ -1,3 +1,4 @@
+'use client'
 import { Builder } from '@builder.io/react';
 
 // Configure Builder.io with branch information

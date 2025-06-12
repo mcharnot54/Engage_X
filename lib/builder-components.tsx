@@ -1,86 +1,41 @@
-"use client"
+// lib/builder-registry.tsx
+'use client'
 
-import { Builder } from "@builder.io/react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { builder, Builder } from "@builder.io/react"
+import { Button } from "../components/ui/Button"
+import { Card } from "../components/ui/Card"
 
-// Register your custom components for Builder.io
+// Initialize Builder SDK
+const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY
+if (apiKey) {
+  builder.init(apiKey)
+} else {
+  console.warn("NEXT_PUBLIC_BUILDER_API_KEY is not defined.")
+}
+
+/**
+ * Register custom components with Builder.io
+ */
 export function registerBuilderComponents() {
-  // Register Button component
-  Builder.registerComponent((props) => <Button {...props}>{props.text}</Button>, {
+  Builder.registerComponent(Button, {
     name: "Button",
     inputs: [
-      {
-        name: "text",
-        type: "string",
-        defaultValue: "Click me",
-      },
-      {
-        name: "variant",
-        type: "enum",
-        enum: ["default", "destructive", "outline", "secondary", "ghost", "link"],
-        defaultValue: "default",
-      },
-      {
-        name: "size",
-        type: "enum",
-        enum: ["default", "sm", "lg", "icon"],
-        defaultValue: "default",
-      },
+      { name: "text", type: "string", defaultValue: "Click me" },
+      { name: "variant", type: "enum", enum: ["default", "primary", "secondary", "ghost", "link"], defaultValue: "default" },
+      { name: "size", type: "enum", enum: ["sm", "md", "lg"], defaultValue: "md" },
     ],
   })
 
-  // Register Card component
-  Builder.registerComponent(
-    (props) => (
-      <Card className={props.className}>
-        {props.showHeader && (
-          <CardHeader>
-            <CardTitle>{props.title}</CardTitle>
-            {props.description && <CardDescription>{props.description}</CardDescription>}
-          </CardHeader>
-        )}
-        <CardContent>{props.content}</CardContent>
-        {props.footer && <CardFooter>{props.footer}</CardFooter>}
-      </Card>
-    ),
-    {
-      name: "Card",
-      inputs: [
-        {
-          name: "showHeader",
-          type: "boolean",
-          defaultValue: true,
-        },
-        {
-          name: "title",
-          type: "string",
-          defaultValue: "Card Title",
-        },
-        {
-          name: "description",
-          type: "string",
-          defaultValue: "Card description goes here",
-        },
-        {
-          name: "content",
-          type: "string",
-          defaultValue: "Card content goes here",
-          richText: true,
-        },
-        {
-          name: "footer",
-          type: "string",
-          defaultValue: "",
-        },
-        {
-          name: "className",
-          type: "string",
-          defaultValue: "",
-        },
-      ],
-    },
-  )
-
-  // Register more components as needed
+  Builder.registerComponent(Card, {
+    name: "Card",
+    inputs: [
+      { name: "title", type: "string", defaultValue: "Card Title" },
+      { name: "description", type: "string", defaultValue: "Card description goes here" },
+      { name: "image", type: "url", defaultValue: "https://placehold.co/600x400" },
+      { name: "buttonText", type: "string", defaultValue: "Learn More" },
+      { name: "buttonLink", type: "url", defaultValue: "#" },
+      { name: "elevation", type: "number", defaultValue: 1 },
+      { name: "className", type: "string", defaultValue: "" },
+    ],
+  })
 }

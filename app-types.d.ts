@@ -1,4 +1,5 @@
 // app-types.d.ts
+'use client'
 import { Metadata } from 'next';
 
 declare module 'next' {

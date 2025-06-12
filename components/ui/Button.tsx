@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import type React from "react"
 import "./Button.css" // Adjust based on your styling approach
