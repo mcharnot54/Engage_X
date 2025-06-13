@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { builder, BuilderComponent } from "@builder.io/react";
+import { builder, BuilderComponent } from "@builder.io/sdk-react";
 
 /**
  * Initialise Builder on the client exactly once.
