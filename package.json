@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  "build": "next build"        
-   },
+    "build": "next build"
+  },
   "dependencies": {
     "@builder.io/dev-tools": "^1.6.79",
     "@builder.io/react": "^8.2.3",
@@ -20,7 +20,7 @@
     "workbox-google-analytics": "^7.3.0"
   },
   "engines": {
-  "node": "20.x"
+    "node": "20.x"
   },
   "devDependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.27.1",
@@ -31,10 +31,12 @@
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "autoprefixer": "^10.4.21",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^15.3.2",
+    "eslint-config-next": "^15.3.3",
     "eslint-config-react-app": "^7.0.1",
-    "tailwindcss": "^4",
+    "postcss": "^8.5.5",
+    "tailwindcss": "^4.1.10",
     "typescript": "^4.9.5"
   },
   "browserslist": {
