@@ -5,7 +5,7 @@ import {
   builder,               // the SDK instance
   BuilderComponent,
   useIsPreviewing,
-} from "@builder.io/react";
+} from "@builder.io/sdk-react";
 import { useEffect, useState } from "react";
 
 // Initialise Builder on the client (once)
@@ -24,7 +24,7 @@ interface RenderBuilderContentProps {
    * Pass `null` or `undefined` if you want the component to render nothing
    * when no content is found (outside preview mode).
    */
-  content: any;
+  content?: BuilderContent | null; // explicit type instead of `any`
   /** Builder model name, e.g. "page", "section", etc. */
   model: string;
 }

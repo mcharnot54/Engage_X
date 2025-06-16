@@ -1,68 +1,89 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from "react"
-import { builder, Builder, BuilderComponent } from "@builder.io/react"
-import { Button } from "./ui/Button"
-// Import Card as default export
-import { Card } from "./ui/Card"
+import { useEffect, useState } from 'react';
+import {
+  builder,
+  Builder,
+  BuilderComponent,
+  type BuilderContent,
+} from '@builder.io/sdk-react';
 
-// Initialize the Builder SDK with your public API key
-builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!)
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
 
-// Register your custom components for Builder.io
-export function registerBuilderComponents() {
-  // Register Button component
-  Builder.registerComponent(Button, {
-    name: "Button",
-    inputs: [
-      { name: "text", type: "string", defaultValue: "Click me" },
-      {
-        name: "variant",
-        type: "enum",
-        enum: ["default", "destructive", "outline", "secondary", "ghost", "link"],
-        defaultValue: "default",
-      },
-      { name: "size", type: "enum", enum: ["default", "sm", "lg", "icon"], defaultValue: "default" },
-    ],
-  })
+/* 1 ▸ Initialise the SDK only when the key exists */
+const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
 
-  // Register Card component with its props
-  Builder.registerComponent(Card, {
-    name: "Card",
-    inputs: [
-      { name: "title", type: "string", defaultValue: "Card Title" },
-      { name: "description", type: "string", defaultValue: "Card description goes here" },
-      { name: "image", type: "url", defaultValue: "https://placehold.co/600x400" },
-      { name: "buttonText", type: "string", defaultValue: "Learn More" },
-      { name: "buttonLink", type: "string", defaultValue: "#" },
-      { name: "elevation", type: "number", defaultValue: 1 },
-      { name: "className", type: "string", defaultValue: "" },
-    ],
-  })
+if (apiKey) {
+  builder.init(apiKey);
+} else {
+  console.warn(
+    'NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will not load.',
+  );
 }
 
-// React component to fetch and render Builder content
-export default function BuilderContent({
-  model = "page",
-  entry,
-}: {
-  model?: string
-  entry?: string
+/* 2 ▸ Register custom components once */
+export function registerBuilderComponents(): void {
+  Builder.registerComponent(Button, {
+    name: 'Button',
+    inputs: [
+      { name: 'text', type: 'string', defaultValue: 'Click me' },
+      {
+        name: 'variant',
+        type: 'enum',
+        enum: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
+        defaultValue: 'default',
+      },
+      {
+        name: 'size',
+        type: 'enum',
+        enum: ['default', 'sm', 'lg', 'icon'],
+        defaultValue: 'default',
+      },
+    ],
+  });
+
+  Builder.registerComponent(Card, {
+    name: 'Card',
+    inputs: [
+      { name: 'title', type: 'string', defaultValue: 'Card Title' },
+      { name: 'description', type: 'string', defaultValue: 'Card description goes here' },
+      { name: 'image', type: 'url', defaultValue: 'https://placehold.co/600x400' },
+      { name: 'buttonText', type: 'string', defaultValue: 'Learn More' },
+      { name: 'buttonLink', type: 'string', defaultValue: '#' },
+      { name: 'elevation', type: 'number', defaultValue: 1 },
+      { name: 'className', type: 'string', defaultValue: '' },
+    ],
+  });
+}
+
+/* 3 ▸ Fetch & render Builder content */
+export default function BuilderContent(props: {
+  model?: string;
+  entry?: string;
 }) {
-  const [content, setContent] = useState<any>(null)
+  const { model = 'page', entry } = props;
+
+  // explicit, safe type instead of `any`
+  const [content, setContent] = useState<BuilderContent | null>(null);
 
   useEffect(() => {
-    if (!entry) return
+    if (!entry) return;
+
     builder
-      .get(model, { entry })
+      .get<BuilderContent>(model, { entry })
       .toPromise()
       .then(setContent)
-      .catch((err) => console.error("Builder fetch error:", err))
-  }, [model, entry])
+      .catch((err) => console.error('Builder fetch error:', err));
+  }, [model, entry]);
 
-  if (!content) {
-    return <div>Loading...</div>
-  }
+  if (!content) return <div>Loading…</div>;
 
-  return <BuilderComponent model={model} content={content} />
+  return (
+    <BuilderComponent
+      model={model}
+      /* Builder expects `undefined` not `null` */
+      content={content ?? undefined}
+    />
+  );
 }

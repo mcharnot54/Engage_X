@@ -1,10 +1,10 @@
 'use client'
 
-import { BuilderComponent, useIsPreviewing } from "@builder.io/react"
+import { BuilderComponent, useIsPreviewing } from "@builder.io/sdk-react"
 import DefaultErrorPage from "next/error"
 
 interface BuilderContentProps {
-  content: any
+  content?: BuilderContent | null; // explicit type instead of `any`
 }
 
 export function RenderBuilderContent({ content }: BuilderContentProps) {

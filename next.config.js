@@ -1,28 +1,20 @@
+// next.config.js
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Completely disable TypeScript checking during build
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  // Disable ESLint during build as well
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Configure images for Builder.io
+const baseConfig = {
+  // ——————————————————— dev-only relaxations ———————————————————
+  typescript: { ignoreBuildErrors: true },
+  eslint:     { ignoreDuringBuilds: true },
+
+  // ———————————————————   images   ———————————————————
   images: {
-    domains: ["cdn.builder.io"],
+    domains: ['cdn.builder.io'],
     unoptimized: true,
   },
-  // Remove the deprecated appDir option
-  experimental: {
-    // No experimental options needed for Next.js 15.3.2
-  },
-}
 
-//** @type {import('next').NextConfig} */
-module.exports = {
-  experimental: {
-    pagesRouter: false,  // ignore everything in src/pages/
-  },
+  // experimental options removed → Next 15 no longer needs them
 };
 
+/* Apply Builder DevTools once (adds live-preview overlay in dev) */
+const withBuilderDevTools = require('@builder.io/dev-tools/next');
+
+module.exports = withBuilderDevTools(baseConfig);

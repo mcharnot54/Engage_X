@@ -1,14 +1,27 @@
 // src/components/RenderBuilderContent.tsx
-'use client'
+'use client';
 
-import { BuilderComponent } from "@builder.io/react"
+import {
+  BuilderComponent,
+  type BuilderContent,
+} from '@builder.io/sdk-react';
+
+interface RenderBuilderContentProps {
+  /** Builder model name; defaults to `"page"` */
+  model?: string;
+  /** Builder content to render; `undefined` means “not found.” */
+  content?: BuilderContent | null;
+}
 
 export function RenderBuilderContent({
-  model,
-  content
-}: {
-  model: string
-  content: any
-}) {
-  return <BuilderComponent model={model} content={content} />
+  model = 'page',
+  content,
+}: RenderBuilderContentProps) {
+  return (
+    <BuilderComponent
+      model={model}
+      /* Builder prefers `undefined` over `null` */
+      content={content ?? undefined}
+    />
+  );
 }

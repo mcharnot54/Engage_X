@@ -1,13 +1,21 @@
+// src/builder-registry.ts
 'use client';
-import { builder, Builder } from "@builder.io/react";
-import App from "./App";
 
-builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!);
+import { builder, Builder } from '@builder.io/sdk-react';
+import App from './App';
+import { register } from './builder-registry';
 
-Builder.registerComponent(App, {
-  name: "App",
-});
+/* Initialise the SDK only if the env var is present */
+const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
 
-Builder.registerComponent(Builder, {
-  name: "Builder",
-});
+if (apiKey) {
+  builder.init(apiKey);
+} else {
+  console.warn(
+    'NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will not load.',
+  );
+}
+export { register };
+/* Register the two custom components */
+Builder.registerComponent(App, { name: 'App' });
+Builder.registerComponent(Builder, { name: 'Builder' });

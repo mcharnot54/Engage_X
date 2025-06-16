@@ -1,8 +1,9 @@
-'use client'
+'use client';
 
-import React, { ReactNode } from "react";
-import { Button } from "./Button";
-import "./Card.css";
+import type { ReactNode } from 'react';
+import Image from 'next/image';
+import { Button } from './Button';
+import './Card.css';
 
 export interface CardProps {
   title: string;
@@ -12,24 +13,32 @@ export interface CardProps {
   buttonLink?: string;
   elevation?: number;
   className?: string;
-  /** NEW – allows nested content in RegisterComponents */
+  /** Allows nested Builder content */
   children?: ReactNode;
 }
 
-export const Card: React.FC<CardProps> = ({
+export const Card = ({
   title,
   description,
-  image = "https://placehold.co/600x400",
-  buttonText = "Learn More",
-  buttonLink = "#",
+  image = 'https://placehold.co/600x400',
+  buttonText = 'Learn More',
+  buttonLink = '#',
   elevation = 1,
-  className = "",
-  children, // ← receive children
-}) => (
-  <div className={`card card--elevation-${elevation} ${className}`}>
+  className = '',
+  children,
+}: CardProps) => (
+  <article className={`card card--elevation-${elevation} ${className}`}>
     {image && (
       <div className="card__image-container">
-        <img src={image} alt={title} className="card__image" />
+        {/* next/image satisfies @next/next/no-img-element */}
+        <Image
+          src={image}
+          alt={title}
+          width={600}
+          height={400}
+          className="card__image"
+          priority
+        />
       </div>
     )}
 
@@ -37,8 +46,7 @@ export const Card: React.FC<CardProps> = ({
       <h3 className="card__title">{title}</h3>
       <p className="card__description">{description}</p>
 
-      {/* Nested Builder content, if any */}
-      {children}
+      {children /* optional nested Builder content */}
 
       {buttonText && (
         <a href={buttonLink} className="card__button-link">
@@ -46,5 +54,5 @@ export const Card: React.FC<CardProps> = ({
         </a>
       )}
     </div>
-  </div>
+  </article>
 );

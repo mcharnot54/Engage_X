@@ -3,14 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint --max-warnings 0 --fix \"src/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
     "@builder.io/dev-tools": "^1.6.79",
     "@builder.io/sdk": "^6.0.9",
     "@builder.io/sdk-react": "^4.2.2",
-    "@typescript-eslint/eslint-plugin": "5.62.0",
-    "@typescript-eslint/parser": "5.62.0",
     "glob": "^11.0.2",
     "next": "^15.3.3",
     "node-fetch": "^2.7.0",
@@ -34,7 +35,6 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.3.3",
-    "eslint-config-react-app": "^7.0.1",
     "postcss": "^8.5.5",
     "tailwindcss": "^4.1.10",
     "typescript": "^4.9.5"

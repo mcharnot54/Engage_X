@@ -1,19 +1,43 @@
 // src/components/BuilderContent.tsx
-'use client'
+'use client';
 
-import dynamic from 'next/dynamic'
-import { builder } from '@builder.io/sdk-react'
+import dynamic from 'next/dynamic';
+import {
+  builder,
+  type BuilderContent,
+} from '@builder.io/sdk-react';
 
-// Initialize Builder.io ONLY on client side
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_BUILDER_API_KEY) {
-  builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY)
+/* 1 ▸ Initialise Builder only in the browser */
+if (typeof window !== 'undefined') {
+  const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
+  if (apiKey) {
+    builder.init(apiKey);
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn(
+      'NEXT_PUBLIC_BUILDER_API_KEY is not set — Builder content will be blank.',
+    );
+  }
 }
 
+/* 2 ▸ Dynamically load the component (no SSR) */
 const BuilderComponent = dynamic(
-  () => import('@builder.io/sdk-react').then((mod) => mod.BuilderComponent),
-  { ssr: false }
-)
+  () => import('@builder.io/sdk-react').then((m) => m.BuilderComponent),
+  { ssr: false },
+);
 
-export default function BuilderContent({ content }: { content: any }) {
-  return <BuilderComponent model="page" content={content} />
+/* 3 ▸ Wrapper that accepts strong-typed content */
+export default function BuilderContent(props: {
+  model?: string;
+  content?: BuilderContent | null;
+}) {
+  const { model = 'page', content } = props;
+
+  return (
+    <BuilderComponent
+      model={model}
+      /* Pass `undefined`, not `null`, when empty */
+      content={content ?? undefined}
+    />
+  );
 }

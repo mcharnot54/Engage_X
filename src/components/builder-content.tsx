@@ -1,14 +1,21 @@
 // src/components/builder-content.tsx
-'use client'
+'use client';
 
-import { BuilderComponent } from "@builder.io/react"
+import { BuilderComponent, type BuilderContent } from '@builder.io/sdk-react';
 
-export function RenderBuilderContent({
-  model,
-  content
-}: {
-  model: string
-  content: any
+/**
+ * Renders Builder.io content for a given model.
+ */
+export function RenderBuilderContent(props: {
+  model: string;
+  content?: BuilderContent | null; // explicit type instead of `any`
 }) {
-  return <BuilderComponent model={model} content={content} />
+  const { model, content } = props;
+
+  return (
+    <BuilderComponent
+      model={model}
+      content={content ?? undefined} // graceful fallback
+    />
+  );
 }
