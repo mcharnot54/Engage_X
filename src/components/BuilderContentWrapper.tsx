@@ -2,8 +2,10 @@
 'use client';
 
 import {
+  builder,
   BuilderComponent,
-  type BuilderContent,
+  useIsPreviewing,
+  type BuilderContent,   // ← add this
 } from '@builder.io/react';
 
 interface BuilderContentWrapperProps {

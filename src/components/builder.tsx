@@ -2,9 +2,10 @@
 'use client';
 
 import {
-  builder,               // the SDK instance
+  builder,
   BuilderComponent,
   useIsPreviewing,
+  type BuilderContent,   // ← add this
 } from "@builder.io/react";
 import { useEffect, useState } from "react";
 

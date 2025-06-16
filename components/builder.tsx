@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import {
   builder,
-  Builder,
   BuilderComponent,
-  type BuilderContent,
-} from '@builder.io/react';
+  useIsPreviewing,
+  type BuilderContent,   // ← add this
+} from "@builder.io/react"
 
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
@@ -58,20 +58,20 @@ export function registerBuilderComponents(): void {
 }
 
 /* 3 ▸ Fetch & render Builder content */
-export default function BuilderContent(props: {
+export default function BuilderContentComponent(props: {
   model?: string;
   entry?: string;
 }) {
   const { model = 'page', entry } = props;
 
   // explicit, safe type instead of `any`
-  const [content, setContent] = useState<BuilderContent | null>(null);
+  const [content, setContent] = useState<BuilderContentType | null>(null);
 
   useEffect(() => {
     if (!entry) return;
 
     builder
-      .get<BuilderContent>(model, { entry })
+      .get(model, { entry })
       .toPromise()
       .then(setContent)
       .catch((err) => console.error('Builder fetch error:', err));
@@ -79,11 +79,18 @@ export default function BuilderContent(props: {
 
   if (!content) return <div>Loading…</div>;
 
+  // Ensure content.data is never null
+  const safeContent =
+    content && content.data === null
+      ? { ...content, data: undefined }
+      : content === null
+      ? undefined
+      : content;
+
   return (
     <BuilderComponent
       model={model}
-      /* Builder expects `undefined` not `null` */
-      content={content ?? undefined}
+      content={safeContent}
     />
   );
 }

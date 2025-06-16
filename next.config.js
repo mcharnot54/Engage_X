@@ -1,20 +1,18 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
-const baseConfig = {
-  // ——————————————————— dev-only relaxations ———————————————————
+const nextConfig = {
+  // Skip type-checking & linting during CI builds
   typescript: { ignoreBuildErrors: true },
   eslint:     { ignoreDuringBuilds: true },
 
-  // ———————————————————   images   ———————————————————
+  // Allow Builder-hosted images
   images: {
     domains: ['cdn.builder.io'],
     unoptimized: true,
   },
-
-  // experimental options removed → Next 15 no longer needs them
 };
 
-/* Apply Builder DevTools once (adds live-preview overlay in dev) */
-const withBuilderDevTools = require('@builder.io/dev-tools/next');
+// If you want the Builder DevTools overlay in dev, wrap once:
+// const withBuilderDevTools = require('@builder.io/dev-tools/next');
+// module.exports = withBuilderDevTools(nextConfig);
 
-module.exports = withBuilderDevTools(baseConfig);
+module.exports = nextConfig;        // production-safe export

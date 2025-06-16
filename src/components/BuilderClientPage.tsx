@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import {
   builder,
   BuilderComponent,
-  type BuilderContent,
+  useIsPreviewing,
+  type BuilderContent,   // ← add this
 } from '@builder.io/react';
 
 /* ── 1. Initialise Builder exactly once on the client ─────────────── */

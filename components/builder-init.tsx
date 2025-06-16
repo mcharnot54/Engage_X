@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import {
   builder,
-  Builder,
   BuilderComponent,
-  type BuilderContent,
-} from '@builder.io/react';
+  useIsPreviewing,
+  type BuilderContent,   // ← add this
+} from "@builder.io/react"
 
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -79,13 +79,13 @@ export default function BuilderContent(props: {
   const { model = 'page', entry } = props;
 
   //  ✨  explicit type instead of “any”
-  const [content, setContent] = useState<BuilderContent | null>(null);
+  const [content, setContent] = useState<BuilderContentType | null>(null);
 
   useEffect(() => {
     if (!entry) return;
 
     builder
-      .get<BuilderContent>(model, { entry })
+      .get(model, { entry })
       .toPromise()
       .then(setContent)
       .catch((err) => console.error('Builder fetch error:', err));
@@ -96,7 +96,7 @@ export default function BuilderContent(props: {
   return (
     <BuilderComponent
       model={model}
-      content={content ?? undefined} /* never pass null */
+      content={content || undefined} /* never pass null */
     />
   );
 }

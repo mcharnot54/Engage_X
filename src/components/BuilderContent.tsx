@@ -4,7 +4,9 @@
 import dynamic from 'next/dynamic';
 import {
   builder,
-  type BuilderContent,
+  BuilderComponent,
+  useIsPreviewing,
+  type BuilderContent,   // ← add this
 } from '@builder.io/react';
 
 /* 1 ▸ Initialise Builder only in the browser */

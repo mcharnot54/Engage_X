@@ -5,7 +5,7 @@ import {
   builder,
   BuilderComponent,
   useIsPreviewing,
-  type BuilderContent,
+  type BuilderContent,   // ← add this
 } from '@builder.io/react';
 
 /* Initialise Builder once, but guard against missing env-var */
