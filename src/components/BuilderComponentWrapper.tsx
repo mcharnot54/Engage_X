@@ -4,7 +4,7 @@
 import {
   BuilderComponent,
   type BuilderContent,
-} from '@builder.io/sdk-react';
+} from '@builder.io/react';
 
 interface BuilderComponentWrapperProps {
   /** Page or section model name; default is `"page"` */

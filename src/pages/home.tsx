@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { builder, BuilderComponent } from '@builder.io/sdk-react';
+import { builder, BuilderComponent } from '@builder.io/react';
 
 // This is an example of a page that combines your custom React code with Builder.io content
 export default function Home() {

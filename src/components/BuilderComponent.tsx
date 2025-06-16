@@ -6,7 +6,7 @@ import {
   BuilderComponent,
   useIsPreviewing,
   type BuilderContent,
-} from '@builder.io/sdk-react';
+} from '@builder.io/react';
 
 /* Initialise Builder once, but guard against missing env-var */
 const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;

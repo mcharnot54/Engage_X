@@ -6,7 +6,7 @@ import {
   builder,
   BuilderComponent,
   type BuilderContent,
-} from '@builder.io/sdk-react';
+} from '@builder.io/react';
 
 /* ── 1. Initialise Builder exactly once on the client ─────────────── */
 if (!builder.apiKey) {

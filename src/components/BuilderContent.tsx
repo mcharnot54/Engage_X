@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import {
   builder,
   type BuilderContent,
-} from '@builder.io/sdk-react';
+} from '@builder.io/react';
 
 /* 1 ▸ Initialise Builder only in the browser */
 if (typeof window !== 'undefined') {
@@ -22,7 +22,7 @@ if (typeof window !== 'undefined') {
 
 /* 2 ▸ Dynamically load the component (no SSR) */
 const BuilderComponent = dynamic(
-  () => import('@builder.io/sdk-react').then((m) => m.BuilderComponent),
+  () => import('@builder.io/react').then((m) => m.BuilderComponent),
   { ssr: false },
 );
 

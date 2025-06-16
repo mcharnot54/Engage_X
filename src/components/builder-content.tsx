@@ -1,7 +1,7 @@
 // src/components/builder-content.tsx
 'use client';
 
-import { BuilderComponent, type BuilderContent } from '@builder.io/sdk-react';
+import { BuilderComponent, type BuilderContent } from '@builder.io/react';
 
 /**
  * Renders Builder.io content for a given model.

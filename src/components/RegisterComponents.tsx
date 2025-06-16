@@ -3,7 +3,7 @@
 
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { Builder } from '@builder.io/sdk-react';
+import { Builder } from '@builder.io/react';
 
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';

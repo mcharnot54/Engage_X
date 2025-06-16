@@ -5,7 +5,7 @@ import {
   builder,               // the SDK instance
   BuilderComponent,
   useIsPreviewing,
-} from "@builder.io/sdk-react";
+} from "@builder.io/react";
 import { useEffect, useState } from "react";
 
 // Initialise Builder on the client (once)

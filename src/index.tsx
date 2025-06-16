@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 
-import { builder } from '@builder.io/sdk-react';
+import { builder } from '@builder.io/react';
 import registerBuilderComponents from './components/RegisterComponents';
 
 /* 1 ▸ Initialise Builder if an API key is present */

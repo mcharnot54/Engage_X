@@ -6,7 +6,7 @@ import {
   Builder,
   BuilderComponent,
   type BuilderContent,
-} from '@builder.io/sdk-react';
+} from '@builder.io/react';
 
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
