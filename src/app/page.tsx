@@ -124,7 +124,7 @@ export default function PhoenixPGSLogin() {
                             type="checkbox"
                             className="w-4 h-4 text-orange-500 bg-white/10 border-white/30 rounded focus:ring-orange-500 focus:ring-2"
                           />
-                          <span className="ml-2 text-sm text-slate-300">
+                          <span className="ml-2 text-sm text-gray-400">
                             Remember me
                           </span>
                         </label>
