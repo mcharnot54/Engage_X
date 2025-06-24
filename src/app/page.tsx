@@ -36,19 +36,19 @@ export default function PhoenixPGSLogin() {
           <div className="bg-white flex flex-col">
             <div className="flex gap-5 max-md:flex-col max-md:gap-0">
               {/* First Column - Left Images (50% width) */}
-              <div className="flex flex-col w-1/2 max-md:w-full">
+              <div className="flex flex-col w-1/2 max-md:w-full pb-11">
                 <div className="flex flex-col -mr-px w-auto">
                   <div className="flex"></div>
                   <img
                     loading="lazy"
                     srcSet="https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F2694dcae253f53f4f26b3127d235225aa9e82edc?width=100 100w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F2694dcae253f53f4f26b3127d235225aa9e82edc?width=200 200w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F2694dcae253f53f4f26b3127d235225aa9e82edc?width=400 400w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F2694dcae253f53f4f26b3127d235225aa9e82edc?width=800 800w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F2694dcae253f53f4f26b3127d235225aa9e82edc?width=1200 1200w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F2694dcae253f53f4f26b3127d235225aa9e82edc?width=1600 1600w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F2694dcae253f53f4f26b3127d235225aa9e82edc?width=2000 2000w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F2694dcae253f53f4f26b3127d235225aa9e82edc"
-                    className="aspect-[0.58] object-cover object-center w-1/2 min-h-[51px] min-w-[20px] overflow-hidden mx-auto mt-5 -mb-1"
+                    className="aspect-[0.58] object-cover object-center w-2/5 min-h-[51px] min-w-[20px] overflow-hidden mx-auto mt-5 -mb-1"
                     alt=""
                   />
                   <img
                     loading="lazy"
                     srcSet="https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F8bb6816c50123434bc990c779230032f94d63bf5?width=100 100w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F8bb6816c50123434bc990c779230032f94d63bf5?width=200 200w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F8bb6816c50123434bc990c779230032f94d63bf5?width=400 400w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F8bb6816c50123434bc990c779230032f94d63bf5?width=800 800w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F8bb6816c50123434bc990c779230032f94d63bf5?width=1200 1200w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F8bb6816c50123434bc990c779230032f94d63bf5?width=1600 1600w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F8bb6816c50123434bc990c779230032f94d63bf5?width=2000 2000w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F8bb6816c50123434bc990c779230032f94d63bf5"
-                    className="aspect-[2.17] object-cover object-center w-1/2 mt-5 min-h-[20px] min-w-[20px] overflow-hidden max-w-[457px] mx-auto"
+                    className="aspect-[2.17] object-cover object-center w-2/5 mt-5 min-h-[20px] min-w-[20px] overflow-hidden max-w-[457px] mx-auto"
                     alt=""
                   />
                 </div>
