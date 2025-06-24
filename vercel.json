@@ -1,14 +1,3 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "build" }
-    }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/" }
-  ],
-  "buildCommand": "bash -c 'npm ci && npm run build'"
+  "version": 2
 }
