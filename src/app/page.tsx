@@ -78,8 +78,11 @@ export default function PhoenixPGSLogin() {
                           </div>
 
                           {/* Login Form */}
-                          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-8 shadow-2xl">
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-8 shadow-2xl max-lg:flex max-lg:flex-col">
+                            <form
+                              onSubmit={handleSubmit}
+                              className="space-y-6 max-lg:mx-auto"
+                            >
                               {/* Username Field */}
                               <div>
                                 <label
