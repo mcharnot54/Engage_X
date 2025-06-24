@@ -100,7 +100,7 @@ export default function PhoenixPGSLogin() {
                       <div>
                         <label
                           htmlFor="password"
-                          className="block text-sm font-medium text-slate-200 mb-2"
+                          className="block text-sm font-medium text-gray-400 mb-2"
                         >
                           Password
                         </label>
@@ -110,7 +110,7 @@ export default function PhoenixPGSLogin() {
                           name="password"
                           value={credentials.password}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                          className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-[1px_1px_3px_0px_rgba(0,0,0,1)]"
                           placeholder="Enter your password"
                           required
                           aria-describedby="password-help"
