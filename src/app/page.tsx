@@ -33,7 +33,7 @@ export default function PhoenixPGSLogin() {
     <>
       <div className="text-gray-300 bg-black">
         <div>
-          <div className="flex gap-5 max-md:flex-col max-md:gap-0">
+          <div className="flex gap-5 max-md:flex-col max-md:gap-0 bg-white">
             {/* First Column - Left Images */}
             <div className="flex flex-col w-[33%] max-md:w-full -mr-px">
               <div className="flex flex-row">
