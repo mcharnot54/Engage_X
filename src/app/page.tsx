@@ -60,7 +60,7 @@ export default function PhoenixPGSLogin() {
                   <div className="bg-white flex flex-col justify-center min-h-screen p-4">
                     <div className="flex gap-5 max-md:flex-col max-md:gap-0">
                       <div className="flex flex-col w-full">
-                        <div className="w-auto max-w-md">
+                        <div className="w-auto max-w-md max-lg:mx-auto">
                           {/* Logo/Branding Section */}
                           <div className="text-center mb-8">
                             <img
