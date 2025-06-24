@@ -33,7 +33,7 @@ export default function PhoenixPGSLogin() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex items-center justify-center p-4 font-poppins">
       <div className="w-full max-w-md">
         {/* Logo/Branding Section */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 font-sans">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-500 rounded-full mb-4">
             <span className="text-white font-bold text-xl">P</span>
           </div>
