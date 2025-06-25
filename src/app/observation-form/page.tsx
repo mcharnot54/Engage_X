@@ -34,22 +34,22 @@ export default function ObservationForm() {
       return;
     }
 
-    // Fetch all Builder.io pages
+    // Fetch all Builder.io content from EngageX model
     builder
-      .getAll("page", {
+      .getAll("EngageX", {
         limit: 50,
         includeRefs: true,
       })
       .then((pages) => {
-        console.log("All Builder.io pages:", pages);
+        console.log("All Builder.io EngageX content:", pages);
         setAllPages(pages);
 
-        // Look for "Mark's observation 2" or any observation-related content
+        // Look for "ObservationForm" content
         const observationPage = pages.find(
           (p) =>
-            p.name?.toLowerCase().includes("mark") ||
-            p.name?.toLowerCase().includes("observation") ||
-            p.data?.url === "/observation-form",
+            p.name?.toLowerCase().includes("observationform") ||
+            p.name === "ObservationForm" ||
+            p.name?.toLowerCase().includes("observation"),
         );
 
         if (observationPage) {
