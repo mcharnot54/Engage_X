@@ -9,6 +9,7 @@ export default function PhoenixPGSLogin() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,7 +27,15 @@ export default function PhoenixPGSLogin() {
     setTimeout(() => {
       setIsLoading(false);
       console.log("Login attempted with:", credentials);
-      // Here you would integrate with your authentication system
+
+      // For now, accept any credentials and redirect to observation-form
+      if (credentials.username && credentials.password) {
+        // Successful login - redirect to observation form
+        router.push("/observation-form");
+      } else {
+        // Handle empty credentials (this shouldn't happen due to required fields)
+        alert("Please enter both username and password");
+      }
     }, 1000);
   };
 
