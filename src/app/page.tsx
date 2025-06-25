@@ -7,10 +7,10 @@ export default function HomePage() {
         <div className="mb-[200px] bg-white">
           <div className="flex gap-5 max-md:flex-col max-md:gap-0">
             {/* First Column - Empty for spacing */}
-            <div className="flex flex-col w-1/3 max-md:w-full max-md:ml-0" />
+            <div className="flex flex-col w-1/5 max-md:w-full max-md:ml-0" />
 
             {/* Second Column - Main Content */}
-            <div className="flex flex-col w-1/3 ml-5 max-md:w-full max-md:ml-0">
+            <div className="flex flex-col w-3/5 ml-5 max-md:w-full max-md:ml-0">
               {/* Top Image Section */}
               <div className="flex flex-col relative min-h-[352px] p-5">
                 <section className="flex flex-col relative min-h-[352px] p-5 w-full self-stretch flex-grow max-w-[1200px] mx-auto" />
@@ -44,7 +44,7 @@ export default function HomePage() {
             </div>
 
             {/* Third Column - Empty for spacing */}
-            <div className="flex flex-col w-1/3 ml-5 max-md:w-full max-md:ml-0" />
+            <div className="flex flex-col w-1/5 ml-5 max-md:w-full max-md:ml-0" />
           </div>
         </div>
       </div>
