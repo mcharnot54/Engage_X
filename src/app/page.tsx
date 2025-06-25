@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <div className="pointer-events-auto text-gray-300 bg-white">
-      <div className="bg-black text-gray-300 pointer-events-auto">
+      <div className="bg-white text-gray-300 pointer-events-auto">
         <div className="mb-[200px] bg-white">
           <div className="flex gap-5 max-md:flex-col max-md:gap-0">
             {/* First Column - Empty for spacing */}
