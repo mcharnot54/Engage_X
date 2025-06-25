@@ -22,42 +22,70 @@ export default function ObservationForm() {
     builder.init(apiKey);
     
     setTimeout(async () => {
-      setDebugInfo({
+      const debugData = {
         hasApiKey: !!apiKey,
         apiKeyLength: apiKey?.length || 0,
+        apiKeyStart: apiKey?.substring(0, 8) + "...",
         nodeEnv: process.env.NODE_ENV,
         builderInitialized: !!builder.apiKey,
-      });
+      };
+
+      console.log("🔍 Debug info:", debugData);
 
       try {
-        const pages = await builder.getAll("page", {
-          limit: 50,
-          includeRefs: true,
-        });
+        // Try multiple models to find content
+        console.log("🚀 Testing multiple content models...");
+        
+        const models = ["page", "content", "section", "symbol"];
+        let allResults = {};
+        
+        for (const model of models) {
+          try {
+            console.log(`📄 Testing model: ${model}`);
+            const result = await builder.getAll(model, {
+              limit: 50,
+              includeRefs: true,
+              cachebust: true,
+            });
+            allResults[model] = result ? result.length : 0;
+            console.log(`📊 Model "${model}" returned ${result ? result.length : 0} items`);
+            
+            if (result && result.length > 0) {
+              setAllPages(result);
+              console.log(`✅ Found content in "${model}" model:`, result);
+              
+              // Look for ObservationForm
+              const observationPage = result.find(
+                (p) =>
+                  p.name?.toLowerCase().includes("observationform") ||
+                  p.name === "ObservationForm" ||
+                  p.name?.toLowerCase().includes("observation")
+              );
 
-        console.log("Builder.io pages:", pages);
-        setAllPages(pages || []);
-
-        if (!pages || pages.length === 0) {
-          setError("No content found in Builder.io. Please check your API key and published content.");
-          setLoading(false);
-          return;
+              if (observationPage) {
+                console.log("🎯 Found ObservationForm:", observationPage);
+                setSelectedContent(observationPage);
+              }
+              
+              setDebugInfo({...debugData, successfulModel: model, modelResults: allResults});
+              setLoading(false);
+              return;
+            }
+          } catch (modelErr) {
+            console.error(`❌ Error with model ${model}:`, modelErr);
+            allResults[model] = `Error: ${modelErr.message}`;
+          }
         }
 
-        const observationPage = pages.find(
-          (p) =>
-            p.name?.toLowerCase().includes("observationform") ||
-            p.name === "ObservationForm" ||
-            p.name?.toLowerCase().includes("observation")
-        );
-
-        if (observationPage) {
-          setSelectedContent(observationPage);
-        }
-
+        // If no content found in any model
+        setError(`No content found in any Builder.io model. Checked: ${models.join(", ")}`);
+        setDebugInfo({...debugData, modelResults: allResults, totalModelsChecked: models.length});
         setLoading(false);
+
       } catch (err) {
+        console.error("💥 General error:", err);
         setError(`Failed to fetch Builder.io content: ${err.message || err}`);
+        setDebugInfo({...debugData, generalError: err.message});
         setLoading(false);
       }
     }, 100);
@@ -68,22 +96,22 @@ export default function ObservationForm() {
   };
 
   if (loading) {
-    return (Loading Builder.io Content...</h</div
+    return (🔍 Scanning Builder.io Models...Testing: page, content, section, symbol models...);
   }
 
   if (error) {
-    return (❌ Builder.io Error</h1{error}Debug Information:{JSON.stringify(debugInfo, null, 2)});
+    return (🔍 Builder.io Scan Results{error}📊 Model Scan Results:{JSON.stringify(debugInfo, null, 2)}</pre🔧 Next Steps:Check Builder.io Dashboard:Go to builder.io and verify your "ObservationForm" content exists and is publishedVerify Space:Make sure you're in the correct "EngageX" spaceCheck Content Model:Note which tab/section your content is under in Builder.ioAPI Key Permissions:Ensure your API key has read access to published content);
   }
 
   if (selectedContent) {
-    return (✅Builder.io Content Loaded:{selectedContent.name}setSelectedContent(null)}
+    return (✅Builder.io Content Loaded:{selectedContent.name}Found in model:{debugInfo.successfulModel}setSelectedContent(null)}
               className="mt-2 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
             >
-              ← Back to Page List</button);
+              ← Back to Content List);
   }
 
-  return (🔍 Builder.io Content FinderAvailable Builder.io Pages ({allPages.length}){allPages.map((page, index) => ({page.name || "Untitled Page"}ID:{page.id}URL:{page.data?.url || "No URL set"}{(page.name?.toLowerCase().includes("observationform") || page.name?.toLowerCase().includes("observation")) && (🎯 Potential Match)}handleSelectPage(page)}
-                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+  return (🎯 Found Builder.io Content!✅ Success!Found {allPages.length} items in the{debugInfo.successfulModel}modelClick "Load This Content" on your ObservationFormAvailable Content ({allPages.length}){allPages.map((page, index) => ({page.name || "Untitled Page"}ID:{page.id}Model:{debugInfo.successfulModel}URL:{page.data?.url || "No URL set"}{(page.name?.toLowerCase().includes("observationform") || page.name?.toLowerCase().includes("observation")) && (🎯 OBSERVATION FORM DETECTED!)}handleSelectPage(page)}
+                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-semibold"
                   >
-                    Load This Page))}</div);
+                    Load This Content))}🔧 Technical Details (Click to expand)</summary{JSON.stringify({...debugInfo, totalPages: allPages.length}, null, 2)}</preails
 }
