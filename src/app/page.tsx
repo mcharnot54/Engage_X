@@ -21,20 +21,19 @@ export default function HomePage() {
                     alt="PhoenixPGS"
                   />
                 </section>
-              </div>
-
-              {/* Welcome Content Section */}
-              <div className="flex items-center bg-white justify-center min-h-[200px] pointer-events-auto mb-auto">
-                <div className="text-center pointer-events-auto">
-                  <p className="text-[28px] text-red-600 leading-7 mb-8">
-                    <b>Your Performance Guidance Platform</b>
-                  </p>
-                  <Link
-                    href="/login"
-                    className="inline-block bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105"
-                  >
-                    Sign In
-                  </Link>
+                {/* Welcome Content Section */}
+                <div className="flex items-center bg-white justify-center min-h-[200px] pointer-events-auto mb-auto pl-[37px]">
+                  <div className="text-center pointer-events-auto">
+                    <p className="text-[28px] text-red-600 leading-7 mb-8">
+                      <b>Your Performance Guidance Platform</b>
+                    </p>
+                    <Link
+                      href="/login"
+                      className="inline-block bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105"
+                    >
+                      Sign In
+                    </Link>
+                  </div>
                 </div>
               </div>
 
