@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PhoenixPGSLogin() {
   const [credentials, setCredentials] = useState({
@@ -8,6 +9,7 @@ export default function PhoenixPGSLogin() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,7 +27,15 @@ export default function PhoenixPGSLogin() {
     setTimeout(() => {
       setIsLoading(false);
       console.log("Login attempted with:", credentials);
-      // Here you would integrate with your authentication system
+
+      // For now, accept any credentials and redirect to observation-form
+      if (credentials.username && credentials.password) {
+        // Successful login - redirect to observation form
+        router.push("/observation-form");
+      } else {
+        // Handle empty credentials (this shouldn't happen due to required fields)
+        alert("Please enter both username and password");
+      }
     }, 1000);
   };
 
@@ -72,13 +82,13 @@ export default function PhoenixPGSLogin() {
                             <h1 className="text-3xl font-bold text-white mb-2">
                               PhoenixPGS
                             </h1>
-                            <p className="text-red-600 font-normal">
+                            <p className="text-red-600 font-normal -mt-[2px]">
                               Welcome back! Please sign in to your account.
                             </p>
                           </div>
 
                           {/* Login Form */}
-                          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-8 shadow-2xl max-lg:flex max-lg:flex-col">
+                          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 -mt-[2px] pt-5 px-8 pb-8 shadow-2xl max-lg:flex max-lg:flex-col">
                             <form
                               onSubmit={handleSubmit}
                               className="space-y-6 max-lg:mx-auto"
