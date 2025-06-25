@@ -13,14 +13,13 @@ export default function HomePage() {
             <div className="flex flex-col w-3/5 ml-5 max-md:w-full max-md:ml-0">
               {/* Top Image Section */}
               <div className="flex flex-col relative min-h-[352px] p-5">
-                <section className="flex flex-col relative min-h-[352px] p-5 w-full self-stretch flex-grow max-w-[1200px] mx-auto">
-                  <img
-                    loading="lazy"
-                    src="https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F9540c05b913c42ac9eca0746ebb9464b?width=2000"
-                    className="block aspect-[2.98] object-cover w-full mt-5 min-h-[20px] min-w-[20px] overflow-hidden pointer-events-auto"
-                    alt="PhoenixPGS"
-                  />
-                </section>
+                <section className="flex flex-col relative min-h-[352px] p-5 w-full self-stretch flex-grow max-w-[1200px] mx-auto" />
+                <img
+                  loading="lazy"
+                  src="https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F9540c05b913c42ac9eca0746ebb9464b?width=2000"
+                  className="block aspect-[2.98] object-cover w-full mt-5 min-h-[20px] min-w-[20px] overflow-hidden pointer-events-auto"
+                  alt="PhoenixPGS"
+                />
               </div>
 
               {/* Welcome Content Section */}
