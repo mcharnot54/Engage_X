@@ -146,7 +146,7 @@ export default function ObservationForm() {
 
         {/* Render Builder.io content */}
         <BuilderComponent
-          model="page"
+          model="EngageX"
           content={selectedContent}
           options={{ includeRefs: true }}
         />
@@ -164,7 +164,7 @@ export default function ObservationForm() {
 
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
           <h2 className="font-semibold text-yellow-800 mb-2">
-            Looking for "Mark's observation 2"
+            Looking for "ObservationForm"
           </h2>
           <p className="text-yellow-700">
             No content automatically matched. Please select your observation
@@ -174,16 +174,17 @@ export default function ObservationForm() {
 
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">
-            Available Builder.io Pages ({allPages.length})
+            Available Builder.io Content ({allPages.length})
           </h2>
 
           {allPages.length === 0 ? (
             <div className="bg-gray-50 border rounded-lg p-6 text-center">
               <p className="text-gray-600">
-                No pages found in your Builder.io space.
+                No content found in your Builder.io EngageX model.
               </p>
               <p className="text-gray-500 mt-2">
-                Make sure you have created and published content in Builder.io.
+                Make sure you have created and published content in Builder.io
+                under the EngageX model.
               </p>
             </div>
           ) : (
@@ -221,7 +222,7 @@ export default function ObservationForm() {
                       </div>
 
                       {/* Highlight potential matches */}
-                      {(page.name?.toLowerCase().includes("mark") ||
+                      {(page.name?.toLowerCase().includes("observationform") ||
                         page.name?.toLowerCase().includes("observation")) && (
                         <div className="mt-2 inline-block bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium">
                           🎯 Potential Match
@@ -253,7 +254,8 @@ export default function ObservationForm() {
                 {
                   ...debugInfo,
                   totalPages: allPages.length,
-                  searchTerms: ["mark", "observation", "/observation-form"],
+                  searchTerms: ["observationform", "observation"],
+                  model: "EngageX",
                 },
                 null,
                 2,
