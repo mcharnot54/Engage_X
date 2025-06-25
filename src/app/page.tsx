@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="pointer-events-auto text-gray-300 bg-white">
+    <div className="pointer-events-auto text-gray-300">
       <div className="bg-white text-gray-300 pointer-events-auto">
         <div className="mb-[200px] bg-white">
-          <div className="flex gap-5 max-md:flex-col max-md:gap-0">
+          <div className="flex gap-5 max-md:flex-col max-md:gap-0 -mb-[3px]">
             {/* First Column - Empty for spacing */}
             <div className="flex flex-col w-1/5 max-md:w-full max-md:ml-0" />
 
