@@ -82,7 +82,7 @@ export default function PhoenixPGSLogin() {
                             <h1 className="text-3xl font-bold text-white mb-2">
                               PhoenixPGS
                             </h1>
-                            <p className="text-red-600 font-normal">
+                            <p className="text-red-600 font-normal -mt-[2px]">
                               Welcome back! Please sign in to your account.
                             </p>
                           </div>
