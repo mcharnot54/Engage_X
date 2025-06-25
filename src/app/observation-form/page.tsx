@@ -30,31 +30,29 @@ export default function ObservationForm() {
         builderInitialized: !!builder.apiKey,
       };
 
-      console.log("🔍 Debug info:", debugData);
+      console.log("Debug info:", debugData);
 
       try {
-        // Try multiple models to find content
-        console.log("🚀 Testing multiple content models...");
+        console.log("Testing multiple content models...");
         
         const models = ["page", "content", "section", "symbol"];
         let allResults = {};
         
         for (const model of models) {
           try {
-            console.log(`📄 Testing model: ${model}`);
+            console.log(`Testing model: ${model}`);
             const result = await builder.getAll(model, {
               limit: 50,
               includeRefs: true,
               cachebust: true,
             });
             allResults[model] = result ? result.length : 0;
-            console.log(`📊 Model "${model}" returned ${result ? result.length : 0} items`);
+            console.log(`Model "${model}" returned ${result ? result.length : 0} items`);
             
             if (result && result.length > 0) {
               setAllPages(result);
-              console.log(`✅ Found content in "${model}" model:`, result);
+              console.log(`Found content in "${model}" model:`, result);
               
-              // Look for ObservationForm
               const observationPage = result.find(
                 (p) =>
                   p.name?.toLowerCase().includes("observationform") ||
@@ -63,7 +61,7 @@ export default function ObservationForm() {
               );
 
               if (observationPage) {
-                console.log("🎯 Found ObservationForm:", observationPage);
+                console.log("Found ObservationForm:", observationPage);
                 setSelectedContent(observationPage);
               }
               
@@ -72,18 +70,17 @@ export default function ObservationForm() {
               return;
             }
           } catch (modelErr) {
-            console.error(`❌ Error with model ${model}:`, modelErr);
+            console.error(`Error with model ${model}:`, modelErr);
             allResults[model] = `Error: ${modelErr.message}`;
           }
         }
 
-        // If no content found in any model
         setError(`No content found in any Builder.io model. Checked: ${models.join(", ")}`);
         setDebugInfo({...debugData, modelResults: allResults, totalModelsChecked: models.length});
         setLoading(false);
 
       } catch (err) {
-        console.error("💥 General error:", err);
+        console.error("General error:", err);
         setError(`Failed to fetch Builder.io content: ${err.message || err}`);
         setDebugInfo({...debugData, generalError: err.message});
         setLoading(false);
@@ -96,22 +93,22 @@ export default function ObservationForm() {
   };
 
   if (loading) {
-    return (🔍 Scanning Builder.io Models...Testing: page, content, section, symbol models...);
+    return (Loading Builder.io Content...Testing: page, content, section, symbol models...</p);
   }
 
   if (error) {
-    return (🔍 Builder.io Scan Results{error}📊 Model Scan Results:{JSON.stringify(debugInfo, null, 2)}</pre🔧 Next Steps:Check Builder.io Dashboard:Go to builder.io and verify your "ObservationForm" content exists and is publishedVerify Space:Make sure you're in the correct "EngageX" spaceCheck Content Model:Note which tab/section your content is under in Builder.ioAPI Key Permissions:Ensure your API key has read access to published content);
+    return (Builder.io Scan Results{error}Model Scan Results:{JSON.stringify(debugInfo, null, 2)}Next Steps:Check Builder.io Dashboard:Go to builder.io and verify your "ObservationForm" content exists and is publishedVerify Space:Make sure you're in the correct "EngageX" spaceCheck Content Model:Note which tab/section your content is under in Builder.ioAPI Key Permissions:Ensure your API key has read access to published content);
   }
 
   if (selectedContent) {
-    return (✅Builder.io Content Loaded:{selectedContent.name}Found in model:{debugInfo.successfulModel}setSelectedContent(null)}
+    return (Builder.io Content Loaded:{selectedContent.name}Found in model:{debugInfo.successfulModel}setSelectedContent(null)}
               className="mt-2 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
             >
-              ← Back to Content List);
+              Back to Content List</button);
   }
 
-  return (🎯 Found Builder.io Content!✅ Success!Found {allPages.length} items in the{debugInfo.successfulModel}modelClick "Load This Content" on your ObservationFormAvailable Content ({allPages.length}){allPages.map((page, index) => ({page.name || "Untitled Page"}ID:{page.id}Model:{debugInfo.successfulModel}URL:{page.data?.url || "No URL set"}{(page.name?.toLowerCase().includes("observationform") || page.name?.toLowerCase().includes("observation")) && (🎯 OBSERVATION FORM DETECTED!)}handleSelectPage(page)}
+  return (Found Builder.io Content!Success!Found {allPages.length} items in the{debugInfo.successfulModel}</strongClick "Load This Content" on your ObservationFormAvailable Content ({allPages.length}){allPages.map((page, index) => ({page.name || "Untitled Page"}ID:{page.id}Model:{debugInfo.successfulModel}URL:{page.data?.url || "No URL set"}{(page.name?.toLowerCase().includes("observationform") || page.name?.toLowerCase().includes("observation")) && (OBSERVATION FORM DETECTED!</div</divhandleSelectPage(page)}
                     className="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-semibold"
                   >
-                    Load This Content))}🔧 Technical Details (Click to expand)</summary{JSON.stringify({...debugInfo, totalPages: allPages.length}, null, 2)}</preails
+                    Load This Content))}Technical Details (Click to expand){JSON.stringify({...debugInfo, totalPages: allPages.length}, null, 2)}</preails
 }
