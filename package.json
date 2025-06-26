@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "CI=false next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0 --fix \"src/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\""
   },
