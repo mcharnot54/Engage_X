@@ -72,11 +72,10 @@ export default function ObservationForm() {
   }, []);
   if (loading) {
   return (
-    <h2>
-      Testing All Builder.io Models...
-      <br />
+    <div>
+      Testing All Builder.io Models...<br />
       Check console for detailed results
-    </h2>
+    </div>
   );
 }
 
