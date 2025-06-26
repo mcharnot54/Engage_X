@@ -3,11 +3,16 @@
 import { useEffect, useState } from "react";
 import { builder, BuilderComponent } from "@builder.io/react";
 
+type DebugState = {
+  successModel?: string;
+  allResults?: Record<string, any>;
+};
+
 export default function ObservationForm() {
-  const [content, setContent] = useState(null);
+  const [content, setContent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [debug, setDebug] = useState({});
+  const [error, setError] = useState<string | null>(null);
+  const [debug, setDebug] = useState<DebugState>({});
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
@@ -27,7 +32,7 @@ export default function ObservationForm() {
         
         // Test all possible models
         const models = ["page", "content", "section", "symbol", "data"];
-        let results = {};
+        const results: Record<string, unknown> = {};
         
         for (const model of models) {
           try {
@@ -42,7 +47,7 @@ export default function ObservationForm() {
               setLoading(false);
               return;
             }
-          } catch (err) {
+          } catch (err: any) {
             results[model] = `Error: ${err.message}`;
             console.log(`${model}: ERROR -`, err.message);
           }
@@ -54,25 +59,47 @@ export default function ObservationForm() {
         setLoading(false);
         
       } catch (err) {
-        setError(err.message);
+        setError(
+          typeof err === "object" && err !== null && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "An unknown error occurred"
+        );
         setLoading(false);
       }
     };
 
     fetchContent();
   }, []);
-
   if (loading) {
-    return (Testing All Builder.io Models...</hCheck console for detailed results);
-  }
+  return (
+    <h2>
+      Testing All Builder.io Models...
+      <br />
+      Check console for detailed results
+    </h2>
+  );
+}
 
   if (error) {
-    return (Debug Results{error}Model Test Results:{JSON.stringify(debug, null, 2)}Next Steps:Check console logs above for which models were testedGo to Builder.io → verify "ObservationForm" exists and is PUBLISHEDNote which section/tab your content is under in Builder.io</liVerify you're in the correct space (EngageX));
+    return (
+      <div style={{ color: "red" }}>
+        <h2>Error: {error}</h2>
+        <h3>Model Test Results:</h3>
+        <pre>{JSON.stringify(debug, null, 2)}</pre>
+        <h4>Next Steps:</h4>
+        <ol>
+          <li>Check console logs above for which models were tested</li>
+          <li>Go to Builder.io → verify &quot;ObservationForm&quot; exists and is PUBLISHED</li>
+          <li>Note which section/tab your content is under in Builder.io</li>
+          <li>Verify you&#39;re in the correct space (Engage_X)</li>
+        </ol>
+      </div>
+    );
   }
 
   if (content) {
-    return (✅SUCCESS!Found content: {content.name}Model: {debug.successModel});
+    return (<>✅SUCCESS! Found content: {content!.name} Model: {debug.successModel}</>);
   }
 
-  return (Unexpected state);
+  return <div>Unexpected state</div>;
 }
