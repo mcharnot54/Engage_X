@@ -29,17 +29,17 @@ export default function ObservationForm() {
     const fetchContent = async () => {
       try {
         console.log("=== TESTING ALL MODELS ===");
-        
+
         // Test all possible models
         const models = ["page", "content", "section", "symbol", "data"];
         const results: Record<string, unknown> = {};
-        
+
         for (const model of models) {
           try {
             const data = await builder.getAll(model, { limit: 10 });
             results[model] = data?.length || 0;
             console.log(`${model}: ${data?.length || 0} items`);
-            
+
             if (data && data.length > 0) {
               console.log(`✅ FOUND CONTENT IN ${model}:`, data);
               setContent(data[0]); // Use first item
@@ -52,12 +52,11 @@ export default function ObservationForm() {
             console.log(`${model}: ERROR -`, err.message);
           }
         }
-        
+
         // If nothing found, show debug info
         setError("No content found in any model");
         setDebug({ allResults: results });
         setLoading(false);
-        
       } catch (err) {
         setError(
           typeof err === "object" && err !== null && "message" in err
@@ -70,14 +69,15 @@ export default function ObservationForm() {
 
     fetchContent();
   }, []);
+
   if (loading) {
-  return (
-    <div>
-      Testing All Builder.io Models...<br />
-      Check console for detailed results
-    </div>
-  );
-}
+    return (
+      <div>
+        Testing All Builder.io Models...<br />
+        Check console for detailed results
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -97,7 +97,11 @@ export default function ObservationForm() {
   }
 
   if (content) {
-    return (<>✅SUCCESS! Found content: {content!.name} Model: {debug.successModel}</>);
+    return (
+      <>
+        ✅SUCCESS! Found content: {content!.name} Model: {debug.successModel}
+      </>
+    );
   }
 
   return <div>Unexpected state</div>;
