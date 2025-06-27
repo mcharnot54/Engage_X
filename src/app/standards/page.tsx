@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { builder } from "@builder.io/sdk";
-
-// Initialize Builder
-builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!);
+import {
+  searchBuilderContent,
+  testBuilderConnection,
+} from "../../../lib/builder-utils";
 
 export default function Standards() {
   const [content, setContent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [connectionTest, setConnectionTest] = useState<any>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -18,115 +19,31 @@ export default function Standards() {
         setLoading(true);
         setError(null);
 
-        // First, try to get the specific content by name from different models
-        const modelsToTry = ["page", "content", "legacy-content", "EngageX"];
-        let foundContent = null;
-        let debugData: any = { attempts: [] };
+        // First test the connection
+        const connectionResult = await testBuilderConnection();
+        setConnectionTest(connectionResult);
 
-        // Try searching by name "Copy of Mark's Standards Page"
-        for (const model of modelsToTry) {
-          try {
-            console.log(`Trying to fetch from model: ${model}`);
-
-            // Try exact name match
-            const contentByName = await builder
-              .get(model, {
-                query: {
-                  name: "Copy of Mark's Standards Page",
-                },
-              })
-              .promise();
-
-            if (contentByName) {
-              foundContent = contentByName;
-              debugData.foundInModel = model;
-              debugData.foundMethod = "exact name match";
-              console.log(`Found content in ${model} model by name`);
-              break;
-            }
-
-            // Try partial name search
-            const contentByPartialName = await builder
-              .get(model, {
-                query: {
-                  "name.$regex": "Mark.*Standards",
-                },
-              })
-              .promise();
-
-            if (contentByPartialName) {
-              foundContent = contentByPartialName;
-              debugData.foundInModel = model;
-              debugData.foundMethod = "partial name match";
-              console.log(`Found content in ${model} model by partial name`);
-              break;
-            }
-
-            debugData.attempts.push({
-              model,
-              exactNameResult: !!contentByName,
-              partialNameResult: !!contentByPartialName,
-            });
-          } catch (modelError) {
-            console.log(`Error with model ${model}:`, modelError);
-            debugData.attempts.push({
-              model,
-              error:
-                modelError instanceof Error
-                  ? modelError.message
-                  : String(modelError),
-            });
-          }
+        if (!connectionResult.success) {
+          setError(`Builder.io connection failed: ${connectionResult.error}`);
+          setLoading(false);
+          return;
         }
 
-        // If not found by name, try to list all content to find it
-        if (!foundContent) {
-          for (const model of modelsToTry) {
-            try {
-              const allContent = await builder.getAll(model, {
-                limit: 100,
-                fields: "name,id,data",
-              });
+        // Search for the standards content
+        const result = await searchBuilderContent(
+          "Copy of Mark's Standards Page",
+        );
 
-              const foundItem = allContent.find(
-                (item: any) =>
-                  item.name?.toLowerCase().includes("standards") &&
-                  item.name?.toLowerCase().includes("mark"),
-              );
+        setDebugInfo(result.debugInfo);
 
-              if (foundItem) {
-                foundContent = foundItem;
-                debugData.foundInModel = model;
-                debugData.foundMethod = "search through all content";
-                console.log(`Found content in ${model} model by searching all`);
-                break;
-              }
-
-              debugData.attempts.push({
-                model,
-                totalItems: allContent.length,
-                foundBySearch: false,
-              });
-            } catch (listError) {
-              console.log(`Error listing from model ${model}:`, listError);
-              debugData.attempts.push({
-                model,
-                listError:
-                  listError instanceof Error
-                    ? listError.message
-                    : String(listError),
-              });
-            }
-          }
-        }
-
-        setDebugInfo(debugData);
-
-        if (foundContent) {
-          setContent(foundContent);
+        if (result.content) {
+          setContent(result.content);
           setError(null);
         } else {
-          setError("Could not find 'Copy of Mark's Standards Page' content");
+          setError(
+            result.error ||
+              "Could not find 'Copy of Mark's Standards Page' content",
+          );
         }
       } catch (err) {
         console.error("Error fetching content:", err);
