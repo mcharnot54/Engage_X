@@ -88,6 +88,30 @@ export default function Standards() {
             </h2>
             <p className="mb-4">{error}</p>
 
+            {connectionTest && (
+              <div className="bg-blue-100 p-4 rounded-lg mt-6">
+                <h3 className="font-semibold mb-2">Connection Test:</h3>
+                <p className="mb-2">
+                  Status:{" "}
+                  <span
+                    className={
+                      connectionTest.success ? "text-green-600" : "text-red-600"
+                    }
+                  >
+                    {connectionTest.success ? "✓ Connected" : "✗ Failed"}
+                  </span>
+                </p>
+                {connectionTest.models && (
+                  <p className="mb-2">
+                    Accessible models: {connectionTest.models.join(", ")}
+                  </p>
+                )}
+                {connectionTest.error && (
+                  <p className="text-red-600">Error: {connectionTest.error}</p>
+                )}
+              </div>
+            )}
+
             <div className="bg-gray-100 p-4 rounded-lg mt-6">
               <h3 className="font-semibold mb-2">Debug Information:</h3>
               <pre className="text-sm overflow-x-auto">
@@ -106,6 +130,11 @@ export default function Standards() {
                   Check that the content is published and not in draft mode
                 </li>
                 <li>Ensure the API key has access to the content model</li>
+                <li>
+                  Check if the API key (
+                  {process.env.NEXT_PUBLIC_BUILDER_API_KEY ? "set" : "missing"})
+                  is correctly configured
+                </li>
                 <li>Try refreshing the page</li>
               </ul>
             </div>
