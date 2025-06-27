@@ -383,7 +383,7 @@ export default function GazeObservationApp() {
   ];
 
   return (
-    <div className="font-sans bg-gray-100 min-h-screen">
+    <div className="font-poppins text-black bg-gray-100 min-h-screen">
       {/* Navigation Header */}
       <header className="bg-white px-6 py-4 shadow-md">
         <h1 className="m-0 text-red-600 text-2xl font-semibold">
