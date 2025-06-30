@@ -238,10 +238,20 @@ export default function Standards() {
       }
 
       setIsLoading(true);
-      await createDepartment({
-        name: newDepartmentName,
-        facilityId: Number(selectedFacility),
+      const response = await fetch("/api/departments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newDepartmentName,
+          facilityId: Number(selectedFacility),
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create department");
+      }
 
       await loadDepartments(Number(selectedFacility));
       setSuccessMessage("Department added successfully!");
