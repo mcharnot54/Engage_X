@@ -380,6 +380,7 @@ export default function Standards() {
       uom: "",
       description: "",
       samValue: 0,
+      tags: [],
     });
     setUomEntries(newEntries);
   };
