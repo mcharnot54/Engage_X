@@ -103,13 +103,17 @@ export default function Standards() {
   ]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
-  // Load data from database
+  // Load data from API
   const loadFacilities = async () => {
     try {
       setIsLoading(true);
-      const data = await getFacilities();
+      const response = await fetch("/api/facilities");
+      if (!response.ok) {
+        throw new Error("Failed to fetch facilities");
+      }
+      const data = await response.json();
       setFacilities(
-        data.map((f) => ({
+        data.map((f: any) => ({
           ...f,
           ref: f.ref || "",
           city: f.city || "",
