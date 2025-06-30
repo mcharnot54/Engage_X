@@ -36,6 +36,7 @@ interface UomEntry {
   uom: string;
   description: string;
   samValue: number;
+  tags?: string[];
 }
 
 interface Standard {
@@ -95,6 +96,7 @@ export default function Standards() {
       uom: "",
       description: "",
       samValue: 0,
+      tags: [],
     },
   ]);
   const [bestPractices, setBestPractices] = useState<string[]>([""]);
@@ -324,6 +326,7 @@ export default function Standards() {
           uom: entry.uom,
           description: entry.description,
           samValue: entry.samValue,
+          tags: entry.tags || [],
         }));
 
       const validBestPractices = bestPractices.filter((practice) =>
@@ -360,7 +363,9 @@ export default function Standards() {
 
       // Reset form
       clearSelections();
-      setUomEntries([{ id: 1, uom: "", description: "", samValue: 0 }]);
+      setUomEntries([
+        { id: 1, uom: "", description: "", samValue: 0, tags: [] },
+      ]);
       setBestPractices([""]);
       setProcessOpportunities([""]);
     } catch (error) {
@@ -378,6 +383,7 @@ export default function Standards() {
       uom: "",
       description: "",
       samValue: 0,
+      tags: [],
     });
     setUomEntries(newEntries);
   };
@@ -393,7 +399,7 @@ export default function Standards() {
   const updateUomEntry = (
     id: number,
     field: string,
-    value: string | number,
+    value: string | number | string[],
   ) => {
     const newEntries = uomEntries.map((entry) => {
       if (entry.id === id) {
@@ -405,6 +411,49 @@ export default function Standards() {
       return entry;
     });
     setUomEntries(newEntries);
+  };
+
+  const addTagToUomEntry = (id: number, tag: string) => {
+    if (!tag.trim()) return;
+    const newEntries = uomEntries.map((entry) => {
+      if (entry.id === id) {
+        const currentTags = entry.tags || [];
+        if (!currentTags.includes(tag)) {
+          return {
+            ...entry,
+            tags: [...currentTags, tag],
+          };
+        }
+      }
+      return entry;
+    });
+    setUomEntries(newEntries);
+  };
+
+  const removeTagFromUomEntry = (id: number, tagToRemove: string) => {
+    const newEntries = uomEntries.map((entry) => {
+      if (entry.id === id) {
+        return {
+          ...entry,
+          tags: (entry.tags || []).filter((tag) => tag !== tagToRemove),
+        };
+      }
+      return entry;
+    });
+    setUomEntries(newEntries);
+  };
+
+  const getAllExistingTags = () => {
+    const allTags = new Set<string>();
+    uomEntries.forEach((entry) => {
+      (entry.tags || []).forEach((tag) => allTags.add(tag));
+    });
+    savedStandards.forEach((standard) => {
+      standard.uomEntries.forEach((entry) => {
+        (entry.tags || []).forEach((tag) => allTags.add(tag));
+      });
+    });
+    return Array.from(allTags).sort();
   };
 
   const updateBestPractice = (index: number, value: string) => {
@@ -596,42 +645,137 @@ export default function Standards() {
                     + Add UOM
                   </button>
                 </div>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-6">
                   {uomEntries.map((entry) => (
-                    <div key={entry.id} className="grid grid-cols-3 gap-4">
-                      <input
-                        placeholder="UOM"
-                        value={entry.uom}
-                        onChange={(e) =>
-                          updateUomEntry(entry.id, "uom", e.target.value)
-                        }
-                        disabled={isLoading}
-                        className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
-                      />
-                      <input
-                        placeholder="UOM Description"
-                        value={entry.description}
-                        onChange={(e) =>
-                          updateUomEntry(
-                            entry.id,
-                            "description",
-                            e.target.value,
-                          )
-                        }
-                        disabled={isLoading}
-                        className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
-                      />
-                      <input
-                        type="number"
-                        placeholder="SAM Value"
-                        step="0.0001"
-                        value={entry.samValue}
-                        onChange={(e) =>
-                          updateUomEntry(entry.id, "samValue", e.target.value)
-                        }
-                        disabled={isLoading}
-                        className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
-                      />
+                    <div
+                      key={entry.id}
+                      className="p-4 border border-gray-300 rounded-lg bg-gray-50"
+                    >
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <input
+                          placeholder="UOM"
+                          value={entry.uom}
+                          onChange={(e) =>
+                            updateUomEntry(entry.id, "uom", e.target.value)
+                          }
+                          disabled={isLoading}
+                          className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                        />
+                        <input
+                          placeholder="UOM Description"
+                          value={entry.description}
+                          onChange={(e) =>
+                            updateUomEntry(
+                              entry.id,
+                              "description",
+                              e.target.value,
+                            )
+                          }
+                          disabled={isLoading}
+                          className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                        />
+                        <input
+                          type="number"
+                          placeholder="SAM Value"
+                          step="0.0001"
+                          value={entry.samValue}
+                          onChange={(e) =>
+                            updateUomEntry(entry.id, "samValue", e.target.value)
+                          }
+                          disabled={isLoading}
+                          className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                        />
+                      </div>
+
+                      {/* Tag Management */}
+                      <div className="space-y-3">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Tags (for dynamic grouping)
+                        </label>
+
+                        {/* Existing Tags */}
+                        <div className="flex flex-wrap gap-2 min-h-[32px]">
+                          {(entry.tags || []).map((tag, tagIndex) => (
+                            <span
+                              key={tagIndex}
+                              className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                            >
+                              {tag}
+                              <button
+                                onClick={() =>
+                                  removeTagFromUomEntry(entry.id, tag)
+                                }
+                                disabled={isLoading}
+                                className="ml-1 text-blue-500 hover:text-blue-700 disabled:opacity-50"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                          {(entry.tags || []).length === 0 && (
+                            <span className="text-gray-400 text-sm italic">
+                              No tags assigned
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Add Tag Input */}
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Add tag (e.g., Assembly, Quality, Packaging)"
+                            disabled={isLoading}
+                            className="flex-1 p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const target = e.target as HTMLInputElement;
+                                addTagToUomEntry(entry.id, target.value.trim());
+                                target.value = "";
+                              }
+                            }}
+                          />
+                          <button
+                            onClick={(e) => {
+                              const input = e.currentTarget
+                                .previousElementSibling as HTMLInputElement;
+                              addTagToUomEntry(entry.id, input.value.trim());
+                              input.value = "";
+                            }}
+                            disabled={isLoading}
+                            className="px-3 py-2 bg-blue-500 text-white border-none rounded-md cursor-pointer disabled:opacity-50"
+                          >
+                            Add
+                          </button>
+                        </div>
+
+                        {/* Existing Tags Suggestions */}
+                        {getAllExistingTags().length > 0 && (
+                          <div className="space-y-2">
+                            <span className="text-xs text-gray-600">
+                              Existing tags (click to add):
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {getAllExistingTags()
+                                .filter(
+                                  (tag) => !(entry.tags || []).includes(tag),
+                                )
+                                .map((tag) => (
+                                  <button
+                                    key={tag}
+                                    onClick={() =>
+                                      addTagToUomEntry(entry.id, tag)
+                                    }
+                                    disabled={isLoading}
+                                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs border border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+                                  >
+                                    + {tag}
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -130,6 +130,7 @@ export async function createStandard(data: {
     uom: string;
     description: string;
     samValue: number;
+    tags?: string[];
   }[];
 }) {
   const { uomEntries, ...standardData } = data;
