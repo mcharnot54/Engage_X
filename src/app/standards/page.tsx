@@ -201,11 +201,21 @@ export default function Standards() {
 
     try {
       setIsLoading(true);
-      await createFacility({
-        name: newFacilityName,
-        ref: newFacilityRef || undefined,
-        city: newFacilityCity || undefined,
+      const response = await fetch("/api/facilities", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newFacilityName,
+          ref: newFacilityRef || undefined,
+          city: newFacilityCity || undefined,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create facility");
+      }
 
       await loadFacilities();
       setSuccessMessage("Facility added successfully!");
