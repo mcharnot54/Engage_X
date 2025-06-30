@@ -170,7 +170,11 @@ export default function Standards() {
 
   const loadStandards = async () => {
     try {
-      const data = await getStandards();
+      const response = await fetch("/api/standards");
+      if (!response.ok) {
+        throw new Error("Failed to fetch standards");
+      }
+      const data = await response.json();
       setSavedStandards(data);
     } catch (error) {
       console.error("Error loading standards:", error);
