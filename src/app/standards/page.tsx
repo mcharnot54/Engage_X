@@ -153,7 +153,11 @@ export default function Standards() {
   const loadAreas = async (departmentId?: number) => {
     try {
       if (departmentId) {
-        const data = await getAreasByDepartment(departmentId);
+        const response = await fetch(`/api/areas?departmentId=${departmentId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch areas");
+        }
+        const data = await response.json();
         setAreas(data);
       } else {
         setAreas([]);
