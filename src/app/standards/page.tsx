@@ -1,20 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  createFacility,
-  getFacilities,
-  createDepartment,
-  getDepartmentsByFacility,
-  createArea,
-  getAreasByDepartment,
-  createStandard,
-  getStandards,
-  updateFacility,
-  updateDepartment,
-  updateArea,
-  updateStandard,
-} from "@/lib/db-operations";
 
 interface Facility {
   id: number;
@@ -117,13 +103,17 @@ export default function Standards() {
   ]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
-  // Load data from database
+  // Load data from API
   const loadFacilities = async () => {
     try {
       setIsLoading(true);
-      const data = await getFacilities();
+      const response = await fetch("/api/facilities");
+      if (!response.ok) {
+        throw new Error("Failed to fetch facilities");
+      }
+      const data = await response.json();
       setFacilities(
-        data.map((f) => ({
+        data.map((f: any) => ({
           ...f,
           ref: f.ref || "",
           city: f.city || "",
@@ -143,7 +133,13 @@ export default function Standards() {
   const loadDepartments = async (facilityId?: number) => {
     try {
       if (facilityId) {
-        const data = await getDepartmentsByFacility(facilityId);
+        const response = await fetch(
+          `/api/departments?facilityId=${facilityId}`,
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch departments");
+        }
+        const data = await response.json();
         setDepartments(data);
       } else {
         setDepartments([]);
@@ -157,7 +153,11 @@ export default function Standards() {
   const loadAreas = async (departmentId?: number) => {
     try {
       if (departmentId) {
-        const data = await getAreasByDepartment(departmentId);
+        const response = await fetch(`/api/areas?departmentId=${departmentId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch areas");
+        }
+        const data = await response.json();
         setAreas(data);
       } else {
         setAreas([]);
@@ -170,7 +170,11 @@ export default function Standards() {
 
   const loadStandards = async () => {
     try {
-      const data = await getStandards();
+      const response = await fetch("/api/standards");
+      if (!response.ok) {
+        throw new Error("Failed to fetch standards");
+      }
+      const data = await response.json();
       setSavedStandards(data);
     } catch (error) {
       console.error("Error loading standards:", error);
@@ -197,11 +201,21 @@ export default function Standards() {
 
     try {
       setIsLoading(true);
-      await createFacility({
-        name: newFacilityName,
-        ref: newFacilityRef || undefined,
-        city: newFacilityCity || undefined,
+      const response = await fetch("/api/facilities", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newFacilityName,
+          ref: newFacilityRef || undefined,
+          city: newFacilityCity || undefined,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create facility");
+      }
 
       await loadFacilities();
       setSuccessMessage("Facility added successfully!");
@@ -224,10 +238,20 @@ export default function Standards() {
       }
 
       setIsLoading(true);
-      await createDepartment({
-        name: newDepartmentName,
-        facilityId: Number(selectedFacility),
+      const response = await fetch("/api/departments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newDepartmentName,
+          facilityId: Number(selectedFacility),
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create department");
+      }
 
       await loadDepartments(Number(selectedFacility));
       setSuccessMessage("Department added successfully!");
@@ -250,10 +274,20 @@ export default function Standards() {
       }
 
       setIsLoading(true);
-      await createArea({
-        name: newAreaName,
-        departmentId: Number(selectedDepartment),
+      const response = await fetch("/api/areas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newAreaName,
+          departmentId: Number(selectedDepartment),
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create area");
+      }
 
       await loadAreas(Number(selectedDepartment));
       setSuccessMessage("Area added successfully!");
@@ -299,15 +333,25 @@ export default function Standards() {
         opp.trim(),
       );
 
-      await createStandard({
-        name: standardNameToSave,
-        facilityId: Number(selectedFacility),
-        departmentId: Number(selectedDepartment),
-        areaId: Number(selectedArea),
-        bestPractices: validBestPractices,
-        processOpportunities: validProcessOpportunities,
-        uomEntries: uomData,
+      const response = await fetch("/api/standards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: standardNameToSave,
+          facilityId: Number(selectedFacility),
+          departmentId: Number(selectedDepartment),
+          areaId: Number(selectedArea),
+          bestPractices: validBestPractices,
+          processOpportunities: validProcessOpportunities,
+          uomEntries: uomData,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create standard");
+      }
 
       await loadStandards();
       setSuccessMessage("Standard saved successfully!");
