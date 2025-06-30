@@ -96,6 +96,7 @@ export default function Standards() {
       uom: "",
       description: "",
       samValue: 0,
+      tags: [],
     },
   ]);
   const [bestPractices, setBestPractices] = useState<string[]>([""]);
