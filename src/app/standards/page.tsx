@@ -1,20 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  createFacility,
-  getFacilities,
-  createDepartment,
-  getDepartmentsByFacility,
-  createArea,
-  getAreasByDepartment,
-  createStandard,
-  getStandards,
-  updateFacility,
-  updateDepartment,
-  updateArea,
-  updateStandard,
-} from "@/lib/db-operations";
 
 interface Facility {
   id: number;
