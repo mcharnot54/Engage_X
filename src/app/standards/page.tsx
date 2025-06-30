@@ -333,15 +333,25 @@ export default function Standards() {
         opp.trim(),
       );
 
-      await createStandard({
-        name: standardNameToSave,
-        facilityId: Number(selectedFacility),
-        departmentId: Number(selectedDepartment),
-        areaId: Number(selectedArea),
-        bestPractices: validBestPractices,
-        processOpportunities: validProcessOpportunities,
-        uomEntries: uomData,
+      const response = await fetch("/api/standards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: standardNameToSave,
+          facilityId: Number(selectedFacility),
+          departmentId: Number(selectedDepartment),
+          areaId: Number(selectedArea),
+          bestPractices: validBestPractices,
+          processOpportunities: validProcessOpportunities,
+          uomEntries: uomData,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create standard");
+      }
 
       await loadStandards();
       setSuccessMessage("Standard saved successfully!");
