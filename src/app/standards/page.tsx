@@ -396,7 +396,7 @@ export default function Standards() {
   const updateUomEntry = (
     id: number,
     field: string,
-    value: string | number,
+    value: string | number | string[],
   ) => {
     const newEntries = uomEntries.map((entry) => {
       if (entry.id === id) {
@@ -408,6 +408,49 @@ export default function Standards() {
       return entry;
     });
     setUomEntries(newEntries);
+  };
+
+  const addTagToUomEntry = (id: number, tag: string) => {
+    if (!tag.trim()) return;
+    const newEntries = uomEntries.map((entry) => {
+      if (entry.id === id) {
+        const currentTags = entry.tags || [];
+        if (!currentTags.includes(tag)) {
+          return {
+            ...entry,
+            tags: [...currentTags, tag],
+          };
+        }
+      }
+      return entry;
+    });
+    setUomEntries(newEntries);
+  };
+
+  const removeTagFromUomEntry = (id: number, tagToRemove: string) => {
+    const newEntries = uomEntries.map((entry) => {
+      if (entry.id === id) {
+        return {
+          ...entry,
+          tags: (entry.tags || []).filter((tag) => tag !== tagToRemove),
+        };
+      }
+      return entry;
+    });
+    setUomEntries(newEntries);
+  };
+
+  const getAllExistingTags = () => {
+    const allTags = new Set<string>();
+    uomEntries.forEach((entry) => {
+      (entry.tags || []).forEach((tag) => allTags.add(tag));
+    });
+    savedStandards.forEach((standard) => {
+      standard.uomEntries.forEach((entry) => {
+        (entry.tags || []).forEach((tag) => allTags.add(tag));
+      });
+    });
+    return Array.from(allTags).sort();
   };
 
   const updateBestPractice = (index: number, value: string) => {
