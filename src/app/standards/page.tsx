@@ -133,7 +133,13 @@ export default function Standards() {
   const loadDepartments = async (facilityId?: number) => {
     try {
       if (facilityId) {
-        const data = await getDepartmentsByFacility(facilityId);
+        const response = await fetch(
+          `/api/departments?facilityId=${facilityId}`,
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch departments");
+        }
+        const data = await response.json();
         setDepartments(data);
       } else {
         setDepartments([]);
