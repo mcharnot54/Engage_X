@@ -36,6 +36,7 @@ interface UomEntry {
   uom: string;
   description: string;
   samValue: number;
+  tags?: string[];
 }
 
 interface Standard {
