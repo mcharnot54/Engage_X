@@ -326,6 +326,7 @@ export default function Standards() {
           uom: entry.uom,
           description: entry.description,
           samValue: entry.samValue,
+          tags: entry.tags || [],
         }));
 
       const validBestPractices = bestPractices.filter((practice) =>
