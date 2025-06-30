@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String @id @default(cuid())
+  employeeId    String @unique
+  name          String
+  email         String?
+  department    String?
+  role          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  observations  Observation[]
+  
+  @@map("users")
+}
+
+model Facility {
+  id          Int      @id @default(autoincrement())
+  name        String
+  ref         String?
+  city        String?
+  dateAdded   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  departments Department[]
+  standards   Standard[]
+  
+  @@map("facilities")
+}
+
+model Department {
+  id          Int      @id @default(autoincrement())
+  name        String
+  facilityId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  facility    Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  areas       Area[]
+  standards   Standard[]
+  
+  @@map("departments")
+}
+
+model Area {
+  id           Int      @id @default(autoincrement())
+  name         String
+  departmentId Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  standards    Standard[]
+  
+  @@map("areas")
+}
+
+model Standard {
+  id                    Int      @id @default(autoincrement())
+  name                  String
+  facilityId            Int
+  departmentId          Int
+  areaId                Int
+  bestPractices         String[] @default([])
+  processOpportunities  String[] @default([])
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  facility              Facility    @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  department            Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  area                  Area        @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  uomEntries            UomEntry[]
+  observations          Observation[]
+  
+  @@map("standards")
+}
+
+model UomEntry {
+  id          Int     @id @default(autoincrement())
+  uom         String
+  description String
+  samValue    Float
+  standardId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  standard    Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  
+  @@map("uom_entries")
+}
+
+model Observation {
+  id                          String   @id @default(cuid())
+  userId                      String
+  standardId                  Int
+  timeObserved                Float
+  totalSams                   Float
+  observedPerformance         Float
+  pumpScore                   Float
+  pace                        Int
+  utilization                 Int
+  methods                     Int
+  comments                    String?
+  aiNotes                     String?
+  supervisorSignature         String?
+  teamMemberSignature         String?
+  bestPracticesChecked        String[] @default([])
+  processAdherenceChecked     String[] @default([])
+  delays                      Json[]   @default([])
+  observationReason           String
+  observationStartTime        DateTime?
+  observationEndTime          DateTime?
+  isFinalized                 Boolean  @default(false)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+  
+  user                        User     @relation(fields: [userId], references: [id])
+  standard                    Standard @relation(fields: [standardId], references: [id])
+  observationData             ObservationData[]
+  
+  @@map("observations")
+}
+
+model ObservationData {
+  id             String @id @default(cuid())
+  observationId  String
+  uom            String
+  description    String
+  quantity       Int
+  samValue       Float
+  totalSams      Float
+  createdAt      DateTime @default(now())
+  
+  observation    Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  
+  @@map("observation_data")
+}
