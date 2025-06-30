@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint --max-warnings 0 --fix \"src/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\""
+    "lint": "eslint --max-warnings 0 --fix \"src/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\"",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@builder.io/dev-tools": "^1.6.79",
