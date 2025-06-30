@@ -19,9 +19,9 @@ model User {
   role          String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
+
   observations  Observation[]
-  
+
   @@map("users")
 }
 
@@ -33,10 +33,10 @@ model Facility {
   dateAdded   DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   departments Department[]
   standards   Standard[]
-  
+
   @@map("facilities")
 }
 
@@ -46,11 +46,11 @@ model Department {
   facilityId  Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   facility    Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
   areas       Area[]
   standards   Standard[]
-  
+
   @@map("departments")
 }
 
@@ -60,10 +60,10 @@ model Area {
   departmentId Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  
+
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   standards    Standard[]
-  
+
   @@map("areas")
 }
 
@@ -78,13 +78,13 @@ model Standard {
   isActive              Boolean  @default(true)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
-  
+
   facility              Facility    @relation(fields: [facilityId], references: [id], onDelete: Cascade)
   department            Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   area                  Area        @relation(fields: [areaId], references: [id], onDelete: Cascade)
   uomEntries            UomEntry[]
   observations          Observation[]
-  
+
   @@map("standards")
 }
 
@@ -93,12 +93,13 @@ model UomEntry {
   uom         String
   description String
   samValue    Float
+  tags        String[] @default([])
   standardId  Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   standard    Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
-  
+
   @@map("uom_entries")
 }
 
@@ -126,11 +127,11 @@ model Observation {
   isFinalized                 Boolean  @default(false)
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
-  
+
   user                        User     @relation(fields: [userId], references: [id])
   standard                    Standard @relation(fields: [standardId], references: [id])
   observationData             ObservationData[]
-  
+
   @@map("observations")
 }
 
@@ -143,8 +144,8 @@ model ObservationData {
   samValue       Float
   totalSams      Float
   createdAt      DateTime @default(now())
-  
+
   observation    Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
-  
+
   @@map("observation_data")
 }
