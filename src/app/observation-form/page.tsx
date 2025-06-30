@@ -1,6 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import {
+  getStandards,
+  getStandardById,
+  createObservation,
+  getUserByEmployeeId,
+  createUser,
+} from "@/lib/db-operations";
 
 type Row = {
   id: number;
@@ -8,6 +15,22 @@ type Row = {
   description: string;
   quantity: number;
   samValue: number;
+};
+
+type Standard = {
+  id: number;
+  name: string;
+  facility: { name: string };
+  department: { name: string };
+  area: { name: string };
+  uomEntries: {
+    id: number;
+    uom: string;
+    description: string;
+    samValue: number;
+  }[];
+  bestPractices: string[];
+  processOpportunities: string[];
 };
 
 type Delay = {
@@ -23,6 +46,13 @@ type PreviousObservation = {
 };
 
 export default function GazeObservationApp() {
+  // Database state
+  const [standards, setStandards] = useState<Standard[]>([]);
+  const [selectedStandardData, setSelectedStandardData] =
+    useState<Standard | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   // Observation tracking
   const [isObserving, setIsObserving] = useState(false);
   const [timeObserved, setTimeObserved] = useState(0);
@@ -71,23 +101,8 @@ export default function GazeObservationApp() {
     string[]
   >([]);
 
-  // Data rows for operations
-  const [rows, setRows] = useState<Row[]>([
-    {
-      id: 1,
-      uom: "SEW",
-      description: "Sew Operation",
-      quantity: 0,
-      samValue: 0.45,
-    },
-    {
-      id: 2,
-      uom: "TRIM",
-      description: "Trim Operation",
-      quantity: 0,
-      samValue: 0.32,
-    },
-  ]);
+  // Data rows for operations (dynamically populated from selected standard)
+  const [rows, setRows] = useState<Row[]>([]);
 
   // UI state
   const [showPreviousObservations, setShowPreviousObservations] =
@@ -132,6 +147,48 @@ export default function GazeObservationApp() {
         { date: "2024-01-14", observedPerf: "102.3", gradeFactorPerf: "106.1" },
       ],
     },
+  };
+
+  // Database operations
+  const loadStandards = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getStandards();
+      setStandards(data);
+    } catch (error) {
+      console.error("Error loading standards:", error);
+      setError("Failed to load standards");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadSelectedStandard = async (standardId: number) => {
+    try {
+      setIsLoading(true);
+      const data = await getStandardById(standardId);
+      if (data) {
+        setSelectedStandardData(data);
+        // Update rows with UOM entries from the selected standard
+        const newRows = data.uomEntries.map((entry, index) => ({
+          id: index + 1,
+          uom: entry.uom,
+          description: entry.description,
+          quantity: 0,
+          samValue: entry.samValue,
+        }));
+        setRows(newRows);
+
+        // Reset checkboxes when standard changes
+        setBestPracticesChecked([]);
+        setProcessAdherenceChecked([]);
+      }
+    } catch (error) {
+      console.error("Error loading standard details:", error);
+      setError("Failed to load standard details");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Methods
@@ -265,6 +322,7 @@ export default function GazeObservationApp() {
     if (!employeeId) return "Employee ID is required";
     if (!observationReason) return "Observation reason is required";
     if (!standard) return "Standard is required";
+    if (!selectedStandardData) return "Selected standard data not loaded";
     if (!timeObserved) return "No time observed recorded";
     if (!totalSams) return "No SAMs recorded";
     if (!pace || pace <= 0) return "Valid Pace percentage is required";
@@ -291,8 +349,65 @@ export default function GazeObservationApp() {
     setSubmissionSuccess(false);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Find or create user
+      let user = await getUserByEmployeeId(employeeId);
+      if (!user) {
+        // Get employee name from the select option
+        const employeeName =
+          employeeId === "emp001"
+            ? "John Smith"
+            : employeeId === "emp002"
+              ? "Sarah Johnson"
+              : "Michael Brown";
+
+        user = await createUser({
+          employeeId,
+          name: employeeName,
+          department: selectedStandardData?.department.name,
+        });
+      }
+
+      if (!selectedStandardData) {
+        throw new Error("No standard selected");
+      }
+
+      // Prepare observation data
+      const observationData = rows.map((row) => ({
+        uom: row.uom,
+        description: row.description,
+        quantity: row.quantity,
+        samValue: row.samValue,
+        totalSams: row.quantity * row.samValue,
+      }));
+
+      // Create observation
+      await createObservation({
+        userId: user.id,
+        standardId: selectedStandardData.id,
+        timeObserved,
+        totalSams,
+        observedPerformance,
+        pumpScore,
+        pace,
+        utilization,
+        methods,
+        comments,
+        aiNotes,
+        supervisorSignature,
+        teamMemberSignature,
+        bestPracticesChecked,
+        processAdherenceChecked,
+        delays,
+        observationReason,
+        observationStartTime: observationStartTime
+          ? new Date(observationStartTime)
+          : undefined,
+        observationEndTime: observationEndTime
+          ? new Date(observationEndTime)
+          : undefined,
+        isFinalized,
+        observationData,
+      });
 
       setSubmissionSuccess(true);
       resetForm();
@@ -301,6 +416,7 @@ export default function GazeObservationApp() {
         setSubmissionSuccess(false);
       }, 3000);
     } catch (error) {
+      console.error("Error submitting observation:", error);
       setSubmissionError(
         error instanceof Error
           ? error.message
@@ -315,7 +431,8 @@ export default function GazeObservationApp() {
     setEmployeeId("");
     setObservationReason("");
     setStandard("");
-    setRows((prev) => prev.map((row) => ({ ...row, quantity: 0 })));
+    setSelectedStandardData(null);
+    setRows([]);
     setTimeObserved(0);
     setPace(100);
     setUtilization(100);
@@ -345,6 +462,19 @@ export default function GazeObservationApp() {
 
   // Effects
   useEffect(() => {
+    loadStandards();
+  }, []);
+
+  useEffect(() => {
+    if (standard && standards.length > 0) {
+      const selectedStd = standards.find((s) => s.id === Number(standard));
+      if (selectedStd) {
+        loadSelectedStandard(selectedStd.id);
+      }
+    }
+  }, [standard, standards]);
+
+  useEffect(() => {
     calculateTotalSams();
   }, [rows]);
 
@@ -360,27 +490,17 @@ export default function GazeObservationApp() {
     };
   }, [timerInterval]);
 
-  const bestPracticesList = [
-    "Follow standard operating procedures",
-    "Maintain proper workstation organization",
-    "Use recommended tools and equipment",
-    "Apply correct handling techniques",
-    "Maintain quality checkpoints",
-    "Document process variations",
-    "Follow safety protocols",
-    "Maintain cleanliness standards",
-  ];
+  // Clear error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
-  const processAdherenceList = [
-    "Optimize material handling flow",
-    "Reduce unnecessary movements",
-    "Improve workstation layout",
-    "Standardize work sequence",
-    "Enhance quality inspection process",
-    "Update process documentation",
-    "Implement visual management",
-    "Streamline changeover process",
-  ];
+  // Dynamic lists populated from selected standard
+  const bestPracticesList = selectedStandardData?.bestPractices || [];
+  const processAdherenceList = selectedStandardData?.processOpportunities || [];
 
   return (
     <div className="font-poppins text-black bg-gray-100 min-h-screen">
@@ -393,6 +513,20 @@ export default function GazeObservationApp() {
 
       {/* Main Content */}
       <main className="p-6 max-w-6xl mx-auto">
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* Loading Indicator */}
+        {isLoading && (
+          <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+            Loading standards data...
+          </div>
+        )}
+
         {/* Observation Form */}
         <div className="bg-white rounded-lg p-6 mb-6 shadow-lg">
           <h2 className="text-xl font-semibold mb-6">Observation Details</h2>
@@ -423,20 +557,17 @@ export default function GazeObservationApp() {
               <label className="block mb-2 font-medium">Standard</label>
               <select
                 value={standard}
-                disabled={isObserving || isFinalized}
+                disabled={isObserving || isFinalized || isLoading}
                 onChange={(e) => setStandard(e.target.value)}
                 className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 <option value="">Select Standard *</option>
-                <option value="std1">
-                  PDC - Picking - OSR Standard (0.45 SAM)
-                </option>
-                <option value="std2">
-                  PDC - Picking - Case Standard (0.65 SAM)
-                </option>
-                <option value="std3">
-                  PDC - Picking - Each Standard (0.32 SAM)
-                </option>
+                {standards.map((std) => (
+                  <option key={std.id} value={std.id}>
+                    {std.facility.name} - {std.department.name} -{" "}
+                    {std.area.name} - {std.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -793,44 +924,72 @@ export default function GazeObservationApp() {
           {/* Best Practices and Process Adherence */}
           <div className="flex gap-6 mb-6">
             <div className="flex-1 p-5 rounded-lg bg-gray-100 border border-gray-300">
-              <h3 className="text-lg font-semibold mb-4">Best Practices</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                Best Practices
+                {selectedStandardData && (
+                  <span className="text-sm font-normal text-gray-600 ml-2">
+                    (from {selectedStandardData.name})
+                  </span>
+                )}
+              </h3>
               <div className="flex flex-col gap-3">
-                {bestPracticesList.map((practice, index) => (
-                  <label
-                    key={index}
-                    className="flex items-center gap-3 cursor-pointer p-2 rounded"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={bestPracticesChecked.includes(practice)}
-                      onChange={() => toggleBestPractice(practice)}
-                      className="w-4 h-4 cursor-pointer"
-                    />
-                    <span className="flex-1">{practice}</span>
-                  </label>
-                ))}
+                {bestPracticesList.length > 0 ? (
+                  bestPracticesList.map((practice, index) => (
+                    <label
+                      key={index}
+                      className="flex items-center gap-3 cursor-pointer p-2 rounded"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={bestPracticesChecked.includes(practice)}
+                        onChange={() => toggleBestPractice(practice)}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                      <span className="flex-1">{practice}</span>
+                    </label>
+                  ))
+                ) : (
+                  <div className="text-gray-500 text-center py-4">
+                    {selectedStandardData
+                      ? "No best practices defined for this standard"
+                      : "Select a standard to see best practices"}
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="flex-1 p-5 rounded-lg bg-gray-100 border border-gray-300">
               <h3 className="text-lg font-semibold mb-4">
                 Process Adherence Opportunities
+                {selectedStandardData && (
+                  <span className="text-sm font-normal text-gray-600 ml-2">
+                    (from {selectedStandardData.name})
+                  </span>
+                )}
               </h3>
               <div className="flex flex-col gap-3">
-                {processAdherenceList.map((opportunity, index) => (
-                  <label
-                    key={index}
-                    className="flex items-center gap-3 cursor-pointer p-2 rounded"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={processAdherenceChecked.includes(opportunity)}
-                      onChange={() => toggleProcessAdherence(opportunity)}
-                      className="w-4 h-4 cursor-pointer"
-                    />
-                    <span className="flex-1">{opportunity}</span>
-                  </label>
-                ))}
+                {processAdherenceList.length > 0 ? (
+                  processAdherenceList.map((opportunity, index) => (
+                    <label
+                      key={index}
+                      className="flex items-center gap-3 cursor-pointer p-2 rounded"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={processAdherenceChecked.includes(opportunity)}
+                        onChange={() => toggleProcessAdherence(opportunity)}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                      <span className="flex-1">{opportunity}</span>
+                    </label>
+                  ))
+                ) : (
+                  <div className="text-gray-500 text-center py-4">
+                    {selectedStandardData
+                      ? "No process opportunities defined for this standard"
+                      : "Select a standard to see process opportunities"}
+                  </div>
+                )}
               </div>
             </div>
           </div>

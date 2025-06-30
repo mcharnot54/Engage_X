@@ -1,47 +1,72 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import {
+  createFacility,
+  getFacilities,
+  createDepartment,
+  getDepartmentsByFacility,
+  createArea,
+  getAreasByDepartment,
+  createStandard,
+  getStandards,
+  updateFacility,
+  updateDepartment,
+  updateArea,
+  updateStandard,
+} from "@/lib/db-operations";
 
 interface Facility {
   id: number;
   name: string;
-  ref: string;
-  city: string;
-  dateAdded: string;
+  ref: string | null;
+  city: string | null;
+  dateAdded?: string;
 }
 
 interface Department {
   id: number;
   name: string;
   facilityId: number;
-  facilityName: string;
+  facility?: {
+    name: string;
+  };
 }
 
 interface Area {
   id: number;
   name: string;
   departmentId: number;
-  departmentName: string;
-  facilityId: number;
-  facilityName: string;
+  department?: {
+    name: string;
+    facility?: {
+      name: string;
+    };
+  };
 }
 
 interface UomEntry {
   id: number;
   uom: string;
   description: string;
-  samValue: string;
+  samValue: number;
 }
 
 interface Standard {
   id: number;
+  name: string;
   facilityId: number;
-  facility: string;
   departmentId: number;
-  department: string;
   areaId: number;
-  area: string;
-  standard: string;
+  facility: {
+    name: string;
+  };
+  department: {
+    name: string;
+  };
+  area: {
+    name: string;
+  };
   uomEntries: UomEntry[];
   bestPractices: string[];
   processOpportunities: string[];
@@ -58,11 +83,16 @@ export default function Standards() {
   const [editingFacility, setEditingFacility] = useState("");
   const [editingDepartment, setEditingDepartment] = useState("");
   const [editingArea, setEditingArea] = useState("");
-  const [submittedObservations, setSubmittedObservations] = useState<any[]>([]);
-  const [savedStandards, setSavedStandards] = useState<Standard[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Database-driven state
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
+  const [savedStandards, setSavedStandards] = useState<Standard[]>([]);
+
+  // Form state
   const [selectedFacility, setSelectedFacility] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
@@ -73,12 +103,12 @@ export default function Standards() {
   const [newAreaName, setNewAreaName] = useState("");
   const [newFacilityRef, setNewFacilityRef] = useState("");
   const [newFacilityCity, setNewFacilityCity] = useState("");
-  const [uomEntries, setUomEntries] = useState<UomEntry[]>([
+  const [uomEntries, setUomEntries] = useState([
     {
       id: 1,
       uom: "",
       description: "",
-      samValue: "",
+      samValue: 0,
     },
   ]);
   const [bestPractices, setBestPractices] = useState<string[]>([""]);
@@ -86,7 +116,67 @@ export default function Standards() {
     "",
   ]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
-  const [showExportDialog, setShowExportDialog] = useState(false);
+
+  // Load data from database
+  const loadFacilities = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getFacilities();
+      setFacilities(
+        data.map((f) => ({
+          ...f,
+          ref: f.ref || "",
+          city: f.city || "",
+          dateAdded: f.dateAdded
+            ? new Date(f.dateAdded).toISOString().split("T")[0]
+            : "",
+        })),
+      );
+    } catch (error) {
+      console.error("Error loading facilities:", error);
+      setError("Failed to load facilities");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadDepartments = async (facilityId?: number) => {
+    try {
+      if (facilityId) {
+        const data = await getDepartmentsByFacility(facilityId);
+        setDepartments(data);
+      } else {
+        setDepartments([]);
+      }
+    } catch (error) {
+      console.error("Error loading departments:", error);
+      setError("Failed to load departments");
+    }
+  };
+
+  const loadAreas = async (departmentId?: number) => {
+    try {
+      if (departmentId) {
+        const data = await getAreasByDepartment(departmentId);
+        setAreas(data);
+      } else {
+        setAreas([]);
+      }
+    } catch (error) {
+      console.error("Error loading areas:", error);
+      setError("Failed to load areas");
+    }
+  };
+
+  const loadStandards = async () => {
+    try {
+      const data = await getStandards();
+      setSavedStandards(data);
+    } catch (error) {
+      console.error("Error loading standards:", error);
+      setError("Failed to load standards");
+    }
+  };
 
   const clearSelections = () => {
     setSelectedFacility("");
@@ -102,160 +192,138 @@ export default function Standards() {
     setNewFacilityName("");
   };
 
-  const addFacility = () => {
+  const addFacility = async () => {
     if (!newFacilityName.trim()) return;
-    const newFacility: Facility = {
-      id: Date.now(),
-      name: newFacilityName,
-      ref: newFacilityRef,
-      city: newFacilityCity,
-      dateAdded: new Date().toISOString().split("T")[0],
-    };
-    setFacilities([...facilities, newFacility]);
-    setSuccessMessage("Facility added successfully!");
-    setShowSaveSuccess(true);
-    clearFacilityInfo();
-    setTimeout(() => setShowSaveSuccess(false), 3000);
+
+    try {
+      setIsLoading(true);
+      await createFacility({
+        name: newFacilityName,
+        ref: newFacilityRef || undefined,
+        city: newFacilityCity || undefined,
+      });
+
+      await loadFacilities();
+      setSuccessMessage("Facility added successfully!");
+      setShowSaveSuccess(true);
+      clearFacilityInfo();
+      setTimeout(() => setShowSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error("Error adding facility:", error);
+      setError("Failed to add facility");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const addDepartment = () => {
+  const addDepartment = async () => {
     try {
       if (!newDepartmentName || !selectedFacility) {
-        setSuccessMessage("Please select a facility and enter department name");
-        setShowSaveSuccess(true);
-        setTimeout(() => setShowSaveSuccess(false), 3000);
+        setError("Please select a facility and enter department name");
         return;
       }
-      const facilityId = Number(selectedFacility);
-      if (isNaN(facilityId)) {
-        throw new Error("Invalid facility ID format");
-      }
-      const facility = facilities.find((f) => f.id === facilityId);
-      if (!facility) {
-        setSuccessMessage("Selected facility not found");
-        setShowSaveSuccess(true);
-        setTimeout(() => setShowSaveSuccess(false), 3000);
-        return;
-      }
-      const newDepartment: Department = {
-        id: Date.now(),
+
+      setIsLoading(true);
+      await createDepartment({
         name: newDepartmentName,
-        facilityId: facility.id,
-        facilityName: facility.name,
-      };
-      setDepartments([...departments, newDepartment]);
+        facilityId: Number(selectedFacility),
+      });
+
+      await loadDepartments(Number(selectedFacility));
       setSuccessMessage("Department added successfully!");
       setShowSaveSuccess(true);
       setNewDepartmentName("");
       setTimeout(() => setShowSaveSuccess(false), 3000);
     } catch (error) {
       console.error("Error adding department:", error);
-      setSuccessMessage("Error adding department. Please try again.");
-      setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 3000);
+      setError("Failed to add department");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const addArea = () => {
+  const addArea = async () => {
     try {
-      if (!newAreaName.trim()) {
-        setSuccessMessage("Please enter an area name");
-        setShowSaveSuccess(true);
-        setTimeout(() => setShowSaveSuccess(false), 3000);
+      if (!newAreaName.trim() || !selectedDepartment) {
+        setError("Please enter an area name and select a department");
         return;
       }
-      if (!selectedDepartment) {
-        setSuccessMessage("Please select a department");
-        setShowSaveSuccess(true);
-        setTimeout(() => setShowSaveSuccess(false), 3000);
-        return;
-      }
-      const facilityId = Number(selectedFacility);
-      const departmentId = Number(selectedDepartment);
-      if (isNaN(facilityId) || isNaN(departmentId)) {
-        throw new Error("Invalid ID format");
-      }
-      const facility = facilities.find((f) => f.id === facilityId);
-      const department = departments.find((d) => d.id === departmentId);
-      if (!facility || !department) {
-        setSuccessMessage("Selected facility or department not found");
-        setShowSaveSuccess(true);
-        setTimeout(() => setShowSaveSuccess(false), 3000);
-        return;
-      }
-      const newArea: Area = {
-        id: Date.now(),
+
+      setIsLoading(true);
+      await createArea({
         name: newAreaName,
-        departmentId: department.id,
-        departmentName: department.name,
-        facilityId: facility.id,
-        facilityName: facility.name,
-      };
-      setAreas([...areas, newArea]);
+        departmentId: Number(selectedDepartment),
+      });
+
+      await loadAreas(Number(selectedDepartment));
       setSuccessMessage("Area added successfully!");
       setShowSaveSuccess(true);
       setNewAreaName("");
       setTimeout(() => setShowSaveSuccess(false), 3000);
     } catch (error) {
       console.error("Error adding area:", error);
-      setSuccessMessage("Error adding area. Please try again.");
-      setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 3000);
+      setError("Failed to add area");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const saveStandard = () => {
+  const saveStandard = async () => {
     try {
-      const facilityId = Number(selectedFacility);
-      const departmentId = Number(selectedDepartment);
-      const areaId = Number(selectedArea);
-      if (isNaN(facilityId) || isNaN(departmentId) || isNaN(areaId)) {
-        throw new Error("Invalid ID format");
-      }
-      const facility = facilities.find((f) => f.id === facilityId);
-      const department = departments.find((d) => d.id === departmentId);
-      const area = areas.find((a) => a.id === areaId);
-      if (!facility || !department || !area) {
-        setSuccessMessage("Please select facility, department and area");
-        setShowSaveSuccess(true);
-        setTimeout(() => setShowSaveSuccess(false), 3000);
+      if (!selectedFacility || !selectedDepartment || !selectedArea) {
+        setError("Please select facility, department and area");
         return;
       }
-      const newStandard: Standard = {
-        id: Date.now(),
-        facilityId: facility.id,
-        facility: facility.name,
-        departmentId: department.id,
-        department: department.name,
-        areaId: area.id,
-        area: area.name,
-        standard: selectedStandard === "new" ? standardName : selectedStandard,
-        uomEntries: [...uomEntries],
-        bestPractices: [...bestPractices],
-        processOpportunities: [...processOpportunities],
-      };
-      setSavedStandards([...savedStandards, newStandard]);
+
+      const standardNameToSave =
+        selectedStandard === "new" ? standardName : selectedStandard;
+      if (!standardNameToSave) {
+        setError("Please enter a standard name");
+        return;
+      }
+
+      setIsLoading(true);
+
+      const uomData = uomEntries
+        .filter((entry) => entry.uom && entry.description && entry.samValue > 0)
+        .map((entry) => ({
+          uom: entry.uom,
+          description: entry.description,
+          samValue: entry.samValue,
+        }));
+
+      const validBestPractices = bestPractices.filter((practice) =>
+        practice.trim(),
+      );
+      const validProcessOpportunities = processOpportunities.filter((opp) =>
+        opp.trim(),
+      );
+
+      await createStandard({
+        name: standardNameToSave,
+        facilityId: Number(selectedFacility),
+        departmentId: Number(selectedDepartment),
+        areaId: Number(selectedArea),
+        bestPractices: validBestPractices,
+        processOpportunities: validProcessOpportunities,
+        uomEntries: uomData,
+      });
+
+      await loadStandards();
       setSuccessMessage("Standard saved successfully!");
       setShowSaveSuccess(true);
-      setTimeout(() => {
-        setShowSaveSuccess(false);
-      }, 3000);
+      setTimeout(() => setShowSaveSuccess(false), 3000);
+
+      // Reset form
       clearSelections();
-      setUomEntries([
-        {
-          id: 1,
-          uom: "",
-          description: "",
-          samValue: "",
-        },
-      ]);
+      setUomEntries([{ id: 1, uom: "", description: "", samValue: 0 }]);
       setBestPractices([""]);
       setProcessOpportunities([""]);
     } catch (error) {
       console.error("Error saving standard:", error);
-      setSuccessMessage("Error saving standard. Please try again.");
-      setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 3000);
+      setError("Failed to save standard");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -265,27 +333,30 @@ export default function Standards() {
       id: Date.now(),
       uom: "",
       description: "",
-      samValue: "",
+      samValue: 0,
     });
     setUomEntries(newEntries);
   };
 
   const addBestPractice = () => {
-    const newPractices = [...bestPractices];
-    newPractices.push("");
-    setBestPractices(newPractices);
+    setBestPractices([...bestPractices, ""]);
   };
 
   const addProcessOpportunity = () => {
-    const newOpportunities = [...processOpportunities];
-    newOpportunities.push("");
-    setProcessOpportunities(newOpportunities);
+    setProcessOpportunities([...processOpportunities, ""]);
   };
 
-  const updateUomEntry = (id: number, field: string, value: string) => {
+  const updateUomEntry = (
+    id: number,
+    field: string,
+    value: string | number,
+  ) => {
     const newEntries = uomEntries.map((entry) => {
       if (entry.id === id) {
-        return { ...entry, [field]: value };
+        return {
+          ...entry,
+          [field]: field === "samValue" ? Number(value) : value,
+        };
       }
       return entry;
     });
@@ -304,103 +375,30 @@ export default function Standards() {
     setProcessOpportunities(newOpportunities);
   };
 
-  const openEditDialog = (item: any, type: string) => {
-    setEditingItem({ ...item });
-    setEditingType(type);
-    if (type === "standard") {
-      setEditingName(item.standard || "");
-      setEditingFacility(item.facility || "");
-      setEditingDepartment(item.department || "");
-      setEditingArea(item.area || "");
-    } else {
-      setEditingName(item.name || "");
-      setEditingFacility(item.facilityName || "");
-      setEditingDepartment(item.departmentName || "");
-      setEditingArea(item.area || "");
+  // Load dependent data when selections change
+  useEffect(() => {
+    if (selectedFacility) {
+      loadDepartments(Number(selectedFacility));
+      setSelectedDepartment("");
+      setSelectedArea("");
     }
-    setEditDialogOpen(true);
-  };
-
-  const saveChanges = () => {
-    if (editingType === "facility") {
-      setFacilities(
-        facilities.map((f) =>
-          f.id === editingItem.id
-            ? {
-                ...f,
-                name: editingName,
-                ref: editingItem.ref,
-                city: editingItem.city,
-              }
-            : f,
-        ),
-      );
-    } else if (editingType === "department") {
-      setDepartments(
-        departments.map((d) =>
-          d.id === editingItem.id
-            ? {
-                ...d,
-                name: editingName,
-                facilityName: editingFacility,
-              }
-            : d,
-        ),
-      );
-    } else if (editingType === "area") {
-      setAreas(
-        areas.map((a) =>
-          a.id === editingItem.id
-            ? {
-                ...a,
-                name: editingName,
-                facilityName: editingFacility,
-                departmentName: editingDepartment,
-              }
-            : a,
-        ),
-      );
-    } else if (editingType === "standard") {
-      setSavedStandards(
-        savedStandards.map((s) =>
-          s.id === editingItem.id
-            ? {
-                ...s,
-                facility: editingFacility,
-                department: editingDepartment,
-                area: editingArea,
-                standard: editingName,
-              }
-            : s,
-        ),
-      );
-    }
-    setEditDialogOpen(false);
-    setSuccessMessage(
-      `${
-        editingType.charAt(0).toUpperCase() + editingType.slice(1)
-      } updated successfully!`,
-    );
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 3000);
-  };
-
-  const fetchObservationHistory = async () => {
-    // API endpoint doesn't exist yet - placeholder for future implementation
-    try {
-      // const response = await fetch("/api/observations/history");
-      // const data = await response.json();
-      // setSubmittedObservations(data);
-      setSubmittedObservations([]); // Set empty array as default
-    } catch (error) {
-      console.error("Error fetching observation history:", error);
-      setSubmittedObservations([]);
-    }
-  };
+  }, [selectedFacility]);
 
   useEffect(() => {
-    fetchObservationHistory();
+    if (selectedDepartment) {
+      loadAreas(Number(selectedDepartment));
+      setSelectedArea("");
+    }
+  }, [selectedDepartment]);
+
+  useEffect(() => {
+    loadFacilities();
+    loadStandards();
   }, []);
+
+  if (error) {
+    setTimeout(() => setError(""), 5000);
+  }
 
   return (
     <div className="font-poppins text-black bg-gray-100 min-h-screen overflow-x-hidden">
@@ -451,7 +449,16 @@ export default function Standards() {
           <div className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
             <div className="flex flex-row relative ml-5 leading-normal mt-2 pb-0.5 mr-5 mb-4 text-red-600 justify-between items-center">
               <h2 className="ml-0 text-2xl text-red-600">Transformation</h2>
+              {isLoading && (
+                <div className="text-blue-600 text-sm">Loading...</div>
+              )}
             </div>
+
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {error}
+              </div>
+            )}
 
             <div className="bg-gray-100 p-6 rounded-xl border border-gray-300 shadow-md">
               <h2 className="text-xl font-semibold mb-6">
@@ -462,10 +469,9 @@ export default function Standards() {
                   value={selectedFacility}
                   onChange={(e) => {
                     setSelectedFacility(e.target.value);
-                    setSelectedDepartment("");
-                    setSelectedArea("");
                   }}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                  disabled={isLoading}
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                 >
                   <option value="">Select Facility</option>
                   {facilities.map((facility) => (
@@ -477,52 +483,50 @@ export default function Standards() {
 
                 <select
                   value={selectedDepartment}
-                  disabled={!selectedFacility}
+                  disabled={!selectedFacility || isLoading}
                   onChange={(e) => {
                     setSelectedDepartment(e.target.value);
-                    setSelectedArea("");
                   }}
                   className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                 >
                   <option value="">Select Department</option>
-                  {departments
-                    .filter(
-                      (dept) => dept.facilityId === Number(selectedFacility),
-                    )
-                    .map((department) => (
-                      <option value={department.id} key={department.id}>
-                        {department.name}
-                      </option>
-                    ))}
+                  {departments.map((department) => (
+                    <option value={department.id} key={department.id}>
+                      {department.name}
+                    </option>
+                  ))}
                 </select>
 
                 <select
                   value={selectedArea}
-                  disabled={!selectedDepartment}
+                  disabled={!selectedDepartment || isLoading}
                   onChange={(e) => setSelectedArea(e.target.value)}
                   className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                 >
                   <option value="">Select Area</option>
-                  {areas
-                    .filter(
-                      (area) =>
-                        area.departmentId === Number(selectedDepartment),
-                    )
-                    .map((area) => (
-                      <option value={area.id} key={area.id}>
-                        {area.name}
-                      </option>
-                    ))}
+                  {areas.map((area) => (
+                    <option value={area.id} key={area.id}>
+                      {area.name}
+                    </option>
+                  ))}
                 </select>
 
                 <select
                   value={selectedStandard}
                   onChange={(e) => setSelectedStandard(e.target.value)}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                  disabled={isLoading}
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                 >
                   <option value="">Select Standard</option>
-                  <option value="standard1">Standard 1</option>
-                  <option value="standard2">Standard 2</option>
+                  {savedStandards
+                    .filter(
+                      (s) => !selectedArea || s.areaId === Number(selectedArea),
+                    )
+                    .map((standard) => (
+                      <option value={standard.name} key={standard.id}>
+                        {standard.name}
+                      </option>
+                    ))}
                   <option value="new">New Standard</option>
                 </select>
               </div>
@@ -532,7 +536,8 @@ export default function Standards() {
                   placeholder="Enter Standard Name"
                   value={standardName}
                   onChange={(e) => setStandardName(e.target.value)}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white mt-4"
+                  disabled={isLoading}
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white mt-4 disabled:opacity-50"
                 />
               )}
 
@@ -541,7 +546,8 @@ export default function Standards() {
                   <h3 className="text-base font-semibold">UOM Details</h3>
                   <button
                     onClick={addUomEntry}
-                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5"
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
                   >
                     + Add UOM
                   </button>
@@ -555,7 +561,8 @@ export default function Standards() {
                         onChange={(e) =>
                           updateUomEntry(entry.id, "uom", e.target.value)
                         }
-                        className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                        disabled={isLoading}
+                        className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                       />
                       <input
                         placeholder="UOM Description"
@@ -567,16 +574,19 @@ export default function Standards() {
                             e.target.value,
                           )
                         }
-                        className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                        disabled={isLoading}
+                        className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                       />
                       <input
                         type="number"
                         placeholder="SAM Value"
+                        step="0.0001"
                         value={entry.samValue}
                         onChange={(e) =>
                           updateUomEntry(entry.id, "samValue", e.target.value)
                         }
-                        className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                        disabled={isLoading}
+                        className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                       />
                     </div>
                   ))}
@@ -588,7 +598,8 @@ export default function Standards() {
                   <h3 className="text-base font-semibold">Best Practices</h3>
                   <button
                     onClick={addBestPractice}
-                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5"
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
                   >
                     + Add Practice
                   </button>
@@ -601,7 +612,8 @@ export default function Standards() {
                       onChange={(e) =>
                         updateBestPractice(index, e.target.value)
                       }
-                      className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                      disabled={isLoading}
+                      className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                       key={index}
                     />
                   ))}
@@ -615,7 +627,8 @@ export default function Standards() {
                   </h3>
                   <button
                     onClick={addProcessOpportunity}
-                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5"
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
                   >
                     + Add Opportunity
                   </button>
@@ -628,7 +641,8 @@ export default function Standards() {
                       onChange={(e) =>
                         updateProcessOpportunity(index, e.target.value)
                       }
-                      className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                      disabled={isLoading}
+                      className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                       key={index}
                     />
                   ))}
@@ -636,14 +650,18 @@ export default function Standards() {
               </div>
 
               <div className="flex justify-end gap-4">
-                <button className="px-6 py-3 bg-white border border-gray-300 rounded-md cursor-pointer">
+                <button
+                  disabled={isLoading}
+                  className="px-6 py-3 bg-white border border-gray-300 rounded-md cursor-pointer disabled:opacity-50"
+                >
                   Cancel
                 </button>
                 <button
                   onClick={saveStandard}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5"
+                  disabled={isLoading}
+                  className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
                 >
-                  Save Standard
+                  {isLoading ? "Saving..." : "Save Standard"}
                 </button>
               </div>
             </div>
@@ -658,30 +676,29 @@ export default function Standards() {
                     placeholder="Enter Facility Name"
                     value={newFacilityName}
                     onChange={(e) => setNewFacilityName(e.target.value)}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                   />
                   <input
                     placeholder="Enter Facility Reference"
                     value={newFacilityRef}
                     onChange={(e) => setNewFacilityRef(e.target.value)}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                   />
                   <input
                     placeholder="Enter Facility City"
                     value={newFacilityCity}
                     onChange={(e) => setNewFacilityCity(e.target.value)}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                   />
                   <button
-                    onClick={() => {
-                      addFacility();
-                      setNewFacilityName("");
-                      setNewFacilityRef("");
-                      setNewFacilityCity("");
-                    }}
-                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5"
+                    onClick={addFacility}
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
                   >
-                    Add Facility
+                    {isLoading ? "Adding..." : "Add Facility"}
                   </button>
                 </div>
               </div>
@@ -694,7 +711,8 @@ export default function Standards() {
                   <select
                     value={selectedFacility}
                     onChange={(e) => setSelectedFacility(e.target.value)}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                   >
                     <option value="">Select Facility</option>
                     {facilities.map((facility) => (
@@ -707,13 +725,15 @@ export default function Standards() {
                     placeholder="Enter Department Name"
                     value={newDepartmentName}
                     onChange={(e) => setNewDepartmentName(e.target.value)}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                   />
                   <button
                     onClick={addDepartment}
-                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5"
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
                   >
-                    Add Department
+                    {isLoading ? "Adding..." : "Add Department"}
                   </button>
                 </div>
               </div>
@@ -727,10 +747,9 @@ export default function Standards() {
                     value={selectedFacility}
                     onChange={(e) => {
                       setSelectedFacility(e.target.value);
-                      setSelectedDepartment("");
-                      setSelectedArea("");
                     }}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                   >
                     <option value="">Select Facility</option>
                     {facilities.map((facility) => (
@@ -741,36 +760,32 @@ export default function Standards() {
                   </select>
                   <select
                     value={selectedDepartment}
-                    disabled={!selectedFacility}
+                    disabled={!selectedFacility || isLoading}
                     onChange={(e) => {
                       setSelectedDepartment(e.target.value);
-                      setSelectedArea("");
                     }}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                   >
                     <option value="">Select Department</option>
-                    {departments
-                      .filter(
-                        (dept) => dept.facilityId === Number(selectedFacility),
-                      )
-                      .map((department) => (
-                        <option key={department.id} value={department.id}>
-                          {department.name}
-                        </option>
-                      ))}
+                    {departments.map((department) => (
+                      <option key={department.id} value={department.id}>
+                        {department.name}
+                      </option>
+                    ))}
                   </select>
                   <input
                     placeholder="Enter Area Name"
                     value={newAreaName}
-                    disabled={!selectedDepartment}
+                    disabled={!selectedDepartment || isLoading}
                     onChange={(e) => setNewAreaName(e.target.value)}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                   />
                   <button
                     onClick={addArea}
-                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5"
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
                   >
-                    Add Area
+                    {isLoading ? "Adding..." : "Add Area"}
                   </button>
                 </div>
               </div>
@@ -787,6 +802,8 @@ export default function Standards() {
                         <th className="p-3 text-left">Department</th>
                         <th className="p-3 text-left">Area</th>
                         <th className="p-3 text-left">Standard</th>
+                        <th className="p-3 text-left">Best Practices</th>
+                        <th className="p-3 text-left">Process Opportunities</th>
                         <th className="p-3 text-right">Actions</th>
                       </tr>
                     </thead>
@@ -796,16 +813,25 @@ export default function Standards() {
                           key={standard.id}
                           className="border-b border-gray-300"
                         >
-                          <td className="p-3">{standard.facility}</td>
-                          <td className="p-3">{standard.department}</td>
-                          <td className="p-3">{standard.area}</td>
-                          <td className="p-3">{standard.standard}</td>
+                          <td className="p-3">{standard.facility.name}</td>
+                          <td className="p-3">{standard.department.name}</td>
+                          <td className="p-3">{standard.area.name}</td>
+                          <td className="p-3">{standard.name}</td>
+                          <td className="p-3">
+                            <div className="text-sm text-gray-600">
+                              {standard.bestPractices.length} practices
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="text-sm text-gray-600">
+                              {standard.processOpportunities.length}{" "}
+                              opportunities
+                            </div>
+                          </td>
                           <td className="p-3 text-right">
                             <button
-                              onClick={() =>
-                                openEditDialog(standard, "standard")
-                              }
-                              className="px-3 py-1.5 bg-green-500 text-white border-none rounded cursor-pointer"
+                              disabled={isLoading}
+                              className="px-3 py-1.5 bg-green-500 text-white border-none rounded cursor-pointer disabled:opacity-50"
                             >
                               Edit
                             </button>
