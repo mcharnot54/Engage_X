@@ -386,12 +386,15 @@ export default function Standards() {
   };
 
   const fetchObservationHistory = async () => {
+    // API endpoint doesn't exist yet - placeholder for future implementation
     try {
-      const response = await fetch("/api/observations/history");
-      const data = await response.json();
-      setSubmittedObservations(data);
+      // const response = await fetch("/api/observations/history");
+      // const data = await response.json();
+      // setSubmittedObservations(data);
+      setSubmittedObservations([]); // Set empty array as default
     } catch (error) {
       console.error("Error fetching observation history:", error);
+      setSubmittedObservations([]);
     }
   };
 
