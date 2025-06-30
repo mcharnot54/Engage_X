@@ -362,7 +362,9 @@ export default function Standards() {
 
       // Reset form
       clearSelections();
-      setUomEntries([{ id: 1, uom: "", description: "", samValue: 0 }]);
+      setUomEntries([
+        { id: 1, uom: "", description: "", samValue: 0, tags: [] },
+      ]);
       setBestPractices([""]);
       setProcessOpportunities([""]);
     } catch (error) {
