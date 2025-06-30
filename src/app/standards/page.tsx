@@ -274,10 +274,20 @@ export default function Standards() {
       }
 
       setIsLoading(true);
-      await createArea({
-        name: newAreaName,
-        departmentId: Number(selectedDepartment),
+      const response = await fetch("/api/areas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newAreaName,
+          departmentId: Number(selectedDepartment),
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create area");
+      }
 
       await loadAreas(Number(selectedDepartment));
       setSuccessMessage("Area added successfully!");
