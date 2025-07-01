@@ -267,7 +267,11 @@ export default function Standards() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create organization");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage =
+          errorData.error ||
+          `Failed to create organization (${response.status})`;
+        throw new Error(errorMessage);
       }
 
       await loadOrganizations();
@@ -275,9 +279,9 @@ export default function Standards() {
       setShowSaveSuccess(true);
       clearOrganizationInfo();
       setTimeout(() => setShowSaveSuccess(false), 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding organization:", error);
-      setError("Failed to add organization");
+      setError(error.message || "Failed to add organization");
     } finally {
       setIsLoading(false);
     }
