@@ -794,7 +794,150 @@ export default function GazeObservationApp() {
               <h3 className="text-lg font-semibold mb-4">
                 Observation Details
               </h3>
-              <div className="grid grid-cols-2 gap-4 mb-4">
+
+              {/* Standard Selection - Multi-level Dropdown */}
+              <div className="mb-4 relative">
+                <button
+                  onClick={() => setShowStandardDropdown(!showStandardDropdown)}
+                  disabled={isObserving}
+                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                >
+                  <span className={standard ? "text-black" : "text-gray-500"}>
+                    {getSelectedStandardDisplay()}
+                  </span>
+                  <span
+                    className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+                  >
+                    ▼
+                  </span>
+                </button>
+
+                {showStandardDropdown && (
+                  <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                    <div className="p-4 space-y-4">
+                      {/* Facility Selection */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          1. Select Facility
+                        </label>
+                        <select
+                          value={selectedFacility}
+                          onChange={(e) => {
+                            setSelectedFacility(e.target.value);
+                            setSelectedDepartment("");
+                            setSelectedArea("");
+                            setStandard("");
+                          }}
+                          className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Choose Facility</option>
+                          {getUniqueFacilities().map((facility) => (
+                            <option key={facility.id} value={facility.name}>
+                              {facility.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Department Selection */}
+                      {selectedFacility && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            2. Select Department
+                          </label>
+                          <select
+                            value={selectedDepartment}
+                            onChange={(e) => {
+                              setSelectedDepartment(e.target.value);
+                              setSelectedArea("");
+                              setStandard("");
+                            }}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Choose Department</option>
+                            {getUniqueDepartments(selectedFacility).map(
+                              (dept) => (
+                                <option key={dept.id} value={dept.name}>
+                                  {dept.name}
+                                </option>
+                              ),
+                            )}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Area Selection */}
+                      {selectedDepartment && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            3. Select Area
+                          </label>
+                          <select
+                            value={selectedArea}
+                            onChange={(e) => {
+                              setSelectedArea(e.target.value);
+                              setStandard("");
+                            }}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Choose Area</option>
+                            {getUniqueAreas(
+                              selectedFacility,
+                              selectedDepartment,
+                            ).map((area) => (
+                              <option key={area.id} value={area.name}>
+                                {area.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Standard Selection */}
+                      {selectedArea && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            4. Select Standard
+                          </label>
+                          <select
+                            value={standard}
+                            onChange={(e) => {
+                              setStandard(e.target.value);
+                              setShowStandardDropdown(false);
+                            }}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Choose Standard</option>
+                            {getFilteredStandards().map((std) => (
+                              <option key={std.id} value={std.id}>
+                                {std.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Action Buttons */}
+                      <div className="flex justify-between pt-3 border-t border-gray-200">
+                        <button
+                          onClick={resetStandardSelection}
+                          className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
+                        >
+                          Clear Selection
+                        </button>
+                        <button
+                          onClick={() => setShowStandardDropdown(false)}
+                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <select
                   value={employeeId}
                   onChange={(e) => {
@@ -830,21 +973,6 @@ export default function GazeObservationApp() {
                   <option value="routine">Routine Check</option>
                 </select>
               </div>
-
-              <select
-                value={standard}
-                onChange={(e) => setStandard(e.target.value)}
-                disabled={isObserving}
-                className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
-              >
-                <option value="">Select Standard</option>
-                {standards.map((std) => (
-                  <option key={std.id} value={std.id}>
-                    {std.name} - {std.facility.name} / {std.department.name} /{" "}
-                    {std.area.name}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Observation Timer and Controls */}
