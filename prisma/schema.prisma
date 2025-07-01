@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,71 +8,66 @@ datasource db {
 }
 
 model User {
-  id            String @id @default(cuid())
-  employeeId    String @unique
-  name          String
-  email         String?
-  department    String?
-  role          String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  observations  Observation[]
+  id           String        @id @default(cuid())
+  employeeId   String        @unique
+  name         String
+  email        String?
+  department   String?
+  role         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  observations Observation[]
 
   @@map("users")
 }
 
 model Organization {
-  id          Int      @id @default(autoincrement())
-  name        String
-  code        String   @unique
-  logo        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  facilities  Facility[]
+  id         Int        @id @default(autoincrement())
+  name       String
+  code       String     @unique
+  logo       String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  facilities Facility[]
 
   @@map("organizations")
 }
 
 model Facility {
-  id             Int      @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   name           String
   ref            String?
   city           String?
+  dateAdded      DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
   organizationId Int
-  dateAdded      DateTime @default(now())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   departments    Department[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   standards      Standard[]
 
   @@map("facilities")
 }
 
 model Department {
-  id          Int      @id @default(autoincrement())
-  name        String
-  facilityId  Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  facility    Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
-  areas       Area[]
-  standards   Standard[]
+  id         Int        @id @default(autoincrement())
+  name       String
+  facilityId Int
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  areas      Area[]
+  facility   Facility   @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  standards  Standard[]
 
   @@map("departments")
 }
 
 model Area {
-  id           Int      @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   name         String
   departmentId Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   standards    Standard[]
 
@@ -83,84 +75,80 @@ model Area {
 }
 
 model Standard {
-  id                    Int      @id @default(autoincrement())
-  name                  String
-  facilityId            Int
-  departmentId          Int
-  areaId                Int
-  bestPractices         String[] @default([])
-  processOpportunities  String[] @default([])
-  isActive              Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  facility              Facility    @relation(fields: [facilityId], references: [id], onDelete: Cascade)
-  department            Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  area                  Area        @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  uomEntries            UomEntry[]
-  observations          Observation[]
+  id                   Int           @id @default(autoincrement())
+  name                 String
+  facilityId           Int
+  departmentId         Int
+  areaId               Int
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  bestPractices        String[]      @default([])
+  isActive             Boolean       @default(true)
+  processOpportunities String[]      @default([])
+  observations         Observation[]
+  area                 Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  department           Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  facility             Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  uomEntries           UomEntry[]
 
   @@map("standards")
 }
 
 model UomEntry {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   uom         String
   description String
   samValue    Float
-  tags        String[] @default([])
   standardId  Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
+  tags        String[] @default([])
   standard    Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
 
   @@map("uom_entries")
 }
 
 model Observation {
-  id                          String   @id @default(cuid())
-  userId                      String
-  standardId                  Int
-  timeObserved                Float
-  totalSams                   Float
-  observedPerformance         Float
-  pumpScore                   Float
-  pace                        Int
-  utilization                 Int
-  methods                     Int
-  comments                    String?
-  aiNotes                     String?
-  supervisorSignature         String?
-  teamMemberSignature         String?
-  bestPracticesChecked        String[] @default([])
-  processAdherenceChecked     String[] @default([])
-  delays                      Json[]   @default([])
-  observationReason           String
-  observationStartTime        DateTime?
-  observationEndTime          DateTime?
-  isFinalized                 Boolean  @default(false)
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
-
-  user                        User     @relation(fields: [userId], references: [id])
-  standard                    Standard @relation(fields: [standardId], references: [id])
-  observationData             ObservationData[]
+  id                      String            @id @default(cuid())
+  observationReason       String
+  standardId              Int
+  timeObserved            Float
+  observationStartTime    DateTime?
+  observationEndTime      DateTime?
+  totalSams               Float
+  observedPerformance     Float
+  pace                    Int
+  utilization             Int
+  methods                 Int
+  pumpScore               Float
+  comments                String?
+  aiNotes                 String?
+  supervisorSignature     String?
+  teamMemberSignature     String?
+  isFinalized             Boolean           @default(false)
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  bestPracticesChecked    String[]          @default([])
+  delays                  Json[]            @default([])
+  processAdherenceChecked String[]          @default([])
+  userId                  String
+  observationData         ObservationData[]
+  standard                Standard          @relation(fields: [standardId], references: [id])
+  user                    User              @relation(fields: [userId], references: [id])
 
   @@map("observations")
 }
 
 model ObservationData {
-  id             String @id @default(cuid())
-  observationId  String
-  uom            String
-  description    String
-  quantity       Int
-  samValue       Float
-  totalSams      Float
-  createdAt      DateTime @default(now())
-
-  observation    Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  id            String      @id @default(cuid())
+  observationId String
+  uom           String
+  description   String
+  quantity      Int
+  samValue      Float
+  totalSams     Float
+  createdAt     DateTime    @default(now())
+  observation   Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
 
   @@map("observation_data")
 }
