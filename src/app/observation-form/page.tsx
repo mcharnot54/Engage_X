@@ -830,8 +830,12 @@ export default function GazeObservationApp() {
                       </div>
                     )}
                   </div>
-              <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-                <div className="flex justify-between items-center mb-4">
+
+                  {/* Operations Table */}
+                  <div className="overflow-x-auto mb-6">
+                    <table className="w-full border-collapse bg-white">
+                      <thead>
+                        <tr className="bg-gray-100 border-b-2 border-gray-300">
                   <h3 className="text-lg font-semibold">Operations</h3>
                   {isDynamicGroupingActive && (
                     <div className="text-sm text-green-600 font-medium">
