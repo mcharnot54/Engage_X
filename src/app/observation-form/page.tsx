@@ -649,6 +649,7 @@ export default function GazeObservationApp() {
     setEmployeeId("");
     setObservationReason("");
     setStandard("");
+    resetStandardSelection();
     setSelectedStandardData(null);
     setRows([]);
     setOriginalRowOrder([]);
