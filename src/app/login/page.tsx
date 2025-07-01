@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function PhoenixPGSLogin() {
   const [credentials, setCredentials] = useState({
-    username: "",
-    email: "",
+    usernameOrEmail: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
