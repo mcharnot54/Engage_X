@@ -1058,10 +1058,23 @@ export default function Standards() {
                 </h2>
                 <div className="flex flex-col gap-4">
                   <select
-                    value={selectedFacility}
-                    onChange={(e) => setSelectedFacility(e.target.value)}
+                    value={selectedOrganization}
+                    onChange={(e) => setSelectedOrganization(e.target.value)}
                     disabled={isLoading}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Organization</option>
+                    {organizations.map((organization) => (
+                      <option key={organization.id} value={organization.id}>
+                        {organization.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedFacility}
+                    disabled={!selectedOrganization || isLoading}
+                    onChange={(e) => setSelectedFacility(e.target.value)}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                   >
                     <option value="">Select Facility</option>
                     {facilities.map((facility) => (
@@ -1093,12 +1106,25 @@ export default function Standards() {
                 </h2>
                 <div className="flex flex-col gap-4">
                   <select
+                    value={selectedOrganization}
+                    onChange={(e) => setSelectedOrganization(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Organization</option>
+                    {organizations.map((organization) => (
+                      <option key={organization.id} value={organization.id}>
+                        {organization.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
                     value={selectedFacility}
+                    disabled={!selectedOrganization || isLoading}
                     onChange={(e) => {
                       setSelectedFacility(e.target.value);
                     }}
-                    disabled={isLoading}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                   >
                     <option value="">Select Facility</option>
                     {facilities.map((facility) => (
