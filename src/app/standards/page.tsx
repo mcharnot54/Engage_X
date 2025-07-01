@@ -221,11 +221,18 @@ export default function Standards() {
   };
 
   const clearSelections = () => {
+    setSelectedOrganization("");
     setSelectedFacility("");
     setSelectedDepartment("");
     setSelectedArea("");
     setSelectedStandard("");
     setStandardName("");
+  };
+
+  const clearOrganizationInfo = () => {
+    setNewOrganizationName("");
+    setNewOrganizationCode("");
+    setNewOrganizationLogo("");
   };
 
   const clearFacilityInfo = () => {
@@ -234,8 +241,45 @@ export default function Standards() {
     setNewFacilityName("");
   };
 
+  const addOrganization = async () => {
+    if (!newOrganizationName.trim() || !newOrganizationCode.trim()) return;
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/organizations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newOrganizationName,
+          code: newOrganizationCode,
+          logo: newOrganizationLogo || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create organization");
+      }
+
+      await loadOrganizations();
+      setSuccessMessage("Organization added successfully!");
+      setShowSaveSuccess(true);
+      clearOrganizationInfo();
+      setTimeout(() => setShowSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error("Error adding organization:", error);
+      setError("Failed to add organization");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const addFacility = async () => {
-    if (!newFacilityName.trim()) return;
+    if (!newFacilityName.trim() || !selectedOrganization) {
+      setError("Please select an organization and enter facility name");
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -246,6 +290,7 @@ export default function Standards() {
         },
         body: JSON.stringify({
           name: newFacilityName,
+          organizationId: Number(selectedOrganization),
           ref: newFacilityRef || undefined,
           city: newFacilityCity || undefined,
         }),
@@ -255,7 +300,7 @@ export default function Standards() {
         throw new Error("Failed to create facility");
       }
 
-      await loadFacilities();
+      await loadFacilities(Number(selectedOrganization));
       setSuccessMessage("Facility added successfully!");
       setShowSaveSuccess(true);
       clearFacilityInfo();
