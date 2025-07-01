@@ -965,24 +965,27 @@ export default function Standards() {
                   </select>
                 </div>
 
-                <select
-                  value={selectedStandard}
-                  onChange={(e) => setSelectedStandard(e.target.value)}
-                  disabled={isLoading}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
-                >
-                  <option value="">Select Standard</option>
-                  {savedStandards
-                    .filter(
-                      (s) => !selectedArea || s.areaId === Number(selectedArea),
-                    )
-                    .map((standard) => (
-                      <option value={standard.name} key={standard.id}>
-                        {standard.name}
-                      </option>
-                    ))}
-                  <option value="new">New Standard</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedStandard}
+                    onChange={(e) => setSelectedStandard(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Standard</option>
+                    {savedStandards
+                      .filter(
+                        (s) =>
+                          !selectedArea || s.areaId === Number(selectedArea),
+                      )
+                      .map((standard) => (
+                        <option value={standard.name} key={standard.id}>
+                          {standard.name}
+                        </option>
+                      ))}
+                    <option value="new">New Standard</option>
+                  </select>
+                </div>
               </div>
 
               {selectedStandard === "new" && (
