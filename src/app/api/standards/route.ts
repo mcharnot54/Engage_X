@@ -5,10 +5,30 @@ export async function GET() {
   try {
     const standards = await getStandards();
     return NextResponse.json(standards);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching standards:", error);
+
+    // Check if it's a database connection error
+    if (
+      error.code === "P1001" ||
+      error.message?.includes("Environment variable not found: DATABASE_URL")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Database connection failed. Please configure DATABASE_URL in your environment variables.",
+          details:
+            "Check .env.local file and ensure DATABASE_URL points to a valid PostgreSQL database.",
+        },
+        { status: 500 },
+      );
+    }
+
     return NextResponse.json(
-      { error: "Failed to fetch standards" },
+      {
+        error: "Failed to fetch standards",
+        details: error.message || "Unknown database error",
+      },
       { status: 500 },
     );
   }
