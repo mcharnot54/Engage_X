@@ -56,6 +56,13 @@ export default function GazeObservationApp() {
   const [employeeId, setEmployeeId] = useState("");
   const [observationReason, setObservationReason] = useState("");
   const [standard, setStandard] = useState("");
+
+  // Multi-level standard selection state
+  const [showStandardDropdown, setShowStandardDropdown] = useState(false);
+  const [selectedOrganization, setSelectedOrganization] = useState("");
+  const [selectedFacility, setSelectedFacility] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
   const [observedPerformance, setObservedPerformance] = useState(0);
   const [isFinalized, setIsFinalized] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
