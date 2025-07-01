@@ -223,11 +223,15 @@ export default function GazeObservationApp() {
     getActiveTagsForRows,
   ]);
 
-  // Database operations
+  // Database operations via API
   const loadStandards = async () => {
     try {
       setIsLoading(true);
-      const data = await getStandards();
+      const response = await fetch("/api/standards");
+      if (!response.ok) {
+        throw new Error("Failed to fetch standards");
+      }
+      const data = await response.json();
       setStandards(data);
     } catch (error) {
       console.error("Error loading standards:", error);
@@ -240,7 +244,11 @@ export default function GazeObservationApp() {
   const loadSelectedStandard = async (standardId: number) => {
     try {
       setIsLoading(true);
-      const data = await getStandardById(standardId);
+      const response = await fetch(`/api/standards/${standardId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch standard details");
+      }
+      const data = await response.json();
       if (data) {
         setSelectedStandardData(data);
         // Update rows with UOM entries from the selected standard
