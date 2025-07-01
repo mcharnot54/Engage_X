@@ -720,6 +720,21 @@ export default function GazeObservationApp() {
     }
   }, [error]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showStandardDropdown && !target.closest(".standard-dropdown")) {
+        setShowStandardDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showStandardDropdown]);
+
   // Helper function to get tag color
   const getTagColor = (tag: string, isActive: boolean) => {
     if (isActive) {
