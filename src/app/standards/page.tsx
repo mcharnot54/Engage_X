@@ -2,11 +2,22 @@
 
 import { useState, useEffect } from "react";
 
+interface Organization {
+  id: number;
+  name: string;
+  code: string;
+  logo: string | null;
+}
+
 interface Facility {
   id: number;
   name: string;
   ref: string | null;
   city: string | null;
+  organizationId: number;
+  organization?: {
+    name: string;
+  };
   dateAdded?: string;
 }
 
@@ -47,6 +58,9 @@ interface Standard {
   areaId: number;
   facility: {
     name: string;
+    organization?: {
+      name: string;
+    };
   };
   department: {
     name: string;
@@ -74,17 +88,22 @@ export default function Standards() {
   const [error, setError] = useState("");
 
   // Database-driven state
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [savedStandards, setSavedStandards] = useState<Standard[]>([]);
 
   // Form state
+  const [selectedOrganization, setSelectedOrganization] = useState("");
   const [selectedFacility, setSelectedFacility] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
   const [selectedStandard, setSelectedStandard] = useState("");
   const [standardName, setStandardName] = useState("");
+  const [newOrganizationName, setNewOrganizationName] = useState("");
+  const [newOrganizationCode, setNewOrganizationCode] = useState("");
+  const [newOrganizationLogo, setNewOrganizationLogo] = useState("");
   const [newFacilityName, setNewFacilityName] = useState("");
   const [newDepartmentName, setNewDepartmentName] = useState("");
   const [newAreaName, setNewAreaName] = useState("");
@@ -106,29 +125,49 @@ export default function Standards() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   // Load data from API
-  const loadFacilities = async () => {
+  const loadOrganizations = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/facilities");
+      const response = await fetch("/api/organizations");
       if (!response.ok) {
-        throw new Error("Failed to fetch facilities");
+        throw new Error("Failed to fetch organizations");
       }
       const data = await response.json();
-      setFacilities(
-        data.map((f: any) => ({
-          ...f,
-          ref: f.ref || "",
-          city: f.city || "",
-          dateAdded: f.dateAdded
-            ? new Date(f.dateAdded).toISOString().split("T")[0]
-            : "",
-        })),
-      );
+      setOrganizations(data);
+    } catch (error) {
+      console.error("Error loading organizations:", error);
+      setError("Failed to load organizations");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFacilities = async (organizationId?: number) => {
+    try {
+      if (organizationId) {
+        const response = await fetch(
+          `/api/facilities?organizationId=${organizationId}`,
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch facilities");
+        }
+        const data = await response.json();
+        setFacilities(
+          data.map((f: any) => ({
+            ...f,
+            ref: f.ref || "",
+            city: f.city || "",
+            dateAdded: f.dateAdded
+              ? new Date(f.dateAdded).toISOString().split("T")[0]
+              : "",
+          })),
+        );
+      } else {
+        setFacilities([]);
+      }
     } catch (error) {
       console.error("Error loading facilities:", error);
       setError("Failed to load facilities");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -185,11 +224,18 @@ export default function Standards() {
   };
 
   const clearSelections = () => {
+    setSelectedOrganization("");
     setSelectedFacility("");
     setSelectedDepartment("");
     setSelectedArea("");
     setSelectedStandard("");
     setStandardName("");
+  };
+
+  const clearOrganizationInfo = () => {
+    setNewOrganizationName("");
+    setNewOrganizationCode("");
+    setNewOrganizationLogo("");
   };
 
   const clearFacilityInfo = () => {
@@ -198,8 +244,45 @@ export default function Standards() {
     setNewFacilityName("");
   };
 
+  const addOrganization = async () => {
+    if (!newOrganizationName.trim() || !newOrganizationCode.trim()) return;
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/organizations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newOrganizationName,
+          code: newOrganizationCode,
+          logo: newOrganizationLogo || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create organization");
+      }
+
+      await loadOrganizations();
+      setSuccessMessage("Organization added successfully!");
+      setShowSaveSuccess(true);
+      clearOrganizationInfo();
+      setTimeout(() => setShowSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error("Error adding organization:", error);
+      setError("Failed to add organization");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const addFacility = async () => {
-    if (!newFacilityName.trim()) return;
+    if (!newFacilityName.trim() || !selectedOrganization) {
+      setError("Please select an organization and enter facility name");
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -210,6 +293,7 @@ export default function Standards() {
         },
         body: JSON.stringify({
           name: newFacilityName,
+          organizationId: Number(selectedOrganization),
           ref: newFacilityRef || undefined,
           city: newFacilityCity || undefined,
         }),
@@ -219,7 +303,7 @@ export default function Standards() {
         throw new Error("Failed to create facility");
       }
 
-      await loadFacilities();
+      await loadFacilities(Number(selectedOrganization));
       setSuccessMessage("Facility added successfully!");
       setShowSaveSuccess(true);
       clearFacilityInfo();
@@ -306,8 +390,13 @@ export default function Standards() {
 
   const saveStandard = async () => {
     try {
-      if (!selectedFacility || !selectedDepartment || !selectedArea) {
-        setError("Please select facility, department and area");
+      if (
+        !selectedOrganization ||
+        !selectedFacility ||
+        !selectedDepartment ||
+        !selectedArea
+      ) {
+        setError("Please select organization, facility, department and area");
         return;
       }
 
@@ -470,6 +559,15 @@ export default function Standards() {
 
   // Load dependent data when selections change
   useEffect(() => {
+    if (selectedOrganization) {
+      loadFacilities(Number(selectedOrganization));
+      setSelectedFacility("");
+      setSelectedDepartment("");
+      setSelectedArea("");
+    }
+  }, [selectedOrganization]);
+
+  useEffect(() => {
     if (selectedFacility) {
       loadDepartments(Number(selectedFacility));
       setSelectedDepartment("");
@@ -485,7 +583,7 @@ export default function Standards() {
   }, [selectedDepartment]);
 
   useEffect(() => {
-    loadFacilities();
+    loadOrganizations();
     loadStandards();
   }, []);
 
@@ -557,14 +655,30 @@ export default function Standards() {
               <h2 className="text-xl font-semibold mb-6">
                 Standard Transformation
               </h2>
-              <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-5 gap-4 mb-6">
                 <select
-                  value={selectedFacility}
+                  value={selectedOrganization}
                   onChange={(e) => {
-                    setSelectedFacility(e.target.value);
+                    setSelectedOrganization(e.target.value);
                   }}
                   disabled={isLoading}
                   className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                >
+                  <option value="">Select Organization</option>
+                  {organizations.map((organization) => (
+                    <option value={organization.id} key={organization.id}>
+                      {organization.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedFacility}
+                  disabled={!selectedOrganization || isLoading}
+                  onChange={(e) => {
+                    setSelectedFacility(e.target.value);
+                  }}
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                 >
                   <option value="">Select Facility</option>
                   {facilities.map((facility) => (
@@ -854,12 +968,62 @@ export default function Standards() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 mt-6 w-full">
+            <div className="grid grid-cols-4 gap-6 mt-6 w-full">
+              <div className="bg-gray-100 p-6 rounded-xl border border-gray-300 shadow-md h-fit">
+                <h2 className="text-xl font-semibold mb-6">
+                  Organization Transformation
+                </h2>
+                <div className="flex flex-col gap-4">
+                  <input
+                    placeholder="Enter Organization Name"
+                    value={newOrganizationName}
+                    onChange={(e) => setNewOrganizationName(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  />
+                  <input
+                    placeholder="Enter Organization Code"
+                    value={newOrganizationCode}
+                    onChange={(e) => setNewOrganizationCode(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  />
+                  <input
+                    type="url"
+                    placeholder="Enter Logo URL (optional)"
+                    value={newOrganizationLogo}
+                    onChange={(e) => setNewOrganizationLogo(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  />
+                  <button
+                    onClick={addOrganization}
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
+                  >
+                    {isLoading ? "Adding..." : "Add Organization"}
+                  </button>
+                </div>
+              </div>
+
               <div className="bg-gray-100 p-6 rounded-xl border border-gray-300 shadow-md h-fit">
                 <h2 className="text-xl font-semibold mb-6">
                   Facility Transformation
                 </h2>
                 <div className="flex flex-col gap-4">
+                  <select
+                    value={selectedOrganization}
+                    onChange={(e) => setSelectedOrganization(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Organization</option>
+                    {organizations.map((organization) => (
+                      <option key={organization.id} value={organization.id}>
+                        {organization.name}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     placeholder="Enter Facility Name"
                     value={newFacilityName}
@@ -897,10 +1061,23 @@ export default function Standards() {
                 </h2>
                 <div className="flex flex-col gap-4">
                   <select
-                    value={selectedFacility}
-                    onChange={(e) => setSelectedFacility(e.target.value)}
+                    value={selectedOrganization}
+                    onChange={(e) => setSelectedOrganization(e.target.value)}
                     disabled={isLoading}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Organization</option>
+                    {organizations.map((organization) => (
+                      <option key={organization.id} value={organization.id}>
+                        {organization.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedFacility}
+                    disabled={!selectedOrganization || isLoading}
+                    onChange={(e) => setSelectedFacility(e.target.value)}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                   >
                     <option value="">Select Facility</option>
                     {facilities.map((facility) => (
@@ -932,12 +1109,25 @@ export default function Standards() {
                 </h2>
                 <div className="flex flex-col gap-4">
                   <select
+                    value={selectedOrganization}
+                    onChange={(e) => setSelectedOrganization(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Organization</option>
+                    {organizations.map((organization) => (
+                      <option key={organization.id} value={organization.id}>
+                        {organization.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
                     value={selectedFacility}
+                    disabled={!selectedOrganization || isLoading}
                     onChange={(e) => {
                       setSelectedFacility(e.target.value);
                     }}
-                    disabled={isLoading}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                   >
                     <option value="">Select Facility</option>
                     {facilities.map((facility) => (
@@ -986,6 +1176,7 @@ export default function Standards() {
                   <table className="w-full border-collapse bg-white rounded-lg overflow-hidden">
                     <thead>
                       <tr className="bg-gray-100">
+                        <th className="p-3 text-left">Organization</th>
                         <th className="p-3 text-left">Facility</th>
                         <th className="p-3 text-left">Department</th>
                         <th className="p-3 text-left">Area</th>
@@ -1001,6 +1192,9 @@ export default function Standards() {
                           key={standard.id}
                           className="border-b border-gray-300"
                         >
+                          <td className="p-3">
+                            {standard.facility.organization?.name || "N/A"}
+                          </td>
                           <td className="p-3">{standard.facility.name}</td>
                           <td className="p-3">{standard.department.name}</td>
                           <td className="p-3">{standard.area.name}</td>
