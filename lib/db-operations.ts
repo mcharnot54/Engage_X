@@ -227,7 +227,11 @@ export async function getStandardById(id: number) {
   return prisma.standard.findUnique({
     where: { id },
     include: {
-      facility: true,
+      facility: {
+        include: {
+          organization: true,
+        },
+      },
       department: true,
       area: true,
       uomEntries: true,
@@ -239,7 +243,11 @@ export async function getStandardsByArea(areaId: number) {
   return prisma.standard.findMany({
     where: { areaId, isActive: true },
     include: {
-      facility: true,
+      facility: {
+        include: {
+          organization: true,
+        },
+      },
       department: true,
       area: true,
       uomEntries: true,
