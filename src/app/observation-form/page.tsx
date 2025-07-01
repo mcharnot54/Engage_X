@@ -773,6 +773,47 @@ export default function GazeObservationApp() {
               </div>
             </div>
 
+            {/* Observation Timer and Controls */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <div className="grid grid-cols-4 gap-6 mb-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600">
+                    {timeObserved.toFixed(2)}
+                  </div>
+                  <div className="text-gray-600">Minutes Observed</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600">
+                    {totalSams.toFixed(2)}
+                  </div>
+                  <div className="text-gray-600">Total SAMs</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600">
+                    {observedPerformance.toFixed(1)}%
+                  </div>
+                  <div className="text-gray-600">Observed Performance</div>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={startObservation}
+                  disabled={isObserving || isFinalized || !selectedStandardData}
+                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
+                >
+                  Start Observation
+                </button>
+                <button
+                  onClick={stopObservation}
+                  disabled={!isObserving}
+                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
+                >
+                  Stop Observation
+                </button>
+              </div>
+            </div>
+
             {/* Dynamic UOM Operations Table with Smart Grouping */}
             {selectedStandardData && (
               <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
