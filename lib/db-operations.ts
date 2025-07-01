@@ -198,7 +198,11 @@ export async function createStandard(data: {
       },
     },
     include: {
-      facility: true,
+      facility: {
+        include: {
+          organization: true,
+        },
+      },
       department: true,
       area: true,
       uomEntries: true,
@@ -272,7 +276,11 @@ export async function updateStandard(
     where: { id },
     data,
     include: {
-      facility: true,
+      facility: {
+        include: {
+          organization: true,
+        },
+      },
       department: true,
       area: true,
       uomEntries: true,
