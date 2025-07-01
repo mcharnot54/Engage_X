@@ -961,10 +961,9 @@ export default function GazeObservationApp() {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            )}
+                </div>
 
-            {/* Delay Tracking */}
+                {/* Delay Tracking */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
               <div className="grid grid-cols-3 gap-4 mb-4">
