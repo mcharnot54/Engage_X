@@ -139,9 +139,29 @@ export default function Standards() {
       }
       const data = await response.json();
       setOrganizations(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading organizations:", error);
-      setError("Failed to load organizations");
+
+      // Try to get more specific error information from the API response
+      if (error instanceof Error && error.message.includes("Failed to fetch")) {
+        try {
+          const response = await fetch("/api/organizations");
+          const errorData = await response.json();
+          if (errorData.details?.includes("DATABASE_URL")) {
+            setError(
+              "Database connection error: Please configure DATABASE_URL in .env.local file",
+            );
+          } else {
+            setError(
+              `Failed to load organizations: ${errorData.details || error.message}`,
+            );
+          }
+        } catch {
+          setError("Failed to load organizations - Check database connection");
+        }
+      } else {
+        setError("Failed to load organizations");
+      }
     } finally {
       setIsLoading(false);
     }
