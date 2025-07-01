@@ -764,16 +764,6 @@ export default function GazeObservationApp() {
                   </option>
                 ))}
               </select>
-
-              <div className="flex gap-4 mt-4">
-                <button
-                  onClick={() => setShowPreviousObservations(true)}
-                  disabled={!employeeId || !standard}
-                  className="px-4 py-2 bg-blue-500 text-white border-none rounded cursor-pointer disabled:opacity-70"
-                >
-                  View Previous Observations
-                </button>
-              </div>
             </div>
 
             {/* Observation Timer and Controls */}
