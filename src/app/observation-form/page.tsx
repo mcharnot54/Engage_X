@@ -1,13 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import {
-  getStandards,
-  getStandardById,
-  createObservation,
-  getUserByEmployeeId,
-  createUser,
-} from "@/lib/db-operations";
 
 type Row = {
   id: number;
