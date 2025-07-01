@@ -708,49 +708,11 @@ export default function GazeObservationApp() {
               </div>
             )}
 
-            {/* Observation Timer and Controls */}
+            {/* Observation Details */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-              <div className="grid grid-cols-4 gap-6 mb-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">
-                    {timeObserved.toFixed(2)}
-                  </div>
-                  <div className="text-gray-600">Minutes Observed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600">
-                    {totalSams.toFixed(2)}
-                  </div>
-                  <div className="text-gray-600">Total SAMs</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600">
-                    {observedPerformance.toFixed(1)}%
-                  </div>
-                  <div className="text-gray-600">Observed Performance</div>
-                </div>
-              </div>
-
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={startObservation}
-                  disabled={isObserving || isFinalized || !selectedStandardData}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
-                >
-                  Start Observation
-                </button>
-                <button
-                  onClick={stopObservation}
-                  disabled={!isObserving}
-                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
-                >
-                  Stop Observation
-                </button>
-              </div>
-            </div>
-
-            {/* Selection Form */}
-            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">
+                Observation Details
+              </h3>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <select
                   value={employeeId}
