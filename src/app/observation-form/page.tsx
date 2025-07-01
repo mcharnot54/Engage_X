@@ -819,34 +819,18 @@ export default function GazeObservationApp() {
               <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
                 <h3 className="text-lg font-semibold mb-6">Standards Form</h3>
 
-                {/* Dynamic UOM Operations Table with Smart Grouping */}
+                {/* UOM Operations Table */}
                 <div className="bg-white rounded-lg p-6 border border-gray-300 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-md font-semibold">Operations</h4>
                     {isDynamicGroupingActive && (
                       <div className="text-sm text-green-600 font-medium">
-                        🏷️ Smart grouping active - UOMs with shared tags are
-                        grouped together
+                        🏷️ Smart grouping active - UOMs with shared tags are grouped together
                       </div>
                     )}
                   </div>
 
-                  {/* Operations Table */}
-                  <div className="overflow-x-auto mb-6">
-                    <table className="w-full border-collapse bg-white">
-                      <thead>
-                        <tr className="bg-gray-100 border-b-2 border-gray-300">
-                  <h3 className="text-lg font-semibold">Operations</h3>
-                  {isDynamicGroupingActive && (
-                    <div className="text-sm text-green-600 font-medium">
-                      🏷️ Smart grouping active - UOMs with shared tags are
-                      grouped together
-                    </div>
-                  )}
-                </div>
-
-                {/* Operations Table */}
-                <div className="overflow-x-auto mb-6">
+                  <div className="overflow-x-auto">
                   <table className="w-full border-collapse bg-white">
                     <thead>
                       <tr className="bg-gray-100 border-b-2 border-gray-300">
