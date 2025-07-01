@@ -965,7 +965,44 @@ export default function Standards() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 mt-6 w-full">
+            <div className="grid grid-cols-4 gap-6 mt-6 w-full">
+              <div className="bg-gray-100 p-6 rounded-xl border border-gray-300 shadow-md h-fit">
+                <h2 className="text-xl font-semibold mb-6">
+                  Organization Transformation
+                </h2>
+                <div className="flex flex-col gap-4">
+                  <input
+                    placeholder="Enter Organization Name"
+                    value={newOrganizationName}
+                    onChange={(e) => setNewOrganizationName(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  />
+                  <input
+                    placeholder="Enter Organization Code"
+                    value={newOrganizationCode}
+                    onChange={(e) => setNewOrganizationCode(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  />
+                  <input
+                    type="url"
+                    placeholder="Enter Logo URL (optional)"
+                    value={newOrganizationLogo}
+                    onChange={(e) => setNewOrganizationLogo(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  />
+                  <button
+                    onClick={addOrganization}
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
+                  >
+                    {isLoading ? "Adding..." : "Add Organization"}
+                  </button>
+                </div>
+              </div>
+
               <div className="bg-gray-100 p-6 rounded-xl border border-gray-300 shadow-md h-fit">
                 <h2 className="text-xl font-semibold mb-6">
                   Facility Transformation
