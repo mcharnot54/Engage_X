@@ -25,17 +25,32 @@ model User {
   @@map("users")
 }
 
-model Facility {
+model Organization {
   id          Int      @id @default(autoincrement())
   name        String
-  ref         String?
-  city        String?
-  dateAdded   DateTime @default(now())
+  code        String   @unique
+  logo        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  departments Department[]
-  standards   Standard[]
+  facilities  Facility[]
+
+  @@map("organizations")
+}
+
+model Facility {
+  id             Int      @id @default(autoincrement())
+  name           String
+  ref            String?
+  city           String?
+  organizationId Int
+  dateAdded      DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departments    Department[]
+  standards      Standard[]
 
   @@map("facilities")
 }
