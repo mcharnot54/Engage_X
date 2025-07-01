@@ -242,9 +242,29 @@ export default function Standards() {
       }
       const data = await response.json();
       setSavedStandards(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading standards:", error);
-      setError("Failed to load standards");
+
+      // Try to get more specific error information from the API response
+      if (error instanceof Error && error.message.includes("Failed to fetch")) {
+        try {
+          const response = await fetch("/api/standards");
+          const errorData = await response.json();
+          if (errorData.details?.includes("DATABASE_URL")) {
+            setError(
+              "Database connection error: Please configure DATABASE_URL in .env.local file",
+            );
+          } else {
+            setError(
+              `Failed to load standards: ${errorData.details || error.message}`,
+            );
+          }
+        } catch {
+          setError("Failed to load standards - Check database connection");
+        }
+      } else {
+        setError("Failed to load standards");
+      }
     }
   };
 
