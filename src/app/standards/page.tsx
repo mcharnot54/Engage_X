@@ -931,21 +931,23 @@ export default function Standards() {
                   )}
                 </div>
 
-                <select
-                  value={selectedDepartment}
-                  disabled={!selectedFacility || isLoading}
-                  onChange={(e) => {
-                    setSelectedDepartment(e.target.value);
-                  }}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
-                >
-                  <option value="">Select Department</option>
-                  {departments.map((department) => (
-                    <option value={department.id} key={department.id}>
-                      {department.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedDepartment}
+                    disabled={!selectedFacility || isLoading}
+                    onChange={(e) => {
+                      setSelectedDepartment(e.target.value);
+                    }}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map((department) => (
+                      <option value={department.id} key={department.id}>
+                        {department.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <select
                   value={selectedArea}
