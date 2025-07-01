@@ -124,6 +124,11 @@ export default function Standards() {
   ]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
+  // CSV Upload state
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<any>(null);
+
   // Load data from API
   const loadOrganizations = async () => {
     try {
