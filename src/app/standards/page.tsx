@@ -1173,6 +1173,7 @@ export default function Standards() {
                   <table className="w-full border-collapse bg-white rounded-lg overflow-hidden">
                     <thead>
                       <tr className="bg-gray-100">
+                        <th className="p-3 text-left">Organization</th>
                         <th className="p-3 text-left">Facility</th>
                         <th className="p-3 text-left">Department</th>
                         <th className="p-3 text-left">Area</th>
@@ -1188,6 +1189,9 @@ export default function Standards() {
                           key={standard.id}
                           className="border-b border-gray-300"
                         >
+                          <td className="p-3">
+                            {standard.facility.organization?.name || "N/A"}
+                          </td>
                           <td className="p-3">{standard.facility.name}</td>
                           <td className="p-3">{standard.department.name}</td>
                           <td className="p-3">{standard.area.name}</td>
