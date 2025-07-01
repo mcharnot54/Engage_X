@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 export default function PhoenixPGSLogin() {
   const [credentials, setCredentials] = useState({
     username: "",
+    email: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,19 +24,29 @@ export default function PhoenixPGSLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     // Simulate login process
     setTimeout(() => {
       setIsLoading(false);
-      console.log("Login attempted with:", credentials);
 
-      // For now, accept any credentials and redirect to observation-form
-      if (credentials.username && credentials.password) {
+      // Validate specific credentials
+      const validUsername = "EngageX";
+      const validEmail = "mdcharnot@continuumpmc.com";
+      const validPassword = "Phoen!X25";
+
+      if (
+        credentials.username === validUsername &&
+        credentials.email === validEmail &&
+        credentials.password === validPassword
+      ) {
         // Successful login - redirect to observation form
         router.push("/observation-form");
       } else {
-        // Handle empty credentials (this shouldn't happen due to required fields)
-        alert("Please enter both username and password");
+        // Invalid credentials
+        setError(
+          "Invalid credentials. Please check your username, email, and password.",
+        );
       }
     }, 1000);
   };
@@ -93,13 +105,19 @@ export default function PhoenixPGSLogin() {
                               onSubmit={handleSubmit}
                               className="space-y-6 max-lg:mx-auto"
                             >
+                              {error && (
+                                <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-300 text-sm">
+                                  {error}
+                                </div>
+                              )}
+
                               {/* Username Field */}
                               <div>
                                 <label
                                   htmlFor="username"
-                                  className="block text-sm font-medium text-gray-400 mb-2"
+                                  className="block text-sm font-medium text-red-600 mb-2"
                                 >
-                                  Username or Email
+                                  Username
                                 </label>
                                 <input
                                   type="text"
@@ -107,10 +125,31 @@ export default function PhoenixPGSLogin() {
                                   name="username"
                                   value={credentials.username}
                                   onChange={handleInputChange}
-                                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-[1px_1px_3px_0px_rgba(0,0,0,1)]"
-                                  placeholder="Enter your username or email"
+                                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-red-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-[1px_1px_3px_0px_rgba(0,0,0,1)]"
+                                  placeholder="Enter your username"
                                   required
                                   aria-describedby="username-help"
+                                />
+                              </div>
+
+                              {/* Email Field */}
+                              <div>
+                                <label
+                                  htmlFor="email"
+                                  className="block text-sm font-medium text-red-600 mb-2"
+                                >
+                                  Email Address
+                                </label>
+                                <input
+                                  type="email"
+                                  id="email"
+                                  name="email"
+                                  value={credentials.email}
+                                  onChange={handleInputChange}
+                                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-red-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-[1px_1px_3px_0px_rgba(0,0,0,1)]"
+                                  placeholder="Enter your email address"
+                                  required
+                                  aria-describedby="email-help"
                                 />
                               </div>
 
@@ -118,7 +157,7 @@ export default function PhoenixPGSLogin() {
                               <div>
                                 <label
                                   htmlFor="password"
-                                  className="block text-sm font-medium text-gray-400 mb-2"
+                                  className="block text-sm font-medium text-red-600 mb-2"
                                 >
                                   Password
                                 </label>
@@ -128,7 +167,7 @@ export default function PhoenixPGSLogin() {
                                   name="password"
                                   value={credentials.password}
                                   onChange={handleInputChange}
-                                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-[1px_1px_3px_0px_rgba(0,0,0,1)]"
+                                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-red-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-[1px_1px_3px_0px_rgba(0,0,0,1)]"
                                   placeholder="Enter your password"
                                   required
                                   aria-describedby="password-help"
