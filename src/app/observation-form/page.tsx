@@ -716,7 +716,12 @@ export default function GazeObservationApp() {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <select
                   value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value)}
+                  onChange={(e) => {
+                    setEmployeeId(e.target.value);
+                    if (e.target.value) {
+                      setShowPreviousObservations(true);
+                    }
+                  }}
                   disabled={isObserving}
                   className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
                 >
