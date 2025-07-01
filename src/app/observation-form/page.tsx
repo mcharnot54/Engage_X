@@ -728,7 +728,12 @@ export default function GazeObservationApp() {
 
                 <select
                   value={observationReason}
-                  onChange={(e) => setObservationReason(e.target.value)}
+                  onChange={(e) => {
+                    setObservationReason(e.target.value);
+                    if (e.target.value) {
+                      setShowReasonInstructions(true);
+                    }
+                  }}
                   disabled={isObserving}
                   className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
                 >
@@ -762,13 +767,6 @@ export default function GazeObservationApp() {
                   className="px-4 py-2 bg-blue-500 text-white border-none rounded cursor-pointer disabled:opacity-70"
                 >
                   View Previous Observations
-                </button>
-                <button
-                  onClick={() => setShowReasonInstructions(true)}
-                  disabled={!observationReason}
-                  className="px-4 py-2 bg-gray-500 text-white border-none rounded cursor-pointer disabled:opacity-70"
-                >
-                  View Instructions
                 </button>
               </div>
             </div>
