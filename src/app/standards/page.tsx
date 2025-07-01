@@ -58,6 +58,9 @@ interface Standard {
   areaId: number;
   facility: {
     name: string;
+    organization?: {
+      name: string;
+    };
   };
   department: {
     name: string;
