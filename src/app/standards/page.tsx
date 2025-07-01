@@ -124,6 +124,11 @@ export default function Standards() {
   ]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
+  // CSV Upload state
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<any>(null);
+
   // Load data from API
   const loadOrganizations = async () => {
     try {
@@ -545,6 +550,77 @@ export default function Standards() {
     return Array.from(allTags).sort();
   };
 
+  const downloadCsvTemplate = async () => {
+    try {
+      const response = await fetch("/api/standards/template");
+      if (!response.ok) {
+        throw new Error("Failed to download template");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "standards-template.csv";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading template:", error);
+      setError("Failed to download template");
+    }
+  };
+
+  const handleCsvFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    setCsvFile(file || null);
+    setUploadResult(null);
+  };
+
+  const uploadCsvFile = async () => {
+    if (!csvFile) {
+      setError("Please select a CSV file");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setUploadResult(null);
+
+      const formData = new FormData();
+      formData.append("file", csvFile);
+
+      const response = await fetch("/api/standards/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      setUploadResult(result);
+
+      if (result.success && result.created > 0) {
+        // Refresh standards list
+        await loadStandards();
+        setSuccessMessage(`Successfully uploaded ${result.created} standards!`);
+        setShowSaveSuccess(true);
+        setTimeout(() => setShowSaveSuccess(false), 5000);
+
+        // Clear file input
+        setCsvFile(null);
+        const fileInput = document.getElementById(
+          "csv-upload",
+        ) as HTMLInputElement;
+        if (fileInput) fileInput.value = "";
+      }
+    } catch (error) {
+      console.error("Error uploading CSV:", error);
+      setError("Failed to upload CSV file");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const updateBestPractice = (index: number, value: string) => {
     const newPractices = [...bestPractices];
     newPractices[index] = value;
@@ -650,6 +726,139 @@ export default function Standards() {
                 {error}
               </div>
             )}
+
+            {/* CSV Upload Section */}
+            <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-md mb-6">
+              <h2 className="text-xl font-semibold mb-4 text-blue-800">
+                Bulk Standard Upload
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload CSV File
+                  </label>
+                  <input
+                    id="csv-upload"
+                    type="file"
+                    accept=".csv"
+                    onChange={handleCsvFileChange}
+                    disabled={isUploading}
+                    className="w-full p-2 border border-gray-300 rounded-md bg-white disabled:opacity-50"
+                  />
+                  <p className="text-sm text-gray-600 mt-1">
+                    Upload multiple standards at once. Max: 75 UOMs, 20 Best
+                    Practices, 20 Process Opportunities per standard.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={downloadCsvTemplate}
+                    disabled={isLoading}
+                    className="px-4 py-2 bg-blue-500 text-white border-none rounded-md cursor-pointer font-semibold hover:bg-blue-600 disabled:opacity-50"
+                  >
+                    📥 Download Template
+                  </button>
+                  <button
+                    onClick={uploadCsvFile}
+                    disabled={!csvFile || isUploading}
+                    className="px-4 py-2 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold hover:bg-green-600 disabled:opacity-50"
+                  >
+                    {isUploading ? "Uploading..." : "🚀 Upload Standards"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Upload Results */}
+              {uploadResult && (
+                <div
+                  className={`p-4 rounded-lg border ${uploadResult.success ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
+                >
+                  <h3
+                    className={`font-semibold mb-2 ${uploadResult.success ? "text-green-800" : "text-red-800"}`}
+                  >
+                    Upload Results
+                  </h3>
+
+                  {uploadResult.success && (
+                    <p className="text-green-700 mb-2">
+                      ✅ Successfully created {uploadResult.created} standards
+                    </p>
+                  )}
+
+                  {uploadResult.errors?.length > 0 && (
+                    <div className="mb-3">
+                      <h4 className="font-medium text-red-700 mb-1">Errors:</h4>
+                      <ul className="text-sm text-red-600 space-y-1">
+                        {uploadResult.errors.map(
+                          (error: string, index: number) => (
+                            <li key={index}>• {error}</li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+                  )}
+
+                  {uploadResult.warnings?.length > 0 && (
+                    <div className="mb-3">
+                      <h4 className="font-medium text-yellow-700 mb-1">
+                        Warnings:
+                      </h4>
+                      <ul className="text-sm text-yellow-600 space-y-1">
+                        {uploadResult.warnings.map(
+                          (warning: string, index: number) => (
+                            <li key={index}>• {warning}</li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+                  )}
+
+                  {uploadResult.details?.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-gray-700 mb-1">
+                        Details:
+                      </h4>
+                      <div className="max-h-32 overflow-y-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-gray-100">
+                              <th className="px-2 py-1 text-left">Row</th>
+                              <th className="px-2 py-1 text-left">Standard</th>
+                              <th className="px-2 py-1 text-left">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {uploadResult.details.map(
+                              (detail: any, index: number) => (
+                                <tr key={index} className="border-b">
+                                  <td className="px-2 py-1">{detail.row}</td>
+                                  <td className="px-2 py-1">
+                                    {detail.standardName}
+                                  </td>
+                                  <td className="px-2 py-1">
+                                    <span
+                                      className={
+                                        detail.status === "created"
+                                          ? "text-green-600"
+                                          : "text-red-600"
+                                      }
+                                    >
+                                      {detail.status === "created"
+                                        ? "✅ Created"
+                                        : "❌ Error"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ),
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             <div className="bg-gray-100 p-6 rounded-xl border border-gray-300 shadow-md">
               <h2 className="text-xl font-semibold mb-6">
