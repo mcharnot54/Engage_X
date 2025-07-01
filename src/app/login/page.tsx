@@ -35,8 +35,8 @@ export default function PhoenixPGSLogin() {
       const validPassword = "Phoen!X25";
 
       if (
-        credentials.username === validUsername &&
-        credentials.email === validEmail &&
+        (credentials.usernameOrEmail === validUsername ||
+          credentials.usernameOrEmail === validEmail) &&
         credentials.password === validPassword
       ) {
         // Successful login - redirect to observation form
@@ -44,7 +44,7 @@ export default function PhoenixPGSLogin() {
       } else {
         // Invalid credentials
         setError(
-          "Invalid credentials. Please check your username, email, and password.",
+          "Invalid credentials. Please check your username/email and password.",
         );
       }
     }, 1000);
