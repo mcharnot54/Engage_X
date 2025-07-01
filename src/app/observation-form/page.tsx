@@ -56,6 +56,13 @@ export default function GazeObservationApp() {
   const [employeeId, setEmployeeId] = useState("");
   const [observationReason, setObservationReason] = useState("");
   const [standard, setStandard] = useState("");
+
+  // Multi-level standard selection state
+  const [showStandardDropdown, setShowStandardDropdown] = useState(false);
+  const [selectedOrganization, setSelectedOrganization] = useState("");
+  const [selectedFacility, setSelectedFacility] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
   const [observedPerformance, setObservedPerformance] = useState(0);
   const [isFinalized, setIsFinalized] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -222,6 +229,80 @@ export default function GazeObservationApp() {
     getRowsWithSharedTags,
     getActiveTagsForRows,
   ]);
+
+  // Helper functions for multi-level dropdown
+  const getUniqueOrganizations = () => {
+    const organizations = new Set();
+    standards.forEach((std) => {
+      // Assuming facility has organization info, or we can extract from facility name
+      organizations.add(std.facility.name.split(" - ")[0] || std.facility.name);
+    });
+    return Array.from(organizations) as string[];
+  };
+
+  const getUniqueFacilities = (organization?: string) => {
+    return standards
+      .filter(
+        (std) => !organization || std.facility.name.includes(organization),
+      )
+      .map((std) => ({ name: std.facility.name, id: std.facility.name }))
+      .filter(
+        (facility, index, arr) =>
+          arr.findIndex((f) => f.name === facility.name) === index,
+      );
+  };
+
+  const getUniqueDepartments = (facility?: string) => {
+    return standards
+      .filter((std) => !facility || std.facility.name === facility)
+      .map((std) => ({ name: std.department.name, id: std.department.name }))
+      .filter(
+        (dept, index, arr) =>
+          arr.findIndex((d) => d.name === dept.name) === index,
+      );
+  };
+
+  const getUniqueAreas = (facility?: string, department?: string) => {
+    return standards
+      .filter(
+        (std) =>
+          (!facility || std.facility.name === facility) &&
+          (!department || std.department.name === department),
+      )
+      .map((std) => ({ name: std.area.name, id: std.area.name }))
+      .filter(
+        (area, index, arr) =>
+          arr.findIndex((a) => a.name === area.name) === index,
+      );
+  };
+
+  const getFilteredStandards = () => {
+    return standards.filter(
+      (std) =>
+        (!selectedFacility || std.facility.name === selectedFacility) &&
+        (!selectedDepartment || std.department.name === selectedDepartment) &&
+        (!selectedArea || std.area.name === selectedArea),
+    );
+  };
+
+  const resetStandardSelection = () => {
+    setStandard("");
+    setSelectedOrganization("");
+    setSelectedFacility("");
+    setSelectedDepartment("");
+    setSelectedArea("");
+    setShowStandardDropdown(false);
+  };
+
+  const getSelectedStandardDisplay = () => {
+    if (standard && standards.length > 0) {
+      const selectedStd = standards.find((s) => s.id === Number(standard));
+      if (selectedStd) {
+        return `${selectedStd.name} (${selectedStd.facility.name} / ${selectedStd.department.name} / ${selectedStd.area.name})`;
+      }
+    }
+    return "Select Standard";
+  };
 
   // Database operations via API
   const loadStandards = async () => {
@@ -568,6 +649,7 @@ export default function GazeObservationApp() {
     setEmployeeId("");
     setObservationReason("");
     setStandard("");
+    resetStandardSelection();
     setSelectedStandardData(null);
     setRows([]);
     setOriginalRowOrder([]);
@@ -637,6 +719,21 @@ export default function GazeObservationApp() {
       return () => clearTimeout(timer);
     }
   }, [error]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showStandardDropdown && !target.closest(".standard-dropdown")) {
+        setShowStandardDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showStandardDropdown]);
 
   // Helper function to get tag color
   const getTagColor = (tag: string, isActive: boolean) => {
@@ -713,10 +810,158 @@ export default function GazeObservationApp() {
               <h3 className="text-lg font-semibold mb-4">
                 Observation Details
               </h3>
-              <div className="grid grid-cols-2 gap-4 mb-4">
+
+              {/* Standard Selection - Multi-level Dropdown */}
+              <div className="mb-4 relative standard-dropdown">
+                <button
+                  onClick={() => setShowStandardDropdown(!showStandardDropdown)}
+                  disabled={isObserving}
+                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                >
+                  <span className={standard ? "text-black" : "text-gray-500"}>
+                    {getSelectedStandardDisplay()}
+                  </span>
+                  <span
+                    className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+                  >
+                    ▼
+                  </span>
+                </button>
+
+                {showStandardDropdown && (
+                  <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                    <div className="p-4 space-y-4">
+                      {/* Facility Selection */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          1. Select Facility
+                        </label>
+                        <select
+                          value={selectedFacility}
+                          onChange={(e) => {
+                            setSelectedFacility(e.target.value);
+                            setSelectedDepartment("");
+                            setSelectedArea("");
+                            setStandard("");
+                          }}
+                          className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Choose Facility</option>
+                          {getUniqueFacilities().map((facility) => (
+                            <option key={facility.id} value={facility.name}>
+                              {facility.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Department Selection */}
+                      {selectedFacility && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            2. Select Department
+                          </label>
+                          <select
+                            value={selectedDepartment}
+                            onChange={(e) => {
+                              setSelectedDepartment(e.target.value);
+                              setSelectedArea("");
+                              setStandard("");
+                            }}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Choose Department</option>
+                            {getUniqueDepartments(selectedFacility).map(
+                              (dept) => (
+                                <option key={dept.id} value={dept.name}>
+                                  {dept.name}
+                                </option>
+                              ),
+                            )}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Area Selection */}
+                      {selectedDepartment && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            3. Select Area
+                          </label>
+                          <select
+                            value={selectedArea}
+                            onChange={(e) => {
+                              setSelectedArea(e.target.value);
+                              setStandard("");
+                            }}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Choose Area</option>
+                            {getUniqueAreas(
+                              selectedFacility,
+                              selectedDepartment,
+                            ).map((area) => (
+                              <option key={area.id} value={area.name}>
+                                {area.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Standard Selection */}
+                      {selectedArea && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            4. Select Standard
+                          </label>
+                          <select
+                            value={standard}
+                            onChange={(e) => {
+                              setStandard(e.target.value);
+                              setShowStandardDropdown(false);
+                            }}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Choose Standard</option>
+                            {getFilteredStandards().map((std) => (
+                              <option key={std.id} value={std.id}>
+                                {std.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Action Buttons */}
+                      <div className="flex justify-between pt-3 border-t border-gray-200">
+                        <button
+                          onClick={resetStandardSelection}
+                          className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
+                        >
+                          Clear Selection
+                        </button>
+                        <button
+                          onClick={() => setShowStandardDropdown(false)}
+                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <select
                   value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value)}
+                  onChange={(e) => {
+                    setEmployeeId(e.target.value);
+                    if (e.target.value) {
+                      setShowPreviousObservations(true);
+                    }
+                  }}
                   disabled={isObserving}
                   className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
                 >
@@ -728,7 +973,12 @@ export default function GazeObservationApp() {
 
                 <select
                   value={observationReason}
-                  onChange={(e) => setObservationReason(e.target.value)}
+                  onChange={(e) => {
+                    setObservationReason(e.target.value);
+                    if (e.target.value) {
+                      setShowReasonInstructions(true);
+                    }
+                  }}
                   disabled={isObserving}
                   className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
                 >
@@ -738,38 +988,6 @@ export default function GazeObservationApp() {
                   <option value="incident">Incident Follow-up</option>
                   <option value="routine">Routine Check</option>
                 </select>
-              </div>
-
-              <select
-                value={standard}
-                onChange={(e) => setStandard(e.target.value)}
-                disabled={isObserving}
-                className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
-              >
-                <option value="">Select Standard</option>
-                {standards.map((std) => (
-                  <option key={std.id} value={std.id}>
-                    {std.name} - {std.facility.name} / {std.department.name} /{" "}
-                    {std.area.name}
-                  </option>
-                ))}
-              </select>
-
-              <div className="flex gap-4 mt-4">
-                <button
-                  onClick={() => setShowPreviousObservations(true)}
-                  disabled={!employeeId || !standard}
-                  className="px-4 py-2 bg-blue-500 text-white border-none rounded cursor-pointer disabled:opacity-70"
-                >
-                  View Previous Observations
-                </button>
-                <button
-                  onClick={() => setShowReasonInstructions(true)}
-                  disabled={!observationReason}
-                  className="px-4 py-2 bg-gray-500 text-white border-none rounded cursor-pointer disabled:opacity-70"
-                >
-                  View Instructions
-                </button>
               </div>
             </div>
 
@@ -1284,85 +1502,203 @@ export default function GazeObservationApp() {
         {/* Previous Observations Popup */}
         {showPreviousObservations && (
           <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center">
-            <div className="bg-white rounded-lg p-6 w-11/12 max-w-4xl max-h-[80vh] overflow-y-auto relative">
+            <div className="bg-white rounded-lg p-6 w-11/12 max-w-5xl max-h-[85vh] overflow-y-auto relative">
               <button
                 onClick={() => setShowPreviousObservations(false)}
-                className="absolute right-6 top-6 bg-transparent border-none text-2xl cursor-pointer"
+                className="absolute right-6 top-6 bg-transparent border-none text-2xl cursor-pointer text-gray-500 hover:text-gray-700"
               >
                 ×
               </button>
-              <h2 className="text-2xl mb-4 pr-10">
+              <h2 className="text-2xl mb-6 pr-10 text-blue-600">
                 {employeeId === "emp001"
                   ? "John Smith"
                   : employeeId === "emp002"
                     ? "Sarah Johnson"
                     : "Michael Brown"}
-                's Previous Observations
+                's Performance History
               </h2>
 
-              {previousObservations[employeeId]?.[standard] ? (
-                <div>
-                  <div className="grid grid-cols-4 gap-4 mb-4">
-                    <div className="p-4 bg-white rounded-lg text-center border border-gray-300">
-                      <div className="text-2xl font-semibold text-blue-500">
-                        95.8%
-                      </div>
-                      <div className="text-gray-600 text-sm">
-                        Average Performance
-                      </div>
-                    </div>
-                    <div className="p-4 bg-white rounded-lg text-center border border-gray-300">
-                      <div className="text-2xl font-semibold text-green-500">
-                        102.3%
-                      </div>
-                      <div className="text-gray-600 text-sm">
-                        Highest Performance
-                      </div>
-                    </div>
-                    <div className="p-4 bg-white rounded-lg text-center border border-gray-300">
-                      <div className="text-2xl font-semibold text-orange-500">
-                        89.8%
-                      </div>
-                      <div className="text-gray-600 text-sm">
-                        Lowest Performance
-                      </div>
-                    </div>
-                    <div className="p-4 bg-white rounded-lg text-center border border-gray-300">
-                      <div className="text-2xl font-semibold text-purple-500">
-                        5
-                      </div>
-                      <div className="text-gray-600 text-sm">
-                        Total Observations
-                      </div>
-                    </div>
-                  </div>
+              {(() => {
+                // Get all observations for the employee across all standards
+                const allObservations =
+                  employeeId && previousObservations[employeeId]
+                    ? Object.values(previousObservations[employeeId]).flat()
+                    : [];
 
-                  <h3 className="text-lg mb-4">Detailed History</h3>
-                  <div className="grid grid-cols-3 gap-4 p-4 bg-white rounded-lg mb-4 font-semibold border border-gray-300">
-                    <div>Date</div>
-                    <div>Observed Performance</div>
-                    <div>Grade Factor Performance</div>
-                  </div>
+                // Sort by date (newest first) and take the last 5
+                const recentObservations = allObservations
+                  .sort(
+                    (a, b) =>
+                      new Date(b.date).getTime() - new Date(a.date).getTime(),
+                  )
+                  .slice(0, 5);
 
-                  {previousObservations[employeeId][standard].map(
-                    (obs, index) => (
-                      <div
-                        key={index}
-                        className="grid grid-cols-3 gap-4 p-4 border-b border-gray-200"
-                      >
-                        <div>{obs.date}</div>
-                        <div>{obs.observedPerf}%</div>
-                        <div>{obs.gradeFactorPerf}%</div>
+                if (recentObservations.length > 0) {
+                  // Calculate statistics
+                  const performances = recentObservations.map((obs) =>
+                    parseFloat(obs.observedPerf),
+                  );
+                  const avgPerformance =
+                    performances.reduce((sum, perf) => sum + perf, 0) /
+                    performances.length;
+                  const maxPerformance = Math.max(...performances);
+                  const minPerformance = Math.min(...performances);
+                  const trend =
+                    performances.length > 1
+                      ? performances[0] - performances[performances.length - 1]
+                      : 0;
+
+                  return (
+                    <div>
+                      {/* Performance Summary Cards */}
+                      <div className="grid grid-cols-4 gap-4 mb-6">
+                        <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center border border-blue-200">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {avgPerformance.toFixed(1)}%
+                          </div>
+                          <div className="text-blue-700 text-sm font-medium">
+                            Average Performance
+                          </div>
+                        </div>
+                        <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg text-center border border-green-200">
+                          <div className="text-2xl font-bold text-green-600">
+                            {maxPerformance.toFixed(1)}%
+                          </div>
+                          <div className="text-green-700 text-sm font-medium">
+                            Best Performance
+                          </div>
+                        </div>
+                        <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg text-center border border-orange-200">
+                          <div className="text-2xl font-bold text-orange-600">
+                            {minPerformance.toFixed(1)}%
+                          </div>
+                          <div className="text-orange-700 text-sm font-medium">
+                            Lowest Performance
+                          </div>
+                        </div>
+                        <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg text-center border border-purple-200">
+                          <div className="text-2xl font-bold text-purple-600">
+                            {trend > 0 ? "+" : ""}
+                            {trend.toFixed(1)}%
+                          </div>
+                          <div className="text-purple-700 text-sm font-medium">
+                            Recent Trend
+                          </div>
+                        </div>
                       </div>
-                    ),
-                  )}
-                </div>
-              ) : (
-                <div className="p-8 text-center bg-gray-100 rounded-lg text-gray-600">
-                  This will be the first observation for this team member on
-                  this standard.
-                </div>
-              )}
+
+                      {/* Performance Chart Visualization */}
+                      <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                          Performance Trend (Last 5 Observations)
+                        </h3>
+                        <div className="flex items-end justify-between h-32 bg-white rounded p-4 border">
+                          {recentObservations.reverse().map((obs, index) => {
+                            const performance = parseFloat(obs.observedPerf);
+                            const height = Math.max(
+                              (performance / 120) * 100,
+                              10,
+                            ); // Scale to chart height
+                            const color =
+                              performance >= 100
+                                ? "bg-green-500"
+                                : performance >= 90
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500";
+
+                            return (
+                              <div
+                                key={index}
+                                className="flex flex-col items-center flex-1"
+                              >
+                                <div className="text-xs text-gray-600 mb-1 font-medium">
+                                  {performance}%
+                                </div>
+                                <div
+                                  className={`w-8 ${color} rounded-t transition-all hover:opacity-80`}
+                                  style={{ height: `${height}%` }}
+                                ></div>
+                                <div className="text-xs text-gray-500 mt-2 transform rotate-45 origin-left">
+                                  {new Date(obs.date).toLocaleDateString(
+                                    "en-US",
+                                    { month: "short", day: "numeric" },
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Detailed History Table */}
+                      <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                        Recent Observations
+                      </h3>
+                      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="grid grid-cols-4 gap-4 p-4 bg-gray-100 font-semibold text-gray-700 border-b">
+                          <div>Date</div>
+                          <div>Observed Performance</div>
+                          <div>Grade Factor Performance</div>
+                          <div>Status</div>
+                        </div>
+                        {recentObservations.reverse().map((obs, index) => {
+                          const performance = parseFloat(obs.observedPerf);
+                          const status =
+                            performance >= 100
+                              ? "Excellent"
+                              : performance >= 90
+                                ? "Good"
+                                : "Needs Improvement";
+                          const statusColor =
+                            performance >= 100
+                              ? "text-green-600 bg-green-50"
+                              : performance >= 90
+                                ? "text-yellow-600 bg-yellow-50"
+                                : "text-red-600 bg-red-50";
+
+                          return (
+                            <div
+                              key={index}
+                              className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50"
+                            >
+                              <div className="font-medium">
+                                {new Date(obs.date).toLocaleDateString()}
+                              </div>
+                              <div className="font-semibold">
+                                {obs.observedPerf}%
+                              </div>
+                              <div>{obs.gradeFactorPerf}%</div>
+                              <div
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}
+                              >
+                                {status}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="p-12 text-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+                      <div className="text-4xl text-gray-400 mb-4">📊</div>
+                      <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                        No Previous Observations
+                      </h3>
+                      <p className="text-gray-500">
+                        This will be the first observation for{" "}
+                        {employeeId === "emp001"
+                          ? "John Smith"
+                          : employeeId === "emp002"
+                            ? "Sarah Johnson"
+                            : "Michael Brown"}
+                        .
+                      </p>
+                    </div>
+                  );
+                }
+              })()}
             </div>
           </div>
         )}
