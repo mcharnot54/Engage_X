@@ -812,7 +812,7 @@ export default function GazeObservationApp() {
               </h3>
 
               {/* Standard Selection - Multi-level Dropdown */}
-              <div className="mb-4 relative">
+              <div className="mb-4 relative standard-dropdown">
                 <button
                   onClick={() => setShowStandardDropdown(!showStandardDropdown)}
                   disabled={isObserving}
