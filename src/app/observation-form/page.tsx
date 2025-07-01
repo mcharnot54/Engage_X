@@ -814,8 +814,22 @@ export default function GazeObservationApp() {
               </div>
             </div>
 
-            {/* Dynamic UOM Operations Table with Smart Grouping */}
+            {/* Standards Form */}
             {selectedStandardData && (
+              <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+                <h3 className="text-lg font-semibold mb-6">Standards Form</h3>
+
+                {/* Dynamic UOM Operations Table with Smart Grouping */}
+                <div className="bg-white rounded-lg p-6 border border-gray-300 mb-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-md font-semibold">Operations</h4>
+                    {isDynamicGroupingActive && (
+                      <div className="text-sm text-green-600 font-medium">
+                        🏷️ Smart grouping active - UOMs with shared tags are
+                        grouped together
+                      </div>
+                    )}
+                  </div>
               <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold">Operations</h3>
