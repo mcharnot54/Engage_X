@@ -1,19 +1,70 @@
 import { prisma } from "./prisma";
 
+// Organization operations
+export async function createOrganization(data: {
+  name: string;
+  code: string;
+  logo?: string;
+}) {
+  return prisma.organization.create({
+    data,
+  });
+}
+
+export async function getOrganizations() {
+  return prisma.organization.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      facilities: true,
+    },
+  });
+}
+
+export async function updateOrganization(
+  id: number,
+  data: {
+    name?: string;
+    code?: string;
+    logo?: string;
+  },
+) {
+  return prisma.organization.update({
+    where: { id },
+    data,
+  });
+}
+
 // Facility operations
 export async function createFacility(data: {
   name: string;
+  organizationId: number;
   ref?: string;
   city?: string;
 }) {
   return prisma.facility.create({
     data,
+    include: {
+      organization: true,
+    },
   });
 }
 
 export async function getFacilities() {
   return prisma.facility.findMany({
     orderBy: { name: "asc" },
+    include: {
+      organization: true,
+    },
+  });
+}
+
+export async function getFacilitiesByOrganization(organizationId: number) {
+  return prisma.facility.findMany({
+    where: { organizationId },
+    orderBy: { name: "asc" },
+    include: {
+      organization: true,
+    },
   });
 }
 
@@ -21,6 +72,7 @@ export async function updateFacility(
   id: number,
   data: {
     name?: string;
+    organizationId?: number;
     ref?: string;
     city?: string;
   },
@@ -28,6 +80,9 @@ export async function updateFacility(
   return prisma.facility.update({
     where: { id },
     data,
+    include: {
+      organization: true,
+    },
   });
 }
 
