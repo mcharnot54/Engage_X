@@ -1277,85 +1277,203 @@ export default function GazeObservationApp() {
         {/* Previous Observations Popup */}
         {showPreviousObservations && (
           <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center">
-            <div className="bg-white rounded-lg p-6 w-11/12 max-w-4xl max-h-[80vh] overflow-y-auto relative">
+            <div className="bg-white rounded-lg p-6 w-11/12 max-w-5xl max-h-[85vh] overflow-y-auto relative">
               <button
                 onClick={() => setShowPreviousObservations(false)}
-                className="absolute right-6 top-6 bg-transparent border-none text-2xl cursor-pointer"
+                className="absolute right-6 top-6 bg-transparent border-none text-2xl cursor-pointer text-gray-500 hover:text-gray-700"
               >
                 ×
               </button>
-              <h2 className="text-2xl mb-4 pr-10">
+              <h2 className="text-2xl mb-6 pr-10 text-blue-600">
                 {employeeId === "emp001"
                   ? "John Smith"
                   : employeeId === "emp002"
                     ? "Sarah Johnson"
                     : "Michael Brown"}
-                's Previous Observations
+                's Performance History
               </h2>
 
-              {previousObservations[employeeId]?.[standard] ? (
-                <div>
-                  <div className="grid grid-cols-4 gap-4 mb-4">
-                    <div className="p-4 bg-white rounded-lg text-center border border-gray-300">
-                      <div className="text-2xl font-semibold text-blue-500">
-                        95.8%
-                      </div>
-                      <div className="text-gray-600 text-sm">
-                        Average Performance
-                      </div>
-                    </div>
-                    <div className="p-4 bg-white rounded-lg text-center border border-gray-300">
-                      <div className="text-2xl font-semibold text-green-500">
-                        102.3%
-                      </div>
-                      <div className="text-gray-600 text-sm">
-                        Highest Performance
-                      </div>
-                    </div>
-                    <div className="p-4 bg-white rounded-lg text-center border border-gray-300">
-                      <div className="text-2xl font-semibold text-orange-500">
-                        89.8%
-                      </div>
-                      <div className="text-gray-600 text-sm">
-                        Lowest Performance
-                      </div>
-                    </div>
-                    <div className="p-4 bg-white rounded-lg text-center border border-gray-300">
-                      <div className="text-2xl font-semibold text-purple-500">
-                        5
-                      </div>
-                      <div className="text-gray-600 text-sm">
-                        Total Observations
-                      </div>
-                    </div>
-                  </div>
+              {(() => {
+                // Get all observations for the employee across all standards
+                const allObservations =
+                  employeeId && previousObservations[employeeId]
+                    ? Object.values(previousObservations[employeeId]).flat()
+                    : [];
 
-                  <h3 className="text-lg mb-4">Detailed History</h3>
-                  <div className="grid grid-cols-3 gap-4 p-4 bg-white rounded-lg mb-4 font-semibold border border-gray-300">
-                    <div>Date</div>
-                    <div>Observed Performance</div>
-                    <div>Grade Factor Performance</div>
-                  </div>
+                // Sort by date (newest first) and take the last 5
+                const recentObservations = allObservations
+                  .sort(
+                    (a, b) =>
+                      new Date(b.date).getTime() - new Date(a.date).getTime(),
+                  )
+                  .slice(0, 5);
 
-                  {previousObservations[employeeId][standard].map(
-                    (obs, index) => (
-                      <div
-                        key={index}
-                        className="grid grid-cols-3 gap-4 p-4 border-b border-gray-200"
-                      >
-                        <div>{obs.date}</div>
-                        <div>{obs.observedPerf}%</div>
-                        <div>{obs.gradeFactorPerf}%</div>
+                if (recentObservations.length > 0) {
+                  // Calculate statistics
+                  const performances = recentObservations.map((obs) =>
+                    parseFloat(obs.observedPerf),
+                  );
+                  const avgPerformance =
+                    performances.reduce((sum, perf) => sum + perf, 0) /
+                    performances.length;
+                  const maxPerformance = Math.max(...performances);
+                  const minPerformance = Math.min(...performances);
+                  const trend =
+                    performances.length > 1
+                      ? performances[0] - performances[performances.length - 1]
+                      : 0;
+
+                  return (
+                    <div>
+                      {/* Performance Summary Cards */}
+                      <div className="grid grid-cols-4 gap-4 mb-6">
+                        <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center border border-blue-200">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {avgPerformance.toFixed(1)}%
+                          </div>
+                          <div className="text-blue-700 text-sm font-medium">
+                            Average Performance
+                          </div>
+                        </div>
+                        <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg text-center border border-green-200">
+                          <div className="text-2xl font-bold text-green-600">
+                            {maxPerformance.toFixed(1)}%
+                          </div>
+                          <div className="text-green-700 text-sm font-medium">
+                            Best Performance
+                          </div>
+                        </div>
+                        <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg text-center border border-orange-200">
+                          <div className="text-2xl font-bold text-orange-600">
+                            {minPerformance.toFixed(1)}%
+                          </div>
+                          <div className="text-orange-700 text-sm font-medium">
+                            Lowest Performance
+                          </div>
+                        </div>
+                        <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg text-center border border-purple-200">
+                          <div className="text-2xl font-bold text-purple-600">
+                            {trend > 0 ? "+" : ""}
+                            {trend.toFixed(1)}%
+                          </div>
+                          <div className="text-purple-700 text-sm font-medium">
+                            Recent Trend
+                          </div>
+                        </div>
                       </div>
-                    ),
-                  )}
-                </div>
-              ) : (
-                <div className="p-8 text-center bg-gray-100 rounded-lg text-gray-600">
-                  This will be the first observation for this team member on
-                  this standard.
-                </div>
-              )}
+
+                      {/* Performance Chart Visualization */}
+                      <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                          Performance Trend (Last 5 Observations)
+                        </h3>
+                        <div className="flex items-end justify-between h-32 bg-white rounded p-4 border">
+                          {recentObservations.reverse().map((obs, index) => {
+                            const performance = parseFloat(obs.observedPerf);
+                            const height = Math.max(
+                              (performance / 120) * 100,
+                              10,
+                            ); // Scale to chart height
+                            const color =
+                              performance >= 100
+                                ? "bg-green-500"
+                                : performance >= 90
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500";
+
+                            return (
+                              <div
+                                key={index}
+                                className="flex flex-col items-center flex-1"
+                              >
+                                <div className="text-xs text-gray-600 mb-1 font-medium">
+                                  {performance}%
+                                </div>
+                                <div
+                                  className={`w-8 ${color} rounded-t transition-all hover:opacity-80`}
+                                  style={{ height: `${height}%` }}
+                                ></div>
+                                <div className="text-xs text-gray-500 mt-2 transform rotate-45 origin-left">
+                                  {new Date(obs.date).toLocaleDateString(
+                                    "en-US",
+                                    { month: "short", day: "numeric" },
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Detailed History Table */}
+                      <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                        Recent Observations
+                      </h3>
+                      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="grid grid-cols-4 gap-4 p-4 bg-gray-100 font-semibold text-gray-700 border-b">
+                          <div>Date</div>
+                          <div>Observed Performance</div>
+                          <div>Grade Factor Performance</div>
+                          <div>Status</div>
+                        </div>
+                        {recentObservations.reverse().map((obs, index) => {
+                          const performance = parseFloat(obs.observedPerf);
+                          const status =
+                            performance >= 100
+                              ? "Excellent"
+                              : performance >= 90
+                                ? "Good"
+                                : "Needs Improvement";
+                          const statusColor =
+                            performance >= 100
+                              ? "text-green-600 bg-green-50"
+                              : performance >= 90
+                                ? "text-yellow-600 bg-yellow-50"
+                                : "text-red-600 bg-red-50";
+
+                          return (
+                            <div
+                              key={index}
+                              className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50"
+                            >
+                              <div className="font-medium">
+                                {new Date(obs.date).toLocaleDateString()}
+                              </div>
+                              <div className="font-semibold">
+                                {obs.observedPerf}%
+                              </div>
+                              <div>{obs.gradeFactorPerf}%</div>
+                              <div
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}
+                              >
+                                {status}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="p-12 text-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+                      <div className="text-4xl text-gray-400 mb-4">📊</div>
+                      <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                        No Previous Observations
+                      </h3>
+                      <p className="text-gray-500">
+                        This will be the first observation for{" "}
+                        {employeeId === "emp001"
+                          ? "John Smith"
+                          : employeeId === "emp002"
+                            ? "Sarah Johnson"
+                            : "Michael Brown"}
+                        .
+                      </p>
+                    </div>
+                  );
+                }
+              })()}
             </div>
           </div>
         )}
