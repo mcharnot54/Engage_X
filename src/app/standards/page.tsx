@@ -1197,14 +1197,14 @@ export default function Standards() {
               <div className="flex justify-end gap-4">
                 <button
                   disabled={isLoading}
-                  className="px-6 py-3 bg-white border border-gray-300 rounded-md cursor-pointer disabled:opacity-50"
+                  className="px-6 py-3 bg-white border border-gray-300 rounded-md cursor-pointer disabled:opacity-50 whitespace-nowrap"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveStandard}
                   disabled={isLoading}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
+                  className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50 whitespace-nowrap"
                 >
                   {isLoading ? "Saving..." : "Save Standard"}
                 </button>
