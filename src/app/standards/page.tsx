@@ -652,14 +652,30 @@ export default function Standards() {
               <h2 className="text-xl font-semibold mb-6">
                 Standard Transformation
               </h2>
-              <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-5 gap-4 mb-6">
                 <select
-                  value={selectedFacility}
+                  value={selectedOrganization}
                   onChange={(e) => {
-                    setSelectedFacility(e.target.value);
+                    setSelectedOrganization(e.target.value);
                   }}
                   disabled={isLoading}
                   className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                >
+                  <option value="">Select Organization</option>
+                  {organizations.map((organization) => (
+                    <option value={organization.id} key={organization.id}>
+                      {organization.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedFacility}
+                  disabled={!selectedOrganization || isLoading}
+                  onChange={(e) => {
+                    setSelectedFacility(e.target.value);
+                  }}
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                 >
                   <option value="">Select Facility</option>
                   {facilities.map((facility) => (
