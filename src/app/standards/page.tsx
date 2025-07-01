@@ -2,11 +2,22 @@
 
 import { useState, useEffect } from "react";
 
+interface Organization {
+  id: number;
+  name: string;
+  code: string;
+  logo: string | null;
+}
+
 interface Facility {
   id: number;
   name: string;
   ref: string | null;
   city: string | null;
+  organizationId: number;
+  organization?: {
+    name: string;
+  };
   dateAdded?: string;
 }
 
@@ -74,17 +85,22 @@ export default function Standards() {
   const [error, setError] = useState("");
 
   // Database-driven state
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [savedStandards, setSavedStandards] = useState<Standard[]>([]);
 
   // Form state
+  const [selectedOrganization, setSelectedOrganization] = useState("");
   const [selectedFacility, setSelectedFacility] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
   const [selectedStandard, setSelectedStandard] = useState("");
   const [standardName, setStandardName] = useState("");
+  const [newOrganizationName, setNewOrganizationName] = useState("");
+  const [newOrganizationCode, setNewOrganizationCode] = useState("");
+  const [newOrganizationLogo, setNewOrganizationLogo] = useState("");
   const [newFacilityName, setNewFacilityName] = useState("");
   const [newDepartmentName, setNewDepartmentName] = useState("");
   const [newAreaName, setNewAreaName] = useState("");
