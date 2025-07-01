@@ -43,8 +43,28 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(organization);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating organization:", error);
+
+    // Handle unique constraint violation
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        {
+          error:
+            "Organization code already exists. Please use a different code.",
+        },
+        { status: 409 },
+      );
+    }
+
+    // Handle other Prisma errors
+    if (error.code?.startsWith("P")) {
+      return NextResponse.json(
+        { error: `Database error: ${error.message}` },
+        { status: 500 },
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to create organization" },
       { status: 500 },
