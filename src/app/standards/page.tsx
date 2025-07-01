@@ -268,10 +268,18 @@ export default function Standards() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        if (response.status === 409) {
+          setError(
+            errorData.error ||
+              "Organization code already exists. Please use a different code.",
+          );
+          return;
+        }
         const errorMessage =
           errorData.error ||
           `Failed to create organization (${response.status})`;
-        throw new Error(errorMessage);
+        setError(errorMessage);
+        return;
       }
 
       await loadOrganizations();
