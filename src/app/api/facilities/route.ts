@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getFacilities, createFacility } from "@/lib/db-operations";
+import {
+  getFacilities,
+  getFacilitiesByOrganization,
+  createFacility,
+} from "@/lib/db-operations";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const facilities = await getFacilities();
+    const { searchParams } = new URL(request.url);
+    const organizationId = searchParams.get("organizationId");
+
+    let facilities;
+    if (organizationId) {
+      facilities = await getFacilitiesByOrganization(Number(organizationId));
+    } else {
+      facilities = await getFacilities();
+    }
+
     return NextResponse.json(facilities);
   } catch (error) {
     console.error("Error fetching facilities:", error);
