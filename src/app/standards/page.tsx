@@ -122,29 +122,49 @@ export default function Standards() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   // Load data from API
-  const loadFacilities = async () => {
+  const loadOrganizations = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/facilities");
+      const response = await fetch("/api/organizations");
       if (!response.ok) {
-        throw new Error("Failed to fetch facilities");
+        throw new Error("Failed to fetch organizations");
       }
       const data = await response.json();
-      setFacilities(
-        data.map((f: any) => ({
-          ...f,
-          ref: f.ref || "",
-          city: f.city || "",
-          dateAdded: f.dateAdded
-            ? new Date(f.dateAdded).toISOString().split("T")[0]
-            : "",
-        })),
-      );
+      setOrganizations(data);
+    } catch (error) {
+      console.error("Error loading organizations:", error);
+      setError("Failed to load organizations");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFacilities = async (organizationId?: number) => {
+    try {
+      if (organizationId) {
+        const response = await fetch(
+          `/api/facilities?organizationId=${organizationId}`,
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch facilities");
+        }
+        const data = await response.json();
+        setFacilities(
+          data.map((f: any) => ({
+            ...f,
+            ref: f.ref || "",
+            city: f.city || "",
+            dateAdded: f.dateAdded
+              ? new Date(f.dateAdded).toISOString().split("T")[0]
+              : "",
+          })),
+        );
+      } else {
+        setFacilities([]);
+      }
     } catch (error) {
       console.error("Error loading facilities:", error);
       setError("Failed to load facilities");
-    } finally {
-      setIsLoading(false);
     }
   };
 
