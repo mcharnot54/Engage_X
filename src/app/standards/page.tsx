@@ -949,19 +949,21 @@ export default function Standards() {
                   </select>
                 </div>
 
-                <select
-                  value={selectedArea}
-                  disabled={!selectedDepartment || isLoading}
-                  onChange={(e) => setSelectedArea(e.target.value)}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
-                >
-                  <option value="">Select Area</option>
-                  {areas.map((area) => (
-                    <option value={area.id} key={area.id}>
-                      {area.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedArea}
+                    disabled={!selectedDepartment || isLoading}
+                    onChange={(e) => setSelectedArea(e.target.value)}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
+                  >
+                    <option value="">Select Area</option>
+                    {areas.map((area) => (
+                      <option value={area.id} key={area.id}>
+                        {area.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <select
                   value={selectedStandard}
