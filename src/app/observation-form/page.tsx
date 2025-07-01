@@ -728,12 +728,6 @@ export default function GazeObservationApp() {
                   </div>
                   <div className="text-gray-600">Observed Performance</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-600">
-                    {pumpScore.toFixed(1)}%
-                  </div>
-                  <div className="text-gray-600">PUMP Score</div>
-                </div>
               </div>
 
               <div className="flex justify-center gap-4">
