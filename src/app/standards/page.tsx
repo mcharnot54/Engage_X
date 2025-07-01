@@ -931,54 +931,61 @@ export default function Standards() {
                   )}
                 </div>
 
-                <select
-                  value={selectedDepartment}
-                  disabled={!selectedFacility || isLoading}
-                  onChange={(e) => {
-                    setSelectedDepartment(e.target.value);
-                  }}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
-                >
-                  <option value="">Select Department</option>
-                  {departments.map((department) => (
-                    <option value={department.id} key={department.id}>
-                      {department.name}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={selectedArea}
-                  disabled={!selectedDepartment || isLoading}
-                  onChange={(e) => setSelectedArea(e.target.value)}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
-                >
-                  <option value="">Select Area</option>
-                  {areas.map((area) => (
-                    <option value={area.id} key={area.id}>
-                      {area.name}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={selectedStandard}
-                  onChange={(e) => setSelectedStandard(e.target.value)}
-                  disabled={isLoading}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
-                >
-                  <option value="">Select Standard</option>
-                  {savedStandards
-                    .filter(
-                      (s) => !selectedArea || s.areaId === Number(selectedArea),
-                    )
-                    .map((standard) => (
-                      <option value={standard.name} key={standard.id}>
-                        {standard.name}
+                <div className="relative">
+                  <select
+                    value={selectedDepartment}
+                    disabled={!selectedFacility || isLoading}
+                    onChange={(e) => {
+                      setSelectedDepartment(e.target.value);
+                    }}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map((department) => (
+                      <option value={department.id} key={department.id}>
+                        {department.name}
                       </option>
                     ))}
-                  <option value="new">New Standard</option>
-                </select>
+                  </select>
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={selectedArea}
+                    disabled={!selectedDepartment || isLoading}
+                    onChange={(e) => setSelectedArea(e.target.value)}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
+                  >
+                    <option value="">Select Area</option>
+                    {areas.map((area) => (
+                      <option value={area.id} key={area.id}>
+                        {area.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={selectedStandard}
+                    onChange={(e) => setSelectedStandard(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Standard</option>
+                    {savedStandards
+                      .filter(
+                        (s) =>
+                          !selectedArea || s.areaId === Number(selectedArea),
+                      )
+                      .map((standard) => (
+                        <option value={standard.name} key={standard.id}>
+                          {standard.name}
+                        </option>
+                      ))}
+                    <option value="new">New Standard</option>
+                  </select>
+                </div>
               </div>
 
               {selectedStandard === "new" && (
@@ -1197,14 +1204,14 @@ export default function Standards() {
               <div className="flex justify-end gap-4">
                 <button
                   disabled={isLoading}
-                  className="px-6 py-3 bg-white border border-gray-300 rounded-md cursor-pointer disabled:opacity-50"
+                  className="px-6 py-3 bg-white border border-gray-300 rounded-md cursor-pointer disabled:opacity-50 whitespace-nowrap"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveStandard}
                   disabled={isLoading}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50"
+                  className="px-6 py-3 bg-green-500 text-white border-none rounded-md cursor-pointer font-semibold transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 disabled:opacity-50 whitespace-nowrap"
                 >
                   {isLoading ? "Saving..." : "Save Standard"}
                 </button>
