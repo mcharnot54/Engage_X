@@ -387,8 +387,13 @@ export default function Standards() {
 
   const saveStandard = async () => {
     try {
-      if (!selectedFacility || !selectedDepartment || !selectedArea) {
-        setError("Please select facility, department and area");
+      if (
+        !selectedOrganization ||
+        !selectedFacility ||
+        !selectedDepartment ||
+        !selectedArea
+      ) {
+        setError("Please select organization, facility, department and area");
         return;
       }
 
@@ -551,6 +556,15 @@ export default function Standards() {
 
   // Load dependent data when selections change
   useEffect(() => {
+    if (selectedOrganization) {
+      loadFacilities(Number(selectedOrganization));
+      setSelectedFacility("");
+      setSelectedDepartment("");
+      setSelectedArea("");
+    }
+  }, [selectedOrganization]);
+
+  useEffect(() => {
     if (selectedFacility) {
       loadDepartments(Number(selectedFacility));
       setSelectedDepartment("");
@@ -566,7 +580,7 @@ export default function Standards() {
   }, [selectedDepartment]);
 
   useEffect(() => {
-    loadFacilities();
+    loadOrganizations();
     loadStandards();
   }, []);
 
