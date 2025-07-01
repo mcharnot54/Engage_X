@@ -1001,7 +1001,7 @@ export default function GazeObservationApp() {
               <h3 className="text-lg font-semibold mb-4">
                 PUMP Grade Factor (%) Assessment
               </h3>
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-6 mb-6">
                 <div>
                   <label className="block mb-2 font-medium">Pace</label>
                   <input
@@ -1043,6 +1043,17 @@ export default function GazeObservationApp() {
                     disabled={!isObserving}
                     className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
                   />
+                </div>
+              </div>
+
+              {/* PUMP Score Display */}
+              <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
+                <div className="text-4xl font-bold text-orange-600 mb-2">
+                  {pumpScore.toFixed(1)}%
+                </div>
+                <div className="text-gray-600 font-medium">PUMP Score %</div>
+                <div className="text-sm text-gray-500 mt-1">
+                  Pace × Utilization × Methods
                 </div>
               </div>
             </div>
