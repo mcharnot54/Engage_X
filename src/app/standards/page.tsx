@@ -550,6 +550,77 @@ export default function Standards() {
     return Array.from(allTags).sort();
   };
 
+  const downloadCsvTemplate = async () => {
+    try {
+      const response = await fetch("/api/standards/template");
+      if (!response.ok) {
+        throw new Error("Failed to download template");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "standards-template.csv";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading template:", error);
+      setError("Failed to download template");
+    }
+  };
+
+  const handleCsvFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    setCsvFile(file || null);
+    setUploadResult(null);
+  };
+
+  const uploadCsvFile = async () => {
+    if (!csvFile) {
+      setError("Please select a CSV file");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setUploadResult(null);
+
+      const formData = new FormData();
+      formData.append("file", csvFile);
+
+      const response = await fetch("/api/standards/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      setUploadResult(result);
+
+      if (result.success && result.created > 0) {
+        // Refresh standards list
+        await loadStandards();
+        setSuccessMessage(`Successfully uploaded ${result.created} standards!`);
+        setShowSaveSuccess(true);
+        setTimeout(() => setShowSaveSuccess(false), 5000);
+
+        // Clear file input
+        setCsvFile(null);
+        const fileInput = document.getElementById(
+          "csv-upload",
+        ) as HTMLInputElement;
+        if (fileInput) fileInput.value = "";
+      }
+    } catch (error) {
+      console.error("Error uploading CSV:", error);
+      setError("Failed to upload CSV file");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const updateBestPractice = (index: number, value: string) => {
     const newPractices = [...bestPractices];
     newPractices[index] = value;
