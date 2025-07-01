@@ -1008,6 +1008,19 @@ export default function Standards() {
                   Facility Transformation
                 </h2>
                 <div className="flex flex-col gap-4">
+                  <select
+                    value={selectedOrganization}
+                    onChange={(e) => setSelectedOrganization(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Organization</option>
+                    {organizations.map((organization) => (
+                      <option key={organization.id} value={organization.id}>
+                        {organization.name}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     placeholder="Enter Facility Name"
                     value={newFacilityName}
