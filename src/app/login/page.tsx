@@ -110,45 +110,24 @@ export default function PhoenixPGSLogin() {
                                 </div>
                               )}
 
-                              {/* Username Field */}
+                              {/* Username or Email Field */}
                               <div>
                                 <label
-                                  htmlFor="username"
+                                  htmlFor="usernameOrEmail"
                                   className="block text-sm font-medium text-red-600 mb-2"
                                 >
-                                  Username
+                                  Username or Email
                                 </label>
                                 <input
                                   type="text"
-                                  id="username"
-                                  name="username"
-                                  value={credentials.username}
+                                  id="usernameOrEmail"
+                                  name="usernameOrEmail"
+                                  value={credentials.usernameOrEmail}
                                   onChange={handleInputChange}
                                   className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-red-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-[1px_1px_3px_0px_rgba(0,0,0,1)]"
-                                  placeholder="Enter your username"
+                                  placeholder="Enter your username or email address"
                                   required
-                                  aria-describedby="username-help"
-                                />
-                              </div>
-
-                              {/* Email Field */}
-                              <div>
-                                <label
-                                  htmlFor="email"
-                                  className="block text-sm font-medium text-red-600 mb-2"
-                                >
-                                  Email Address
-                                </label>
-                                <input
-                                  type="email"
-                                  id="email"
-                                  name="email"
-                                  value={credentials.email}
-                                  onChange={handleInputChange}
-                                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-lg text-red-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-[1px_1px_3px_0px_rgba(0,0,0,1)]"
-                                  placeholder="Enter your email address"
-                                  required
-                                  aria-describedby="email-help"
+                                  aria-describedby="usernameOrEmail-help"
                                 />
                               </div>
 
