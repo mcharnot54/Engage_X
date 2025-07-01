@@ -456,7 +456,16 @@ export default function GazeObservationApp() {
 
     try {
       // Find or create user
-      let user = await getUserByEmployeeId(employeeId);
+      let user;
+      try {
+        const userResponse = await fetch(`/api/users?employeeId=${employeeId}`);
+        if (userResponse.ok) {
+          user = await userResponse.json();
+        }
+      } catch (error) {
+        // User not found, will create below
+      }
+
       if (!user) {
         // Get employee name from the select option
         const employeeName =
@@ -466,11 +475,22 @@ export default function GazeObservationApp() {
               ? "Sarah Johnson"
               : "Michael Brown";
 
-        user = await createUser({
-          employeeId,
-          name: employeeName,
-          department: selectedStandardData?.department.name,
+        const createUserResponse = await fetch("/api/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            employeeId,
+            name: employeeName,
+            department: selectedStandardData?.department.name,
+          }),
         });
+
+        if (!createUserResponse.ok) {
+          throw new Error("Failed to create user");
+        }
+        user = await createUserResponse.json();
       }
 
       if (!selectedStandardData) {
@@ -487,33 +507,43 @@ export default function GazeObservationApp() {
       }));
 
       // Create observation
-      await createObservation({
-        userId: user.id,
-        standardId: selectedStandardData.id,
-        timeObserved,
-        totalSams,
-        observedPerformance,
-        pumpScore,
-        pace,
-        utilization,
-        methods,
-        comments,
-        aiNotes,
-        supervisorSignature,
-        teamMemberSignature,
-        bestPracticesChecked,
-        processAdherenceChecked,
-        delays,
-        observationReason,
-        observationStartTime: observationStartTime
-          ? new Date(observationStartTime)
-          : undefined,
-        observationEndTime: observationEndTime
-          ? new Date(observationEndTime)
-          : undefined,
-        isFinalized,
-        observationData,
+      const observationResponse = await fetch("/api/observations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          standardId: selectedStandardData.id,
+          timeObserved,
+          totalSams,
+          observedPerformance,
+          pumpScore,
+          pace,
+          utilization,
+          methods,
+          comments,
+          aiNotes,
+          supervisorSignature,
+          teamMemberSignature,
+          bestPracticesChecked,
+          processAdherenceChecked,
+          delays,
+          observationReason,
+          observationStartTime: observationStartTime
+            ? new Date(observationStartTime)
+            : undefined,
+          observationEndTime: observationEndTime
+            ? new Date(observationEndTime)
+            : undefined,
+          isFinalized,
+          observationData,
+        }),
       });
+
+      if (!observationResponse.ok) {
+        throw new Error("Failed to create observation");
+      }
 
       setSubmissionSuccess(true);
       resetForm();
