@@ -210,7 +210,11 @@ export async function getStandards() {
   return prisma.standard.findMany({
     where: { isActive: true },
     include: {
-      facility: true,
+      facility: {
+        include: {
+          organization: true,
+        },
+      },
       department: true,
       area: true,
       uomEntries: true,
