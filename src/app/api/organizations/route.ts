@@ -13,10 +13,30 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(organizations);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching organizations:", error);
+
+    // Check if it's a database connection error
+    if (
+      error.code === "P1001" ||
+      error.message?.includes("Environment variable not found: DATABASE_URL")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Database connection failed. Please configure DATABASE_URL in your environment variables.",
+          details:
+            "Check .env.local file and ensure DATABASE_URL points to a valid PostgreSQL database.",
+        },
+        { status: 500 },
+      );
+    }
+
     return NextResponse.json(
-      { error: "Failed to fetch organizations" },
+      {
+        error: "Failed to fetch organizations",
+        details: error.message || "Unknown database error",
+      },
       { status: 500 },
     );
   }
