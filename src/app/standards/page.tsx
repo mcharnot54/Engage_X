@@ -865,37 +865,59 @@ export default function Standards() {
                 Standard Transformation
               </h2>
               <div className="grid grid-cols-5 gap-4 mb-6">
-                <select
-                  value={selectedOrganization}
-                  onChange={(e) => {
-                    setSelectedOrganization(e.target.value);
-                  }}
-                  disabled={isLoading}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
-                >
-                  <option value="">Select Organization</option>
-                  {organizations.map((organization) => (
-                    <option value={organization.id} key={organization.id}>
-                      {organization.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedOrganization}
+                    onChange={(e) => {
+                      setSelectedOrganization(e.target.value);
+                    }}
+                    disabled={isLoading}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                  >
+                    <option value="">Select Organization</option>
+                    {organizations.map((organization) => (
+                      <option value={organization.id} key={organization.id}>
+                        {organization.name}
+                      </option>
+                    ))}
+                  </select>
+                  {organizations.length === 0 && !isLoading && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Add an organization first using the form below
+                    </div>
+                  )}
+                </div>
 
-                <select
-                  value={selectedFacility}
-                  disabled={!selectedOrganization || isLoading}
-                  onChange={(e) => {
-                    setSelectedFacility(e.target.value);
-                  }}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
-                >
-                  <option value="">Select Facility</option>
-                  {facilities.map((facility) => (
-                    <option value={facility.id} key={facility.id}>
-                      {facility.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedFacility}
+                    disabled={!selectedOrganization || isLoading}
+                    onChange={(e) => {
+                      setSelectedFacility(e.target.value);
+                    }}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
+                  >
+                    <option value="">Select Facility</option>
+                    {facilities.map((facility) => (
+                      <option value={facility.id} key={facility.id}>
+                        {facility.name}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedOrganization &&
+                    facilities.length === 0 &&
+                    !isLoading && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Add a facility for this organization using the form
+                        below
+                      </div>
+                    )}
+                  {!selectedOrganization && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Select an organization first
+                    </div>
+                  )}
+                </div>
 
                 <select
                   value={selectedDepartment}
