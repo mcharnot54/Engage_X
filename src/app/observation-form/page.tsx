@@ -825,282 +825,293 @@ export default function GazeObservationApp() {
                     <h4 className="text-md font-semibold">Operations</h4>
                     {isDynamicGroupingActive && (
                       <div className="text-sm text-green-600 font-medium">
-                        🏷️ Smart grouping active - UOMs with shared tags are grouped together
+                        🏷️ Smart grouping active - UOMs with shared tags are
+                        grouped together
                       </div>
                     )}
                   </div>
 
                   <div className="overflow-x-auto">
-                  <table className="w-full border-collapse bg-white">
-                    <thead>
-                      <tr className="bg-gray-100 border-b-2 border-gray-300">
-                        <th className="p-3 text-left font-semibold">UOM</th>
-                        <th className="p-3 text-left font-semibold">
-                          Description
-                        </th>
-                        <th className="p-3 text-left font-semibold">Tags</th>
-                        <th className="p-3 text-center font-semibold">
-                          Quantity
-                        </th>
-                        <th className="p-3 text-right font-semibold">
-                          SAM Value
-                        </th>
-                        <th className="p-3 text-right font-semibold">
-                          Total SAMs
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {organizedRows.map((row, index) => {
-                        const isActive = activeRowIds.has(row.id);
-                        const sharedTaggedRows = getRowsWithSharedTags(
-                          new Set([row.id]),
-                        );
-                        const hasActiveSharedTags =
-                          isDynamicGroupingActive &&
-                          sharedTaggedRows.size > 1 &&
-                          Array.from(sharedTaggedRows).some((id) =>
-                            activeRowIds.has(id),
+                    <table className="w-full border-collapse bg-white">
+                      <thead>
+                        <tr className="bg-gray-100 border-b-2 border-gray-300">
+                          <th className="p-3 text-left font-semibold">UOM</th>
+                          <th className="p-3 text-left font-semibold">
+                            Description
+                          </th>
+                          <th className="p-3 text-left font-semibold">Tags</th>
+                          <th className="p-3 text-center font-semibold">
+                            Quantity
+                          </th>
+                          <th className="p-3 text-right font-semibold">
+                            SAM Value
+                          </th>
+                          <th className="p-3 text-right font-semibold">
+                            Total SAMs
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {organizedRows.map((row, index) => {
+                          const isActive = activeRowIds.has(row.id);
+                          const sharedTaggedRows = getRowsWithSharedTags(
+                            new Set([row.id]),
                           );
+                          const hasActiveSharedTags =
+                            isDynamicGroupingActive &&
+                            sharedTaggedRows.size > 1 &&
+                            Array.from(sharedTaggedRows).some((id) =>
+                              activeRowIds.has(id),
+                            );
 
-                        return (
-                          <tr
-                            key={row.id}
-                            className={`border-b border-gray-300 transition-all duration-300 ${
-                              isActive
-                                ? "bg-green-50"
-                                : hasActiveSharedTags
-                                  ? "bg-blue-50"
-                                  : ""
-                            }`}
-                          >
-                            <td className="p-3 font-medium">{row.uom}</td>
-                            <td className="p-3">{row.description}</td>
-                            <td className="p-3">
-                              <div className="flex flex-wrap gap-1">
-                                {(row.tags || []).map((tag, tagIndex) => {
-                                  const activeTags =
-                                    getActiveTagsForRows(activeRowIds);
-                                  const isTagActive = activeTags.has(tag);
-                                  return (
-                                    <span
-                                      key={tagIndex}
-                                      className={`px-2 py-1 rounded-full text-xs border ${getTagColor(tag, isTagActive)}`}
-                                    >
-                                      {tag}
+                          return (
+                            <tr
+                              key={row.id}
+                              className={`border-b border-gray-300 transition-all duration-300 ${
+                                isActive
+                                  ? "bg-green-50"
+                                  : hasActiveSharedTags
+                                    ? "bg-blue-50"
+                                    : ""
+                              }`}
+                            >
+                              <td className="p-3 font-medium">{row.uom}</td>
+                              <td className="p-3">{row.description}</td>
+                              <td className="p-3">
+                                <div className="flex flex-wrap gap-1">
+                                  {(row.tags || []).map((tag, tagIndex) => {
+                                    const activeTags =
+                                      getActiveTagsForRows(activeRowIds);
+                                    const isTagActive = activeTags.has(tag);
+                                    return (
+                                      <span
+                                        key={tagIndex}
+                                        className={`px-2 py-1 rounded-full text-xs border ${getTagColor(tag, isTagActive)}`}
+                                      >
+                                        {tag}
+                                      </span>
+                                    );
+                                  })}
+                                  {(row.tags || []).length === 0 && (
+                                    <span className="text-gray-400 text-xs italic">
+                                      No tags
                                     </span>
-                                  );
-                                })}
-                                {(row.tags || []).length === 0 && (
-                                  <span className="text-gray-400 text-xs italic">
-                                    No tags
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <button
-                                  disabled={!isObserving}
-                                  onClick={() =>
-                                    updateQuantity(row.id, row.quantity - 1)
-                                  }
-                                  className="px-2 py-1 border border-gray-300 rounded bg-white cursor-pointer disabled:opacity-50 hover:bg-gray-50"
-                                >
-                                  -
-                                </button>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={row.quantity}
-                                  disabled={!isObserving}
-                                  onChange={(e) =>
-                                    updateQuantity(
-                                      row.id,
-                                      parseInt(e.target.value) || 0,
-                                    )
-                                  }
-                                  className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
-                                />
-                                <button
-                                  disabled={!isObserving}
-                                  onClick={() =>
-                                    updateQuantity(row.id, row.quantity + 1)
-                                  }
-                                  className="px-2 py-1 border border-gray-300 rounded bg-white cursor-pointer disabled:opacity-50 hover:bg-gray-50"
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </td>
-                            <td className="p-3 text-right">
-                              {row.samValue.toFixed(4)}
-                            </td>
-                            <td className="p-3 text-right font-medium">
-                              {(row.quantity * row.samValue).toFixed(4)}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="p-3 text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    disabled={!isObserving}
+                                    onClick={() =>
+                                      updateQuantity(row.id, row.quantity - 1)
+                                    }
+                                    className="px-2 py-1 border border-gray-300 rounded bg-white cursor-pointer disabled:opacity-50 hover:bg-gray-50"
+                                  >
+                                    -
+                                  </button>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={row.quantity}
+                                    disabled={!isObserving}
+                                    onChange={(e) =>
+                                      updateQuantity(
+                                        row.id,
+                                        parseInt(e.target.value) || 0,
+                                      )
+                                    }
+                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
+                                  />
+                                  <button
+                                    disabled={!isObserving}
+                                    onClick={() =>
+                                      updateQuantity(row.id, row.quantity + 1)
+                                    }
+                                    className="px-2 py-1 border border-gray-300 rounded bg-white cursor-pointer disabled:opacity-50 hover:bg-gray-50"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </td>
+                              <td className="p-3 text-right">
+                                {row.samValue.toFixed(4)}
+                              </td>
+                              <td className="p-3 text-right font-medium">
+                                {(row.quantity * row.samValue).toFixed(4)}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 {/* Delay Tracking */}
-            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-              <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <input
-                  type="text"
-                  placeholder="Delay reason..."
-                  value={delayReason}
-                  onChange={(e) => setDelayReason(e.target.value)}
-                  disabled={!isObserving || isDelayActive}
-                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                />
-                <button
-                  onClick={startDelay}
-                  disabled={!isObserving || isDelayActive || !delayReason}
-                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
-                >
-                  Start Delay
-                </button>
-                <button
-                  onClick={stopDelay}
-                  disabled={!isDelayActive}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
-                >
-                  Stop Delay
-                </button>
-              </div>
+                <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+                  <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Delay reason..."
+                      value={delayReason}
+                      onChange={(e) => setDelayReason(e.target.value)}
+                      disabled={!isObserving || isDelayActive}
+                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                    />
+                    <button
+                      onClick={startDelay}
+                      disabled={!isObserving || isDelayActive || !delayReason}
+                      className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
+                    >
+                      Start Delay
+                    </button>
+                    <button
+                      onClick={stopDelay}
+                      disabled={!isDelayActive}
+                      className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
+                    >
+                      Stop Delay
+                    </button>
+                  </div>
 
-              {delays.length > 0 && (
-                <div className="bg-white rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Recorded Delays</h4>
-                  <div className="space-y-2">
-                    {delays.map((delay, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
-                      >
-                        <span>{delay.reason}</span>
-                        <span className="text-gray-600">
-                          {delay.duration.toFixed(1)}s at {delay.timestamp}
-                        </span>
+                  {delays.length > 0 && (
+                    <div className="bg-white rounded-lg p-4">
+                      <h4 className="font-medium mb-3">Recorded Delays</h4>
+                      <div className="space-y-2">
+                        {delays.map((delay, index) => (
+                          <div
+                            key={index}
+                            className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                          >
+                            <span>{delay.reason}</span>
+                            <span className="text-gray-600">
+                              {delay.duration.toFixed(1)}s at {delay.timestamp}
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* PUMP Grade Factor */}
-            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-              <h3 className="text-lg font-semibold mb-4">
-                PUMP Grade Factor (%) Assessment
-              </h3>
-              <div className="grid grid-cols-3 gap-6 mb-6">
-                <div>
-                  <label className="block mb-2 font-medium">Pace</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="200"
-                    value={pace}
-                    onChange={(e) => setPace(parseInt(e.target.value) || 100)}
-                    disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 font-medium">Utilization</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="200"
-                    value={utilization}
-                    onChange={(e) =>
-                      setUtilization(parseInt(e.target.value) || 100)
-                    }
-                    disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 font-medium">
-                    Methods and Procedures
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="200"
-                    value={methods}
-                    onChange={(e) =>
-                      setMethods(parseInt(e.target.value) || 100)
-                    }
-                    disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                  />
-                </div>
-              </div>
-
-              {/* PUMP Score Display */}
-              <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
-                <div className="text-4xl font-bold text-orange-600 mb-2">
-                  {pumpScore.toFixed(1)}%
-                </div>
-                <div className="text-gray-600 font-medium">PUMP Score %</div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Pace × Utilization × Methods
-                </div>
-              </div>
-            </div>
-
-            {/* Best Practices and Process Adherence */}
-            {selectedStandardData && (
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <div className="bg-gray-100 rounded-lg p-6 border border-gray-300">
-                  <h3 className="text-lg font-semibold mb-4">Best Practices</h3>
-                  <div className="space-y-3">
-                    {selectedStandardData.bestPractices.map(
-                      (practice, index) => (
-                        <label key={index} className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            checked={bestPracticesChecked.includes(practice)}
-                            onChange={() => toggleBestPractice(practice)}
-                            disabled={!isObserving}
-                            className="mt-1 disabled:opacity-50"
-                          />
-                          <span className="text-sm">{practice}</span>
-                        </label>
-                      ),
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
 
-                <div className="bg-gray-100 rounded-lg p-6 border border-gray-300">
+                {/* PUMP Grade Factor */}
+                <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
                   <h3 className="text-lg font-semibold mb-4">
-                    Process Adherence Opportunities
+                    PUMP Grade Factor (%) Assessment
                   </h3>
-                  <div className="space-y-3">
-                    {selectedStandardData.processOpportunities.map(
-                      (opportunity, index) => (
-                        <label key={index} className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            checked={processAdherenceChecked.includes(
-                              opportunity,
-                            )}
-                            onChange={() => toggleProcessAdherence(opportunity)}
-                            disabled={!isObserving}
-                            className="mt-1 disabled:opacity-50"
-                          />
-                          <span className="text-sm">{opportunity}</span>
-                        </label>
-                      ),
-                    )}
+                  <div className="grid grid-cols-3 gap-6 mb-6">
+                    <div>
+                      <label className="block mb-2 font-medium">Pace</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="200"
+                        value={pace}
+                        onChange={(e) =>
+                          setPace(parseInt(e.target.value) || 100)
+                        }
+                        disabled={!isObserving}
+                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 font-medium">
+                        Utilization
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="200"
+                        value={utilization}
+                        onChange={(e) =>
+                          setUtilization(parseInt(e.target.value) || 100)
+                        }
+                        disabled={!isObserving}
+                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 font-medium">
+                        Methods and Procedures
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="200"
+                        value={methods}
+                        onChange={(e) =>
+                          setMethods(parseInt(e.target.value) || 100)
+                        }
+                        disabled={!isObserving}
+                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+
+                  {/* PUMP Score Display */}
+                  <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
+                    <div className="text-4xl font-bold text-orange-600 mb-2">
+                      {pumpScore.toFixed(1)}%
+                    </div>
+                    <div className="text-gray-600 font-medium">
+                      PUMP Score %
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      Pace × Utilization × Methods
+                    </div>
+                  </div>
+                </div>
+
+                {/* Best Practices and Process Adherence */}
+                <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="bg-white rounded-lg p-6 border border-gray-300">
+                    <h4 className="text-md font-semibold mb-4">
+                      Best Practices
+                    </h4>
+                    <div className="space-y-3">
+                      {selectedStandardData.bestPractices.map(
+                        (practice, index) => (
+                          <label key={index} className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={bestPracticesChecked.includes(practice)}
+                              onChange={() => toggleBestPractice(practice)}
+                              disabled={!isObserving}
+                              className="mt-1 disabled:opacity-50"
+                            />
+                            <span className="text-sm">{practice}</span>
+                          </label>
+                        ),
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-6 border border-gray-300">
+                    <h4 className="text-md font-semibold mb-4">
+                      Process Adherence Opportunities
+                    </h4>
+                    <div className="space-y-3">
+                      {selectedStandardData.processOpportunities.map(
+                        (opportunity, index) => (
+                          <label key={index} className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={processAdherenceChecked.includes(
+                                opportunity,
+                              )}
+                              onChange={() =>
+                                toggleProcessAdherence(opportunity)
+                              }
+                              disabled={!isObserving}
+                              className="mt-1 disabled:opacity-50"
+                            />
+                            <span className="text-sm">{opportunity}</span>
+                          </label>
+                        ),
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
