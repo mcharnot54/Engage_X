@@ -230,6 +230,80 @@ export default function GazeObservationApp() {
     getActiveTagsForRows,
   ]);
 
+  // Helper functions for multi-level dropdown
+  const getUniqueOrganizations = () => {
+    const organizations = new Set();
+    standards.forEach((std) => {
+      // Assuming facility has organization info, or we can extract from facility name
+      organizations.add(std.facility.name.split(" - ")[0] || std.facility.name);
+    });
+    return Array.from(organizations) as string[];
+  };
+
+  const getUniqueFacilities = (organization?: string) => {
+    return standards
+      .filter(
+        (std) => !organization || std.facility.name.includes(organization),
+      )
+      .map((std) => ({ name: std.facility.name, id: std.facility.name }))
+      .filter(
+        (facility, index, arr) =>
+          arr.findIndex((f) => f.name === facility.name) === index,
+      );
+  };
+
+  const getUniqueDepartments = (facility?: string) => {
+    return standards
+      .filter((std) => !facility || std.facility.name === facility)
+      .map((std) => ({ name: std.department.name, id: std.department.name }))
+      .filter(
+        (dept, index, arr) =>
+          arr.findIndex((d) => d.name === dept.name) === index,
+      );
+  };
+
+  const getUniqueAreas = (facility?: string, department?: string) => {
+    return standards
+      .filter(
+        (std) =>
+          (!facility || std.facility.name === facility) &&
+          (!department || std.department.name === department),
+      )
+      .map((std) => ({ name: std.area.name, id: std.area.name }))
+      .filter(
+        (area, index, arr) =>
+          arr.findIndex((a) => a.name === area.name) === index,
+      );
+  };
+
+  const getFilteredStandards = () => {
+    return standards.filter(
+      (std) =>
+        (!selectedFacility || std.facility.name === selectedFacility) &&
+        (!selectedDepartment || std.department.name === selectedDepartment) &&
+        (!selectedArea || std.area.name === selectedArea),
+    );
+  };
+
+  const resetStandardSelection = () => {
+    setStandard("");
+    setSelectedOrganization("");
+    setSelectedFacility("");
+    setSelectedDepartment("");
+    setSelectedArea("");
+    setShowStandardDropdown(false);
+  };
+
+  const getSelectedStandardDisplay = () => {
+    if (standard && standards.length > 0) {
+      const selectedStd = standards.find((s) => s.id === Number(standard));
+      if (selectedStd) {
+        return `${selectedStd.name} (${selectedStd.facility.name} / ${selectedStd.department.name} / ${selectedStd.area.name})`;
+      }
+    }
+    return "Select Standard";
+  };
+
   // Database operations via API
   const loadStandards = async () => {
     try {
