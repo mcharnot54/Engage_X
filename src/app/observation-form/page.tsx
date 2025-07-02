@@ -107,6 +107,9 @@ export default function GazeObservationApp() {
   const [delayStartTime, setDelayStartTime] = useState<number | null>(null);
   const [delayReason, setDelayReason] = useState("");
   const [delays, setDelays] = useState<Delay[]>([]);
+  const [delayReasons, setDelayReasons] = useState<
+    { id: string; name: string; description?: string }[]
+  >([]);
 
   // Best practices and process adherence
   const [bestPracticesChecked, setBestPracticesChecked] = useState<string[]>(
@@ -732,7 +735,20 @@ export default function GazeObservationApp() {
   // Effects
   useEffect(() => {
     loadStandards();
+    loadDelayReasons();
   }, []);
+
+  const loadDelayReasons = async () => {
+    try {
+      const response = await fetch("/api/delay-reasons");
+      if (response.ok) {
+        const data = await response.json();
+        setDelayReasons(data);
+      }
+    } catch (error) {
+      console.error("Error loading delay reasons:", error);
+    }
+  };
 
   useEffect(() => {
     if (standard && standards.length > 0) {
@@ -1464,14 +1480,19 @@ export default function GazeObservationApp() {
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
               <div className="grid grid-cols-3 gap-4 mb-4">
-                <input
-                  type="text"
-                  placeholder="Delay reason..."
+                <select
                   value={delayReason}
                   onChange={(e) => setDelayReason(e.target.value)}
                   disabled={!isObserving || isDelayActive}
-                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                />
+                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
+                >
+                  <option value="">Select delay reason...</option>
+                  {delayReasons.map((reason) => (
+                    <option key={reason.id} value={reason.name}>
+                      {reason.name}
+                    </option>
+                  ))}
+                </select>
                 <button
                   onClick={startDelay}
                   disabled={!isObserving || isDelayActive || !delayReason}
@@ -1490,7 +1511,16 @@ export default function GazeObservationApp() {
 
               {delays.length > 0 && (
                 <div className="bg-white rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Recorded Delays</h4>
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-medium">Recorded Delays</h4>
+                    <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                      Total:{" "}
+                      {delays
+                        .reduce((total, delay) => total + delay.duration, 0)
+                        .toFixed(1)}
+                      s
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     {delays.map((delay, index) => (
                       <div
