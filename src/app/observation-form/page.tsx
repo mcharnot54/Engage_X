@@ -431,6 +431,7 @@ export default function GazeObservationApp() {
         // Reset dynamic grouping state
         setActiveRowIds(new Set());
         setIsDynamicGroupingActive(false);
+        setHighlightedTagGroup(new Set());
 
         // Reset checkboxes when standard changes
         setBestPracticesChecked([]);
