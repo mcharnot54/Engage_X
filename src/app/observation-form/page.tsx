@@ -1480,14 +1480,19 @@ export default function GazeObservationApp() {
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
               <div className="grid grid-cols-3 gap-4 mb-4">
-                <input
-                  type="text"
-                  placeholder="Delay reason..."
+                <select
                   value={delayReason}
                   onChange={(e) => setDelayReason(e.target.value)}
                   disabled={!isObserving || isDelayActive}
-                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                />
+                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
+                >
+                  <option value="">Select delay reason...</option>
+                  {delayReasons.map((reason) => (
+                    <option key={reason.id} value={reason.name}>
+                      {reason.name}
+                    </option>
+                  ))}
+                </select>
                 <button
                   onClick={startDelay}
                   disabled={!isObserving || isDelayActive || !delayReason}
