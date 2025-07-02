@@ -1521,9 +1521,22 @@ export default function GazeObservationApp() {
                           let rowClasses =
                             "border-b border-gray-300 transition-all duration-200";
 
+                          // Priority 1: Highlighting takes precedence over all other states
                           if (isInHighlightedGroup) {
                             rowClasses +=
                               " bg-yellow-100 border-l-4 border-l-yellow-500 shadow-sm"; // Gold highlighting for highlighted tag group
+                          } else if (highlightedTagGroup.size > 0) {
+                            // When there's a highlighted group but this row isn't in it, use original pastel color with reduced opacity
+                            if (
+                              tagGroupColor &&
+                              row.tags &&
+                              row.tags.length > 0
+                            ) {
+                              rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border} opacity-60`; // Original color with reduced opacity
+                            } else {
+                              rowClasses +=
+                                " bg-gray-50 border-l-2 border-l-gray-200 opacity-60"; // Default subdued appearance
+                            }
                           } else if (isActive) {
                             rowClasses +=
                               " bg-yellow-50 border-l-4 border-l-yellow-400"; // Light gold highlighting for active rows
@@ -1532,19 +1545,9 @@ export default function GazeObservationApp() {
                           } else if (
                             tagGroupColor &&
                             row.tags &&
-                            row.tags.length > 0 &&
-                            highlightedTagGroup.size === 0
+                            row.tags.length > 0
                           ) {
-                            rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border}`; // Pastel colors for tag groups only when no group is highlighted
-                          } else if (
-                            tagGroupColor &&
-                            row.tags &&
-                            row.tags.length > 0 &&
-                            highlightedTagGroup.size > 0
-                          ) {
-                            // When there's a highlighted group but this row isn't in it, use reduced opacity version of the original color
-                            rowClasses +=
-                              " bg-gray-50 border-l-2 border-l-gray-200 opacity-60"; // Subdued appearance for non-highlighted rows
+                            rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border}`; // Original pastel colors for tag groups
                           } else {
                             rowClasses += " bg-white"; // Default background
                           }
