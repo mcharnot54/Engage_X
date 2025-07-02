@@ -866,6 +866,9 @@ export default function GazeObservationApp() {
     isActive: boolean,
     isCurrentlyInUse: boolean = false,
   ) => {
+    if (highlightedTagGroup.has(tag)) {
+      return "bg-yellow-200 text-yellow-800 border-yellow-500 shadow-md font-semibold";
+    }
     if (isCurrentlyInUse && isActive) {
       return "bg-yellow-200 text-yellow-800 border-yellow-400 shadow-md font-semibold";
     }
