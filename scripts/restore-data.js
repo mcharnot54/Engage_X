@@ -195,6 +195,7 @@ async function insertUomEntries() {
 async function main() {
   try {
     await createRequiredDependencies();
+    await insertOrganizations();
     await insertUomEntries();
     console.log("🎉 Data restoration completed successfully!");
   } catch (error) {
