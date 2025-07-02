@@ -922,37 +922,86 @@ export default function GazeObservationApp() {
       return "bg-yellow-200 text-yellow-800 border-yellow-500 shadow-md font-semibold";
     }
 
-    // If there's a highlighted tag group, all other tags should use their original pastel colors
-    // but with reduced opacity to create visual distinction
-    if (highlightedTagGroup.size > 0) {
-      // Use pastel colors for tag groups with reduced opacity
-      const tagGroupColor = getTagGroupColor(rowTags);
-      if (tagGroupColor && rowTags.length > 0) {
-        // Map to appropriate tag background colors (same as original but with reduced opacity)
-        const colorMap: Record<string, string> = {
-          "bg-rose-50": "bg-rose-100 text-rose-600 border-rose-200 opacity-75",
-          "bg-blue-50": "bg-blue-100 text-blue-600 border-blue-200 opacity-75",
-          "bg-green-50":
-            "bg-green-100 text-green-600 border-green-200 opacity-75",
-          "bg-purple-50":
-            "bg-purple-100 text-purple-600 border-purple-200 opacity-75",
-          "bg-indigo-50":
-            "bg-indigo-100 text-indigo-600 border-indigo-200 opacity-75",
-          "bg-pink-50": "bg-pink-100 text-pink-600 border-pink-200 opacity-75",
-          "bg-cyan-50": "bg-cyan-100 text-cyan-600 border-cyan-200 opacity-75",
-          "bg-amber-50":
-            "bg-amber-100 text-amber-600 border-amber-200 opacity-75",
-          "bg-emerald-50":
-            "bg-emerald-100 text-emerald-600 border-emerald-200 opacity-75",
-          "bg-violet-50":
-            "bg-violet-100 text-violet-600 border-violet-200 opacity-75",
-        };
-        return (
-          colorMap[tagGroupColor.bg] ||
-          "bg-gray-100 text-gray-600 border-gray-200 opacity-75"
-        );
+    // Get the original tag group color for consistent mapping
+    const tagGroupColor = getTagGroupColor(rowTags);
+
+    // Create a single consistent color mapping that we'll use with different opacities
+    const getConsistentTagColors = (reducedOpacity: boolean = false) => {
+      if (!tagGroupColor || !rowTags.length) {
+        return reducedOpacity
+          ? "bg-gray-100 text-gray-600 border-gray-200 opacity-60"
+          : "bg-gray-100 text-gray-700 border-gray-300";
       }
-      return "bg-gray-100 text-gray-600 border-gray-200 opacity-75";
+
+      const baseColorMap: Record<
+        string,
+        { bg: string; text: string; border: string }
+      > = {
+        "bg-rose-50": {
+          bg: "bg-rose-100",
+          text: "text-rose-700",
+          border: "border-rose-300",
+        },
+        "bg-blue-50": {
+          bg: "bg-blue-100",
+          text: "text-blue-700",
+          border: "border-blue-300",
+        },
+        "bg-green-50": {
+          bg: "bg-green-100",
+          text: "text-green-700",
+          border: "border-green-300",
+        },
+        "bg-purple-50": {
+          bg: "bg-purple-100",
+          text: "text-purple-700",
+          border: "border-purple-300",
+        },
+        "bg-indigo-50": {
+          bg: "bg-indigo-100",
+          text: "text-indigo-700",
+          border: "border-indigo-300",
+        },
+        "bg-pink-50": {
+          bg: "bg-pink-100",
+          text: "text-pink-700",
+          border: "border-pink-300",
+        },
+        "bg-cyan-50": {
+          bg: "bg-cyan-100",
+          text: "text-cyan-700",
+          border: "border-cyan-300",
+        },
+        "bg-amber-50": {
+          bg: "bg-amber-100",
+          text: "text-amber-700",
+          border: "border-amber-300",
+        },
+        "bg-emerald-50": {
+          bg: "bg-emerald-100",
+          text: "text-emerald-700",
+          border: "border-emerald-300",
+        },
+        "bg-violet-50": {
+          bg: "bg-violet-100",
+          text: "text-violet-700",
+          border: "border-violet-300",
+        },
+      };
+
+      const colors = baseColorMap[tagGroupColor.bg] || {
+        bg: "bg-gray-100",
+        text: "text-gray-700",
+        border: "border-gray-300",
+      };
+
+      const opacity = reducedOpacity ? " opacity-60" : "";
+      return `${colors.bg} ${colors.text} ${colors.border}${opacity}`;
+    };
+
+    // If there's a highlighted tag group, all other tags should use reduced opacity
+    if (highlightedTagGroup.size > 0) {
+      return getConsistentTagColors(true);
     }
 
     // When no group is highlighted, use the original logic with proper state handling
@@ -964,28 +1013,7 @@ export default function GazeObservationApp() {
     }
 
     // Use original pastel colors for tag groups (full opacity)
-    const tagGroupColor = getTagGroupColor(rowTags);
-    if (tagGroupColor && rowTags.length > 0) {
-      // Map to appropriate tag background colors (original colors with full opacity)
-      const colorMap: Record<string, string> = {
-        "bg-rose-50": "bg-rose-100 text-rose-700 border-rose-300",
-        "bg-blue-50": "bg-blue-100 text-blue-700 border-blue-300",
-        "bg-green-50": "bg-green-100 text-green-700 border-green-300",
-        "bg-purple-50": "bg-purple-100 text-purple-700 border-purple-300",
-        "bg-indigo-50": "bg-indigo-100 text-indigo-700 border-indigo-300",
-        "bg-pink-50": "bg-pink-100 text-pink-700 border-pink-300",
-        "bg-cyan-50": "bg-cyan-100 text-cyan-700 border-cyan-300",
-        "bg-amber-50": "bg-amber-100 text-amber-700 border-amber-300",
-        "bg-emerald-50": "bg-emerald-100 text-emerald-700 border-emerald-300",
-        "bg-violet-50": "bg-violet-100 text-violet-700 border-violet-300",
-      };
-      return (
-        colorMap[tagGroupColor.bg] ||
-        "bg-gray-100 text-gray-700 border-gray-300"
-      );
-    }
-
-    return "bg-gray-100 text-gray-700 border-gray-300";
+    return getConsistentTagColors(false);
   };
 
   return (
