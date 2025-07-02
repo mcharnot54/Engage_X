@@ -126,6 +126,52 @@ export default function GazeObservationApp() {
   // Dynamic grouping state
   const [activeRowIds, setActiveRowIds] = useState<Set<number>>(new Set());
   const [isDynamicGroupingActive, setIsDynamicGroupingActive] = useState(false);
+  const [highlightedTagGroup, setHighlightedTagGroup] = useState<Set<string>>(
+    new Set(),
+  );
+
+  // Pastel colors for tag group differentiation
+  const pastelColors = [
+    { bg: "bg-rose-50", border: "border-l-rose-200", text: "text-rose-700" },
+    { bg: "bg-blue-50", border: "border-l-blue-200", text: "text-blue-700" },
+    { bg: "bg-green-50", border: "border-l-green-200", text: "text-green-700" },
+    {
+      bg: "bg-purple-50",
+      border: "border-l-purple-200",
+      text: "text-purple-700",
+    },
+    {
+      bg: "bg-indigo-50",
+      border: "border-l-indigo-200",
+      text: "text-indigo-700",
+    },
+    { bg: "bg-pink-50", border: "border-l-pink-200", text: "text-pink-700" },
+    { bg: "bg-cyan-50", border: "border-l-cyan-200", text: "text-cyan-700" },
+    { bg: "bg-amber-50", border: "border-l-amber-200", text: "text-amber-700" },
+    {
+      bg: "bg-emerald-50",
+      border: "border-l-emerald-200",
+      text: "text-emerald-700",
+    },
+    {
+      bg: "bg-violet-50",
+      border: "border-l-violet-200",
+      text: "text-violet-700",
+    },
+  ];
+
+  // Helper function to get tag group color
+  const getTagGroupColor = useCallback((tags: string[]) => {
+    if (!tags || tags.length === 0) return null;
+    // Use the first tag to determine group identity, create a simple hash
+    const firstTag = tags[0];
+    const hash = firstTag.split("").reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    const colorIndex = Math.abs(hash) % pastelColors.length;
+    return pastelColors[colorIndex];
+  }, []);
 
   // UI state
   const [showPreviousObservations, setShowPreviousObservations] =
@@ -216,8 +262,31 @@ export default function GazeObservationApp() {
     [rows, getActiveTagsForRows],
   );
 
-  // Enhanced dynamic row ordering with active tag group prioritization
+  // Enhanced dynamic row ordering with highlighted tag group prioritization
   const organizedRows = useMemo(() => {
+    // If we have a highlighted tag group, prioritize those rows
+    if (highlightedTagGroup.size > 0) {
+      const highlightedGroupRows: Row[] = [];
+      const otherRows: Row[] = [];
+
+      rows.forEach((row) => {
+        const hasHighlightedTag = row.tags?.some((tag) =>
+          highlightedTagGroup.has(tag),
+        );
+        if (hasHighlightedTag) {
+          highlightedGroupRows.push(row);
+        } else {
+          otherRows.push(row);
+        }
+      });
+
+      // Sort highlighted group rows by original index
+      highlightedGroupRows.sort((a, b) => a.originalIndex - b.originalIndex);
+      otherRows.sort((a, b) => a.originalIndex - b.originalIndex);
+
+      return [...highlightedGroupRows, ...otherRows];
+    }
+
     if (!isDynamicGroupingActive || activeRowIds.size === 0) {
       // Return original order when not actively grouping
       return originalRowOrder.length > 0 ? originalRowOrder : rows;
@@ -273,6 +342,7 @@ export default function GazeObservationApp() {
     isDynamicGroupingActive,
     getRowsWithSharedTags,
     getActiveTagsForRows,
+    highlightedTagGroup,
   ]);
 
   // Helper functions for multi-level dropdown
@@ -404,6 +474,7 @@ export default function GazeObservationApp() {
         // Reset dynamic grouping state
         setActiveRowIds(new Set());
         setIsDynamicGroupingActive(false);
+        setHighlightedTagGroup(new Set());
 
         // Reset checkboxes when standard changes
         setBestPracticesChecked([]);
@@ -445,6 +516,7 @@ export default function GazeObservationApp() {
       // When observation stops, return to original order
       setIsDynamicGroupingActive(false);
       setActiveRowIds(new Set());
+      setHighlightedTagGroup(new Set());
     }
   };
 
@@ -465,6 +537,12 @@ export default function GazeObservationApp() {
       );
       return newRows;
     });
+
+    // Set highlighted tag group when ticker quantity is used
+    const targetRow = rows.find((row) => row.id === id);
+    if (targetRow && targetRow.tags && targetRow.tags.length > 0) {
+      setHighlightedTagGroup(new Set(targetRow.tags));
+    }
     // Note: Dynamic grouping logic will be handled by the syncActiveRowIds function
     // in the useEffect that triggers when rows change
   };
@@ -490,6 +568,12 @@ export default function GazeObservationApp() {
         ...prev,
         [id]: 0,
       }));
+
+      // Set highlighted tag group when enter quantity is used
+      const targetRow = rows.find((row) => row.id === id);
+      if (targetRow && targetRow.tags && targetRow.tags.length > 0) {
+        setHighlightedTagGroup(new Set(targetRow.tags));
+      }
       // Note: Dynamic grouping logic will be handled by the syncActiveRowIds function
       // in the useEffect that triggers when submittedQuantities change
     }
@@ -727,6 +811,7 @@ export default function GazeObservationApp() {
     setOriginalRowOrder([]);
     setActiveRowIds(new Set());
     setIsDynamicGroupingActive(false);
+    setHighlightedTagGroup(new Set());
     setTimeObserved(0);
     setPace(100);
     setUtilization(100);
@@ -826,14 +911,41 @@ export default function GazeObservationApp() {
     tag: string,
     isActive: boolean,
     isCurrentlyInUse: boolean = false,
+    rowTags: string[] = [],
   ) => {
+    if (highlightedTagGroup.has(tag)) {
+      return "bg-yellow-200 text-yellow-800 border-yellow-500 shadow-md font-semibold";
+    }
     if (isCurrentlyInUse && isActive) {
       return "bg-yellow-200 text-yellow-800 border-yellow-400 shadow-md font-semibold";
     }
     if (isActive) {
       return "bg-green-100 text-green-700 border-green-300";
     }
-    return "bg-blue-100 text-blue-700 border-blue-300";
+
+    // Use pastel colors for tag groups
+    const tagGroupColor = getTagGroupColor(rowTags);
+    if (tagGroupColor && rowTags.length > 0) {
+      // Map to appropriate tag background colors (darker than row backgrounds)
+      const colorMap: Record<string, string> = {
+        "bg-rose-50": "bg-rose-100 text-rose-700 border-rose-300",
+        "bg-blue-50": "bg-blue-100 text-blue-700 border-blue-300",
+        "bg-green-50": "bg-green-100 text-green-700 border-green-300",
+        "bg-purple-50": "bg-purple-100 text-purple-700 border-purple-300",
+        "bg-indigo-50": "bg-indigo-100 text-indigo-700 border-indigo-300",
+        "bg-pink-50": "bg-pink-100 text-pink-700 border-pink-300",
+        "bg-cyan-50": "bg-cyan-100 text-cyan-700 border-cyan-300",
+        "bg-amber-50": "bg-amber-100 text-amber-700 border-amber-300",
+        "bg-emerald-50": "bg-emerald-100 text-emerald-700 border-emerald-300",
+        "bg-violet-50": "bg-violet-100 text-violet-700 border-violet-300",
+      };
+      return (
+        colorMap[tagGroupColor.bg] ||
+        "bg-gray-100 text-gray-700 border-gray-300"
+      );
+    }
+
+    return "bg-gray-100 text-gray-700 border-gray-300";
   };
 
   return (
@@ -1265,17 +1377,20 @@ export default function GazeObservationApp() {
                 <div className="bg-white rounded-lg p-6 border border-gray-300 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-md font-semibold">Operations</h4>
-                    {isDynamicGroupingActive && (
-                      <div className="text-sm font-medium">
+                    <div className="text-sm font-medium">
+                      {highlightedTagGroup.size > 0 && (
+                        <div className="flex items-center gap-2 text-yellow-600 mb-1">
+                          🏆 Tag group highlighted - Group moved to top with
+                          gold styling
+                        </div>
+                      )}
+                      {isDynamicGroupingActive && (
                         <div className="flex items-center gap-2 text-green-600">
                           ⚡️ Smart grouping active - Active tag groups moved to
                           top
                         </div>
-                        <div className="flex items-center gap-2 text-yellow-600 mt-1 text-xs">
-                          ✨ Gold highlighting shows currently active rows
-                        </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   <div className="overflow-x-auto">
@@ -1313,15 +1428,35 @@ export default function GazeObservationApp() {
                           const isInActiveTagGroup =
                             isDynamicGroupingActive && hasActiveSharedTags;
 
+                          // Check if this row is in the highlighted tag group
+                          const isInHighlightedGroup =
+                            row.tags?.some((tag) =>
+                              highlightedTagGroup.has(tag),
+                            ) || false;
+
+                          // Get pastel color for this row's tag group
+                          const tagGroupColor = getTagGroupColor(
+                            row.tags || [],
+                          );
+
                           // Determine row styling based on activity level
                           let rowClasses =
                             "border-b border-gray-300 transition-all duration-200";
 
-                          if (isActive) {
+                          if (isInHighlightedGroup) {
                             rowClasses +=
-                              " bg-yellow-50 border-l-4 border-l-yellow-400"; // Gold highlighting for active rows
+                              " bg-yellow-100 border-l-4 border-l-yellow-500 shadow-sm"; // Gold highlighting for highlighted tag group
+                          } else if (isActive) {
+                            rowClasses +=
+                              " bg-yellow-50 border-l-4 border-l-yellow-400"; // Light gold highlighting for active rows
                           } else if (isInActiveTagGroup) {
                             rowClasses += " bg-green-50"; // Green highlighting for rows in active tag group
+                          } else if (
+                            tagGroupColor &&
+                            row.tags &&
+                            row.tags.length > 0
+                          ) {
+                            rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border}`; // Pastel colors for tag groups
                           } else {
                             rowClasses += " bg-white"; // Default background
                           }
@@ -1351,7 +1486,7 @@ export default function GazeObservationApp() {
                                     return (
                                       <span
                                         key={tagIndex}
-                                        className={`px-2 py-1 rounded-full text-xs border transition-all duration-200 ${getTagColor(tag, isTagActive, isCurrentlyInUse)}`}
+                                        className={`px-2 py-1 rounded-full text-xs border transition-all duration-200 ${getTagColor(tag, isTagActive, isCurrentlyInUse, row.tags || [])}`}
                                       >
                                         {tag}
                                       </span>
