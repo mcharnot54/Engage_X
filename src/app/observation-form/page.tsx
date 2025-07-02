@@ -798,8 +798,15 @@ export default function GazeObservationApp() {
     };
   }, [showStandardDropdown]);
 
-  // Helper function to get tag color
-  const getTagColor = (tag: string, isActive: boolean) => {
+  // Helper function to get tag color with gold highlighting for active use
+  const getTagColor = (
+    tag: string,
+    isActive: boolean,
+    isCurrentlyInUse: boolean = false,
+  ) => {
+    if (isCurrentlyInUse && isActive) {
+      return "bg-yellow-200 text-yellow-800 border-yellow-400 shadow-md font-semibold";
+    }
     if (isActive) {
       return "bg-green-100 text-green-700 border-green-300";
     }
