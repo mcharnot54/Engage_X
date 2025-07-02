@@ -997,9 +997,12 @@ export default function GazeObservationApp() {
               <h3 className="text-lg font-semibold mb-4">
                 PUMP Grade Factor (%) Assessment
               </h3>
-              <div className="grid grid-cols-3 gap-6 mb-6">
-                <div>
-                  <label className="block mb-2 font-medium">Pace</label>
+              <div className="flex items-end gap-4 justify-center">
+                {/* Pace */}
+                <div className="flex-1 max-w-32">
+                  <label className="block mb-2 font-medium text-center">
+                    Pace
+                  </label>
                   <input
                     type="number"
                     min="1"
@@ -1007,11 +1010,18 @@ export default function GazeObservationApp() {
                     value={pace}
                     onChange={(e) => setPace(parseInt(e.target.value) || 100)}
                     disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
                   />
                 </div>
-                <div>
-                  <label className="block mb-2 font-medium">Utilization</label>
+
+                {/* Multiplication Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3">×</div>
+
+                {/* Utilization */}
+                <div className="flex-1 max-w-32">
+                  <label className="block mb-2 font-medium text-center">
+                    Utilization
+                  </label>
                   <input
                     type="number"
                     min="1"
@@ -1021,11 +1031,16 @@ export default function GazeObservationApp() {
                       setUtilization(parseInt(e.target.value) || 100)
                     }
                     disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
                   />
                 </div>
-                <div>
-                  <label className="block mb-2 font-medium">
+
+                {/* Multiplication Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3">×</div>
+
+                {/* Methods and Procedures */}
+                <div className="flex-1 max-w-32">
+                  <label className="block mb-2 font-medium text-center">
                     Methods and Procedures
                   </label>
                   <input
@@ -1037,19 +1052,23 @@ export default function GazeObservationApp() {
                       setMethods(parseInt(e.target.value) || 100)
                     }
                     disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
                   />
                 </div>
-              </div>
 
-              {/* PUMP Score Display */}
-              <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
-                <div className="text-4xl font-bold text-orange-600 mb-2">
-                  {pumpScore.toFixed(1)}%
-                </div>
-                <div className="text-gray-600 font-medium">PUMP Score %</div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Pace × Utilization × Methods
+                {/* Equals Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3">=</div>
+
+                {/* PUMP Score Display - Oversized */}
+                <div className="flex-2 max-w-48">
+                  <div className="text-center bg-white rounded-lg p-6 border border-gray-300">
+                    <div className="text-5xl font-bold text-orange-600 mb-2">
+                      {pumpScore.toFixed(1)}%
+                    </div>
+                    <div className="text-gray-600 font-medium">
+                      PUMP Score %
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
