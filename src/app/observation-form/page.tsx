@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { Banner } from "@/components/ui/Banner";
 
 type Row = {
   id: number;
@@ -791,6 +792,10 @@ export default function GazeObservationApp() {
 
   return (
     <div className="font-poppins text-black bg-gray-100 min-h-screen overflow-x-hidden">
+      <Banner
+        title="Observation Form"
+        subtitle="Complete work sampling observations and performance analysis"
+      />
       <div className="flex flex-col max-w-7xl mx-auto bg-gray-100 min-h-[calc(100vh-80px)] rounded-xl border border-gray-300 mt-5 p-5 overflow-y-auto">
         <div className="flex flex-row h-full">
           <div
