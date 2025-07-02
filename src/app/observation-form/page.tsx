@@ -768,6 +768,7 @@ export default function GazeObservationApp() {
     setOriginalRowOrder([]);
     setActiveRowIds(new Set());
     setIsDynamicGroupingActive(false);
+    setHighlightedTagGroup(new Set());
     setTimeObserved(0);
     setPace(100);
     setUtilization(100);
