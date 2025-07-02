@@ -106,6 +106,38 @@ async function insertOrganizations() {
   }
 }
 
+async function insertDepartments() {
+  const departmentsData = [
+    {
+      id: 1,
+      name: "Picking",
+      facilityId: 1,
+    },
+    {
+      id: 2,
+      name: "Packaging",
+      facilityId: 1,
+    },
+  ];
+
+  try {
+    console.log("Inserting Departments...");
+
+    for (const dept of departmentsData) {
+      await prisma.department.upsert({
+        where: { id: dept.id },
+        update: dept,
+        create: dept,
+      });
+      console.log(`✓ Inserted Department: ${dept.name}`);
+    }
+
+    console.log("✅ All Departments inserted successfully!");
+  } catch (error) {
+    console.error("❌ Error inserting Departments:", error);
+  }
+}
+
 async function insertStandards() {
   const standardsData = [
     {
