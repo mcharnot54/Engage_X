@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Banner } from "@/components/ui/Banner";
+import { Sidebar } from "@/components/Sidebar";
 
 export default function ReportingPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
