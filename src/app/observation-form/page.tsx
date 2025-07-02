@@ -47,6 +47,16 @@ export default function GazeObservationApp() {
   const [selectedStandardData, setSelectedStandardData] =
     useState<Standard | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Temporary quantity inputs for each row
+  const [tempQuantities, setTempQuantities] = useState<Record<number, number>>(
+    {},
+  );
+
+  // Track submitted quantities separately from ticker quantities
+  const [submittedQuantities, setSubmittedQuantities] = useState<
+    Record<number, number>
+  >({});
   const [error, setError] = useState("");
 
   // Observation tracking
@@ -310,13 +320,24 @@ export default function GazeObservationApp() {
       setIsLoading(true);
       const response = await fetch("/api/standards");
       if (!response.ok) {
-        throw new Error("Failed to fetch standards");
+        const errorData = await response.json().catch(() => ({}));
+        if (
+          errorData.error &&
+          errorData.error.includes("Database connection failed")
+        ) {
+          throw new Error(
+            "Database not configured. Please check your DATABASE_URL environment variable.",
+          );
+        }
+        throw new Error(errorData.error || "Failed to fetch standards");
       }
       const data = await response.json();
       setStandards(data);
     } catch (error) {
       console.error("Error loading standards:", error);
-      setError("Failed to load standards");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to load standards";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -425,9 +446,35 @@ export default function GazeObservationApp() {
     setActiveRowIds(newActiveRowIds);
   };
 
+  const updateTempQuantity = (id: number, value: number) => {
+    setTempQuantities((prev) => ({
+      ...prev,
+      [id]: Math.max(0, value),
+    }));
+  };
+
+  const submitTempQuantity = (id: number) => {
+    const tempValue = tempQuantities[id] || 0;
+    if (tempValue > 0) {
+      // Add to submitted quantities (separate from ticker quantities)
+      setSubmittedQuantities((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) + tempValue,
+      }));
+
+      // Clear the temporary input
+      setTempQuantities((prev) => ({
+        ...prev,
+        [id]: 0,
+      }));
+    }
+  };
+
   const calculateTotalSams = () => {
     const total = rows.reduce(
-      (sum, row) => sum + row.quantity * row.samValue,
+      (sum, row) =>
+        sum +
+        (row.quantity + (submittedQuantities[row.id] || 0)) * row.samValue,
       0,
     );
     setTotalSams(total);
@@ -698,7 +745,7 @@ export default function GazeObservationApp() {
 
   useEffect(() => {
     calculateTotalSams();
-  }, [rows]);
+  }, [rows, submittedQuantities]);
 
   useEffect(() => {
     calculatePerformance();
@@ -1093,13 +1140,13 @@ export default function GazeObservationApp() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">
-                    {totalSams.toFixed(2)}
+                    {isObserving ? "—" : totalSams.toFixed(2)}
                   </div>
                   <div className="text-gray-600">Total SAMs</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600">
-                    {observedPerformance.toFixed(1)}%
+                    {isObserving ? "—" : `${observedPerformance.toFixed(1)}%`}
                   </div>
                   <div className="text-gray-600">Observed Performance</div>
                 </div>
@@ -1145,13 +1192,18 @@ export default function GazeObservationApp() {
                     <table className="w-full border-collapse bg-white">
                       <thead>
                         <tr className="bg-gray-100 border-b-2 border-gray-300">
-                          <th className="p-3 text-left font-semibold">UOM</th>
                           <th className="p-3 text-left font-semibold">
-                            Description
+                            UOM / Description
                           </th>
                           <th className="p-3 text-left font-semibold">Tags</th>
                           <th className="p-3 text-center font-semibold">
-                            Quantity
+                            Enter Quantity
+                          </th>
+                          <th className="p-3 text-center font-semibold">
+                            Ticker Quantity
+                          </th>
+                          <th className="p-3 text-center font-semibold">
+                            Total Quantity
                           </th>
                           <th className="p-3 text-right font-semibold">
                             SAM Value
@@ -1185,8 +1237,18 @@ export default function GazeObservationApp() {
                                     : ""
                               }`}
                             >
-                              <td className="p-3 font-medium">{row.uom}</td>
-                              <td className="p-3">{row.description}</td>
+                              <td className="p-3">
+                                <div className="font-medium">{row.uom}</div>
+                                <div
+                                  className="text-xs text-gray-600 mt-1"
+                                  style={{
+                                    fontSize: "0.625em",
+                                    lineHeight: "1.2",
+                                  }}
+                                >
+                                  {row.description}
+                                </div>
+                              </td>
                               <td className="p-3">
                                 <div className="flex flex-wrap gap-1">
                                   {(row.tags || []).map((tag, tagIndex) => {
@@ -1207,6 +1269,45 @@ export default function GazeObservationApp() {
                                       No tags
                                     </span>
                                   )}
+                                </div>
+                              </td>
+                              <td className="p-3 text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={tempQuantities[row.id] || 0}
+                                    disabled={!isObserving}
+                                    onChange={(e) =>
+                                      updateTempQuantity(
+                                        row.id,
+                                        parseInt(e.target.value) || 0,
+                                      )
+                                    }
+                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
+                                    placeholder="0"
+                                  />
+                                  <button
+                                    disabled={
+                                      !isObserving || !tempQuantities[row.id]
+                                    }
+                                    onClick={() => submitTempQuantity(row.id)}
+                                    className="p-1 rounded bg-green-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-green-600 flex items-center justify-center w-8 h-8"
+                                    title="Add to total"
+                                  >
+                                    <svg
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <polyline points="20,6 9,17 4,12"></polyline>
+                                    </svg>
+                                  </button>
                                 </div>
                               </td>
                               <td className="p-3 text-center">
@@ -1244,11 +1345,19 @@ export default function GazeObservationApp() {
                                   </button>
                                 </div>
                               </td>
+                              <td className="p-3 text-center font-medium">
+                                {row.quantity +
+                                  (submittedQuantities[row.id] || 0)}
+                              </td>
                               <td className="p-3 text-right">
                                 {row.samValue.toFixed(4)}
                               </td>
                               <td className="p-3 text-right font-medium">
-                                {(row.quantity * row.samValue).toFixed(4)}
+                                {(
+                                  (row.quantity +
+                                    (submittedQuantities[row.id] || 0)) *
+                                  row.samValue
+                                ).toFixed(4)}
                               </td>
                             </tr>
                           );
