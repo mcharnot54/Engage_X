@@ -1454,9 +1454,11 @@ export default function GazeObservationApp() {
                           </span>
                           <button
                             onClick={() => {
+                              // Only clear visual highlighting states, preserve all quantities and data
                               setHighlightedTagGroup(new Set());
-                              setActiveRowIds(new Set());
                               setIsDynamicGroupingActive(false);
+                              // Don't clear activeRowIds immediately, let syncActiveRowIds handle it
+                              // to ensure data preservation
                             }}
                             className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 border border-yellow-300 rounded hover:bg-yellow-200 transition-colors"
                           >
