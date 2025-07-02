@@ -1442,13 +1442,17 @@ export default function GazeObservationApp() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">
-                    {isObserving ? "—" : totalSams.toFixed(2)}
+                    {isObserving || isPumpAssessmentActive
+                      ? "—"
+                      : totalSams.toFixed(2)}
                   </div>
                   <div className="text-gray-600">Total SAMs</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600">
-                    {isObserving ? "—" : `${observedPerformance.toFixed(1)}%`}
+                    {isObserving || isPumpAssessmentActive
+                      ? "—"
+                      : `${observedPerformance.toFixed(1)}%`}
                   </div>
                   <div className="text-gray-600">Observed Performance</div>
                 </div>
