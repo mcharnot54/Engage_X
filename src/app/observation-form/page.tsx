@@ -47,6 +47,11 @@ export default function GazeObservationApp() {
   const [selectedStandardData, setSelectedStandardData] =
     useState<Standard | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Temporary quantity inputs for each row
+  const [tempQuantities, setTempQuantities] = useState<Record<number, number>>(
+    {},
+  );
   const [error, setError] = useState("");
 
   // Observation tracking
