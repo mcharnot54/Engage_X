@@ -418,10 +418,9 @@ export default function GazeObservationApp() {
       const performance = (totalSams / timeObserved) * 100;
       setObservedPerformance(Number(performance.toFixed(2)));
     }
-    // Calculate PUMP score and round to nearest 5% increment
+    // Calculate PUMP score as straight multiplication
     const score = (pace * utilization * methods) / 10000;
-    const roundedScore = Math.round(score / 5) * 5;
-    setPumpScore(roundedScore);
+    setPumpScore(Number(score.toFixed(1)));
   };
 
   const updateQuantity = (id: number, value: number) => {
