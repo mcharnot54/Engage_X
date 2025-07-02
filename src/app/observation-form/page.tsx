@@ -1410,6 +1410,11 @@ export default function GazeObservationApp() {
                               highlightedTagGroup.has(tag),
                             ) || false;
 
+                          // Get pastel color for this row's tag group
+                          const tagGroupColor = getTagGroupColor(
+                            row.tags || [],
+                          );
+
                           // Determine row styling based on activity level
                           let rowClasses =
                             "border-b border-gray-300 transition-all duration-200";
@@ -1422,6 +1427,12 @@ export default function GazeObservationApp() {
                               " bg-yellow-50 border-l-4 border-l-yellow-400"; // Light gold highlighting for active rows
                           } else if (isInActiveTagGroup) {
                             rowClasses += " bg-green-50"; // Green highlighting for rows in active tag group
+                          } else if (
+                            tagGroupColor &&
+                            row.tags &&
+                            row.tags.length > 0
+                          ) {
+                            rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border}`; // Pastel colors for tag groups
                           } else {
                             rowClasses += " bg-white"; // Default background
                           }
