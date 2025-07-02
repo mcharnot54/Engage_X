@@ -4,8 +4,6 @@ import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 
 export default function AdminPage() {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Banner
@@ -14,99 +12,36 @@ export default function AdminPage() {
       />
 
       <div className="flex flex-row h-full">
-        <div
-          className="bg-white border-r border-gray-300 transition-all duration-300 flex flex-col justify-between relative shadow-md"
-          style={{
-            width: isSidebarCollapsed ? "80px" : "300px",
-            padding: isSidebarCollapsed ? "24px 12px" : "24px",
-          }}
-        >
-          <div>
-            <div
-              className="flex items-center gap-3 mb-8"
-              style={{
-                justifyContent: isSidebarCollapsed ? "center" : "flex-start",
-              }}
-            >
-              <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="absolute -right-3 top-6 w-6 h-6 rounded-full border border-gray-300 bg-white cursor-pointer flex items-center justify-center transition-transform duration-300"
-                style={{
-                  transform: isSidebarCollapsed
-                    ? "rotate(180deg)"
-                    : "rotate(0deg)",
-                }}
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M10 2L4 8L10 14"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-              <span
-                className="text-xl font-semibold"
-                style={{ display: isSidebarCollapsed ? "none" : "block" }}
-              >
-                Guardian Admin
-              </span>
-            </div>
-
-            {!isSidebarCollapsed && (
-              <div className="space-y-4">
-                <div className="text-sm text-gray-600">
-                  <h3 className="font-semibold mb-2">User Management</h3>
-                  <ul className="space-y-2">
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Users
-                    </li>
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Roles & Permissions
-                    </li>
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Access Control
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="text-sm text-gray-600">
-                  <h3 className="font-semibold mb-2">System Settings</h3>
-                  <ul className="space-y-2">
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Organizations
-                    </li>
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Facilities
-                    </li>
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Departments
-                    </li>
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Configuration
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="text-sm text-gray-600">
-                  <h3 className="font-semibold mb-2">Maintenance</h3>
-                  <ul className="space-y-2">
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      System Logs
-                    </li>
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Data Backup
-                    </li>
-                    <li className="cursor-pointer hover:text-red-600 transition-colors">
-                      Database Tools
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <Sidebar
+          title="Guardian Admin"
+          sections={[
+            {
+              title: "User Management",
+              items: [
+                { label: "Users" },
+                { label: "Roles & Permissions" },
+                { label: "Access Control" },
+              ],
+            },
+            {
+              title: "System Settings",
+              items: [
+                { label: "Organizations" },
+                { label: "Facilities" },
+                { label: "Departments" },
+                { label: "Configuration" },
+              ],
+            },
+            {
+              title: "Maintenance",
+              items: [
+                { label: "System Logs" },
+                { label: "Data Backup" },
+                { label: "Database Tools" },
+              ],
+            },
+          ]}
+        />
 
         <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
           <div className="flex justify-between items-center mb-6">
