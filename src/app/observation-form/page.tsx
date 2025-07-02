@@ -1352,13 +1352,22 @@ export default function GazeObservationApp() {
                           const isInActiveTagGroup =
                             isDynamicGroupingActive && hasActiveSharedTags;
 
+                          // Check if this row is in the highlighted tag group
+                          const isInHighlightedGroup =
+                            row.tags?.some((tag) =>
+                              highlightedTagGroup.has(tag),
+                            ) || false;
+
                           // Determine row styling based on activity level
                           let rowClasses =
                             "border-b border-gray-300 transition-all duration-200";
 
-                          if (isActive) {
+                          if (isInHighlightedGroup) {
                             rowClasses +=
-                              " bg-yellow-50 border-l-4 border-l-yellow-400"; // Gold highlighting for active rows
+                              " bg-yellow-100 border-l-4 border-l-yellow-500 shadow-sm"; // Gold highlighting for highlighted tag group
+                          } else if (isActive) {
+                            rowClasses +=
+                              " bg-yellow-50 border-l-4 border-l-yellow-400"; // Light gold highlighting for active rows
                           } else if (isInActiveTagGroup) {
                             rowClasses += " bg-green-50"; // Green highlighting for rows in active tag group
                           } else {
