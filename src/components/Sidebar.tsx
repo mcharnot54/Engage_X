@@ -72,13 +72,13 @@ export function Sidebar({
                 aspectRatio: "0.46",
                 objectFit: "cover",
                 objectPosition: "center",
-                width: "100%",
-                marginLeft: "20px",
+                width: isSidebarCollapsed ? "32px" : "100%",
+                height: isSidebarCollapsed ? "70px" : "auto",
+                marginLeft: isSidebarCollapsed ? "0" : "20px",
                 minHeight: "20px",
                 minWidth: "20px",
                 overflow: "hidden",
-                maxWidth: "189px",
-                display: isSidebarCollapsed ? "none" : "block",
+                maxWidth: isSidebarCollapsed ? "32px" : "189px",
               }}
             />
           ) : (
