@@ -472,6 +472,7 @@ export default function GazeObservationApp() {
       // When observation stops, return to original order
       setIsDynamicGroupingActive(false);
       setActiveRowIds(new Set());
+      setHighlightedTagGroup(new Set());
     }
   };
 
