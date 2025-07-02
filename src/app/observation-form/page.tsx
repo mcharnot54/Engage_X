@@ -882,6 +882,35 @@ export default function GazeObservationApp() {
               </div>
             )}
 
+            {/* Application List */}
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+              <h3 className="text-lg font-semibold mb-6 text-gray-800">
+                Available Applications
+              </h3>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  "Labor.X",
+                  "Clock.X",
+                  "Engage.X",
+                  "Staff.X",
+                  "Dash.X",
+                  "Report.X",
+                  "Incent.X",
+                  "Perform.X",
+                  "Plan.X",
+                ].map((app) => (
+                  <div
+                    key={app}
+                    className="text-center py-3 px-4 bg-white rounded-lg border border-gray-200 hover:border-red-300 transition-colors cursor-pointer"
+                  >
+                    <div className="font-montserrat text-2xl font-medium text-gray-800">
+                      {app}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Observation Overview */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">
