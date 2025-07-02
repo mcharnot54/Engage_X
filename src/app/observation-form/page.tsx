@@ -1504,9 +1504,19 @@ export default function GazeObservationApp() {
                           } else if (
                             tagGroupColor &&
                             row.tags &&
-                            row.tags.length > 0
+                            row.tags.length > 0 &&
+                            highlightedTagGroup.size === 0
                           ) {
-                            rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border}`; // Pastel colors for tag groups
+                            rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border}`; // Pastel colors for tag groups only when no group is highlighted
+                          } else if (
+                            tagGroupColor &&
+                            row.tags &&
+                            row.tags.length > 0 &&
+                            highlightedTagGroup.size > 0
+                          ) {
+                            // When there's a highlighted group but this row isn't in it, use reduced opacity version of the original color
+                            rowClasses +=
+                              " bg-gray-50 border-l-2 border-l-gray-200 opacity-60"; // Subdued appearance for non-highlighted rows
                           } else {
                             rowClasses += " bg-white"; // Default background
                           }
