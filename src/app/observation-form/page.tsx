@@ -605,7 +605,7 @@ export default function GazeObservationApp() {
 
   // Delay timer functionality
   const startDelay = () => {
-    if (!isDelayActive && delayReason) {
+    if (!isDelayActive) {
       setIsDelayActive(true);
       setDelayStartTime(Date.now());
     }
