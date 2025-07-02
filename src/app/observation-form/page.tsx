@@ -1195,8 +1195,18 @@ export default function GazeObservationApp() {
                                     : ""
                               }`}
                             >
-                              <td className="p-3 font-medium">{row.uom}</td>
-                              <td className="p-3">{row.description}</td>
+                              <td className="p-3">
+                                <div className="font-medium">{row.uom}</div>
+                                <div
+                                  className="text-xs text-gray-600 mt-1"
+                                  style={{
+                                    fontSize: "0.5em",
+                                    lineHeight: "1.2",
+                                  }}
+                                >
+                                  {row.description}
+                                </div>
+                              </td>
                               <td className="p-3">
                                 <div className="flex flex-wrap gap-1">
                                   {(row.tags || []).map((tag, tagIndex) => {
