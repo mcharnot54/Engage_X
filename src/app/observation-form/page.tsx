@@ -1455,6 +1455,8 @@ export default function GazeObservationApp() {
                           <button
                             onClick={() => {
                               setHighlightedTagGroup(new Set());
+                              setActiveRowIds(new Set());
+                              setIsDynamicGroupingActive(false);
                             }}
                             className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 border border-yellow-300 rounded hover:bg-yellow-200 transition-colors"
                           >
