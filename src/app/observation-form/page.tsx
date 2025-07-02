@@ -1313,7 +1313,8 @@ export default function GazeObservationApp() {
                     <div className="text-sm font-medium">
                       {highlightedTagGroup.size > 0 && (
                         <div className="flex items-center gap-2 text-yellow-600 mb-1">
-                          🏆 Tag group highlighted - Group moved to top with gold styling
+                          🏆 Tag group highlighted - Group moved to top with
+                          gold styling
                         </div>
                       )}
                       {isDynamicGroupingActive && (
@@ -1323,10 +1324,6 @@ export default function GazeObservationApp() {
                         </div>
                       )}
                     </div>
-                          ✨ Gold highlighting shows currently active rows
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   <div className="overflow-x-auto">
