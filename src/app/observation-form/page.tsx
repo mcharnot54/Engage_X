@@ -441,6 +441,29 @@ export default function GazeObservationApp() {
     setActiveRowIds(newActiveRowIds);
   };
 
+  const updateTempQuantity = (id: number, value: number) => {
+    setTempQuantities((prev) => ({
+      ...prev,
+      [id]: Math.max(0, value),
+    }));
+  };
+
+  const submitTempQuantity = (id: number) => {
+    const tempValue = tempQuantities[id] || 0;
+    if (tempValue > 0) {
+      // Add the temporary quantity to the existing quantity
+      const currentRow = rows.find((row) => row.id === id);
+      if (currentRow) {
+        updateQuantity(id, currentRow.quantity + tempValue);
+      }
+      // Clear the temporary input
+      setTempQuantities((prev) => ({
+        ...prev,
+        [id]: 0,
+      }));
+    }
+  };
+
   const calculateTotalSams = () => {
     const total = rows.reduce(
       (sum, row) => sum + row.quantity * row.samValue,
