@@ -1294,27 +1294,28 @@ export default function GazeObservationApp() {
                       <tbody>
                         {organizedRows.map((row, index) => {
                           const isActive = activeRowIds.has(row.id);
-                          const sharedTaggedRows = getRowsWithSharedTags(
-                            new Set([row.id]),
-                          );
+                          const activeTags = getActiveTagsForRows(activeRowIds);
                           const hasActiveSharedTags =
-                            isDynamicGroupingActive &&
-                            sharedTaggedRows.size > 1 &&
-                            Array.from(sharedTaggedRows).some((id) =>
-                              activeRowIds.has(id),
-                            );
+                            row.tags?.some((tag) => activeTags.has(tag)) ||
+                            false;
+                          const isInActiveTagGroup =
+                            isDynamicGroupingActive && hasActiveSharedTags;
+
+                          // Determine row styling based on activity level
+                          let rowClasses =
+                            "border-b border-gray-300 transition-all duration-200";
+
+                          if (isActive) {
+                            rowClasses +=
+                              " bg-yellow-50 border-l-4 border-l-yellow-400"; // Gold highlighting for active rows
+                          } else if (isInActiveTagGroup) {
+                            rowClasses += " bg-green-50"; // Green highlighting for rows in active tag group
+                          } else {
+                            rowClasses += " bg-white"; // Default background
+                          }
 
                           return (
-                            <tr
-                              key={row.id}
-                              className={`border-b border-gray-300 transition-all duration-300 ${
-                                isActive
-                                  ? "bg-green-50"
-                                  : hasActiveSharedTags
-                                    ? "bg-blue-50"
-                                    : ""
-                              }`}
-                            >
+                            <tr key={row.id} className={rowClasses}>
                               <td className="p-3">
                                 <div className="font-medium">{row.uom}</div>
                                 <div
