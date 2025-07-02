@@ -128,7 +128,6 @@ export default function GazeObservationApp() {
   const [showPreviousObservations, setShowPreviousObservations] =
     useState(false);
   const [showReasonInstructions, setShowReasonInstructions] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
