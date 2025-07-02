@@ -1276,7 +1276,9 @@ export default function GazeObservationApp() {
                   </label>
                   <div className="flex items-center justify-center gap-2">
                     <button
-                      disabled={!isObserving || pace <= 5}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) || pace <= 5
+                      }
                       onClick={() => setPace(Math.max(5, pace - 5))}
                       className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
                     >
@@ -1292,11 +1294,13 @@ export default function GazeObservationApp() {
                         const value = parseInt(e.target.value) || 100;
                         setPace(Math.round(value / 5) * 5);
                       }}
-                      disabled={!isObserving}
+                      disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
                     />
                     <button
-                      disabled={!isObserving || pace >= 200}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) || pace >= 200
+                      }
                       onClick={() => setPace(Math.min(200, pace + 5))}
                       className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
                     >
