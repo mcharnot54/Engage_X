@@ -1123,7 +1123,9 @@ export default function GazeObservationApp() {
             {/* Standards Form */}
             {selectedStandardData && (
               <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-                <h3 className="text-lg font-semibold mb-6">Standards Form</h3>
+                <h3 className="text-lg font-semibold mb-6">
+                  Observed Performance
+                </h3>
 
                 {/* UOM Operations Table */}
                 <div className="bg-white rounded-lg p-6 border border-gray-300 mb-6">
