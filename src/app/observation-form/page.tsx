@@ -513,7 +513,8 @@ export default function GazeObservationApp() {
   const stopObservation = () => {
     if (isObserving) {
       setIsObserving(false);
-      setIsFinalized(true);
+      setIsPumpAssessmentActive(true);
+      setShowPumpFinalizationModal(true);
       setObservationEndTime(Date.now());
       if (timerInterval) {
         clearInterval(timerInterval);
@@ -525,6 +526,12 @@ export default function GazeObservationApp() {
       setActiveRowIds(new Set());
       setHighlightedTagGroup(new Set());
     }
+  };
+
+  const submitPumpAssessment = () => {
+    setIsPumpAssessmentActive(false);
+    setIsFinalized(true);
+    setShowPumpFinalizationModal(false);
   };
 
   const calculatePerformance = () => {
