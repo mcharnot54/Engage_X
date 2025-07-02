@@ -1242,7 +1242,7 @@ export default function GazeObservationApp() {
                                 <div
                                   className="text-xs text-gray-600 mt-1"
                                   style={{
-                                    fontSize: "0.5em",
+                                    fontSize: "0.625em",
                                     lineHeight: "1.2",
                                   }}
                                 >
