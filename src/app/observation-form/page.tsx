@@ -918,34 +918,40 @@ export default function GazeObservationApp() {
       return "bg-yellow-200 text-yellow-800 border-yellow-500 shadow-md font-semibold";
     }
 
-    // If there's a highlighted tag group, all other tags should use pastel colors
-    // regardless of their active state
+    // If there's a highlighted tag group, all other tags should use their original pastel colors
+    // but with reduced opacity to create visual distinction
     if (highlightedTagGroup.size > 0) {
-      // Use pastel colors for tag groups
+      // Use pastel colors for tag groups with reduced opacity
       const tagGroupColor = getTagGroupColor(rowTags);
       if (tagGroupColor && rowTags.length > 0) {
-        // Map to appropriate tag background colors (darker than row backgrounds)
+        // Map to appropriate tag background colors (same as original but with reduced opacity)
         const colorMap: Record<string, string> = {
-          "bg-rose-50": "bg-rose-100 text-rose-700 border-rose-300",
-          "bg-blue-50": "bg-blue-100 text-blue-700 border-blue-300",
-          "bg-green-50": "bg-green-100 text-green-700 border-green-300",
-          "bg-purple-50": "bg-purple-100 text-purple-700 border-purple-300",
-          "bg-indigo-50": "bg-indigo-100 text-indigo-700 border-indigo-300",
-          "bg-pink-50": "bg-pink-100 text-pink-700 border-pink-300",
-          "bg-cyan-50": "bg-cyan-100 text-cyan-700 border-cyan-300",
-          "bg-amber-50": "bg-amber-100 text-amber-700 border-amber-300",
-          "bg-emerald-50": "bg-emerald-100 text-emerald-700 border-emerald-300",
-          "bg-violet-50": "bg-violet-100 text-violet-700 border-violet-300",
+          "bg-rose-50": "bg-rose-100 text-rose-600 border-rose-200 opacity-75",
+          "bg-blue-50": "bg-blue-100 text-blue-600 border-blue-200 opacity-75",
+          "bg-green-50":
+            "bg-green-100 text-green-600 border-green-200 opacity-75",
+          "bg-purple-50":
+            "bg-purple-100 text-purple-600 border-purple-200 opacity-75",
+          "bg-indigo-50":
+            "bg-indigo-100 text-indigo-600 border-indigo-200 opacity-75",
+          "bg-pink-50": "bg-pink-100 text-pink-600 border-pink-200 opacity-75",
+          "bg-cyan-50": "bg-cyan-100 text-cyan-600 border-cyan-200 opacity-75",
+          "bg-amber-50":
+            "bg-amber-100 text-amber-600 border-amber-200 opacity-75",
+          "bg-emerald-50":
+            "bg-emerald-100 text-emerald-600 border-emerald-200 opacity-75",
+          "bg-violet-50":
+            "bg-violet-100 text-violet-600 border-violet-200 opacity-75",
         };
         return (
           colorMap[tagGroupColor.bg] ||
-          "bg-gray-100 text-gray-700 border-gray-300"
+          "bg-gray-100 text-gray-600 border-gray-200 opacity-75"
         );
       }
-      return "bg-gray-100 text-gray-700 border-gray-300";
+      return "bg-gray-100 text-gray-600 border-gray-200 opacity-75";
     }
 
-    // When no group is highlighted, use the original logic
+    // When no group is highlighted, use the original logic with proper state handling
     if (isCurrentlyInUse && isActive) {
       return "bg-yellow-200 text-yellow-800 border-yellow-400 shadow-md font-semibold";
     }
@@ -953,10 +959,10 @@ export default function GazeObservationApp() {
       return "bg-green-100 text-green-700 border-green-300";
     }
 
-    // Use pastel colors for tag groups
+    // Use original pastel colors for tag groups (full opacity)
     const tagGroupColor = getTagGroupColor(rowTags);
     if (tagGroupColor && rowTags.length > 0) {
-      // Map to appropriate tag background colors (darker than row backgrounds)
+      // Map to appropriate tag background colors (original colors with full opacity)
       const colorMap: Record<string, string> = {
         "bg-rose-50": "bg-rose-100 text-rose-700 border-rose-300",
         "bg-blue-50": "bg-blue-100 text-blue-700 border-blue-300",
