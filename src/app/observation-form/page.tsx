@@ -456,11 +456,12 @@ export default function GazeObservationApp() {
   const submitTempQuantity = (id: number) => {
     const tempValue = tempQuantities[id] || 0;
     if (tempValue > 0) {
-      // Add the temporary quantity to the existing quantity
-      const currentRow = rows.find((row) => row.id === id);
-      if (currentRow) {
-        updateQuantity(id, currentRow.quantity + tempValue);
-      }
+      // Add to submitted quantities (separate from ticker quantities)
+      setSubmittedQuantities((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) + tempValue,
+      }));
+
       // Clear the temporary input
       setTempQuantities((prev) => ({
         ...prev,
