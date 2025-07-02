@@ -735,7 +735,20 @@ export default function GazeObservationApp() {
   // Effects
   useEffect(() => {
     loadStandards();
+    loadDelayReasons();
   }, []);
+
+  const loadDelayReasons = async () => {
+    try {
+      const response = await fetch("/api/delay-reasons");
+      if (response.ok) {
+        const data = await response.json();
+        setDelayReasons(data);
+      }
+    } catch (error) {
+      console.error("Error loading delay reasons:", error);
+    }
+  };
 
   useEffect(() => {
     if (standard && standards.length > 0) {
