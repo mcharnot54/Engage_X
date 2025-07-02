@@ -92,11 +92,11 @@ model Standard {
   createdBy            String?
   observations         Observation[]
   area                 Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  baseStandard         Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id])
+  versions             Standard[]    @relation("StandardVersions")
   department           Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   facility             Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
   uomEntries           UomEntry[]
-  baseStandard         Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id])
-  versions             Standard[]    @relation("StandardVersions")
 
   @@map("standards")
 }
