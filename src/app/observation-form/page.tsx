@@ -1065,8 +1065,8 @@ export default function GazeObservationApp() {
                   =
                 </div>
 
-                {/* PUMP Score Display - 25% larger */}
-                <div style={{ flex: "1.25" }} className="text-center">
+                {/* PUMP Score Display - 10% larger */}
+                <div style={{ flex: "1.1" }} className="text-center">
                   <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
                     <div className="text-4xl font-bold text-orange-600 mb-2">
                       {pumpScore.toFixed(1)}%
