@@ -1310,13 +1310,19 @@ export default function GazeObservationApp() {
                 <div className="bg-white rounded-lg p-6 border border-gray-300 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-md font-semibold">Operations</h4>
-                    {isDynamicGroupingActive && (
-                      <div className="text-sm font-medium">
+                    <div className="text-sm font-medium">
+                      {highlightedTagGroup.size > 0 && (
+                        <div className="flex items-center gap-2 text-yellow-600 mb-1">
+                          🏆 Tag group highlighted - Group moved to top with gold styling
+                        </div>
+                      )}
+                      {isDynamicGroupingActive && (
                         <div className="flex items-center gap-2 text-green-600">
                           ⚡️ Smart grouping active - Active tag groups moved to
                           top
                         </div>
-                        <div className="flex items-center gap-2 text-yellow-600 mt-1 text-xs">
+                      )}
+                    </div>
                           ✨ Gold highlighting shows currently active rows
                         </div>
                       </div>
