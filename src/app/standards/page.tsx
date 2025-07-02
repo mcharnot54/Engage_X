@@ -1689,6 +1689,344 @@ export default function Standards() {
             {successMessage || "Changes saved successfully!"}
           </div>
         )}
+
+        {/* Edit Standard Dialog */}
+        {editStandardDialogOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold">
+                    Edit Standard: {editingStandard?.name}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setEditStandardDialogOpen(false);
+                      setEditingStandard(null);
+                      clearSelections();
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Version Notes */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Version Notes (Required)
+                    </label>
+                    <textarea
+                      value={editVersionNotes}
+                      onChange={(e) => setEditVersionNotes(e.target.value)}
+                      placeholder="Describe the changes made in this version..."
+                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      rows={3}
+                      required
+                    />
+                  </div>
+
+                  {/* Standard Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Standard Name
+                    </label>
+                    <input
+                      type="text"
+                      value={standardName}
+                      onChange={(e) => setStandardName(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Location Selection */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Facility
+                      </label>
+                      <select
+                        value={selectedFacility}
+                        onChange={(e) => setSelectedFacility(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Facility</option>
+                        {facilities.map((facility) => (
+                          <option key={facility.id} value={facility.id}>
+                            {facility.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Department
+                      </label>
+                      <select
+                        value={selectedDepartment}
+                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Department</option>
+                        {departments.map((department) => (
+                          <option key={department.id} value={department.id}>
+                            {department.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Area
+                      </label>
+                      <select
+                        value={selectedArea}
+                        onChange={(e) => setSelectedArea(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Area</option>
+                        {areas.map((area) => (
+                          <option key={area.id} value={area.id}>
+                            {area.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* UOM Entries */}
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">UOM Entries</h3>
+                      <button
+                        onClick={addUomEntry}
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                      >
+                        + Add UOM Entry
+                      </button>
+                    </div>
+                    <div className="space-y-4">
+                      {uomEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="p-4 border border-gray-300 rounded-lg bg-gray-50"
+                        >
+                          <div className="grid grid-cols-3 gap-4 mb-4">
+                            <input
+                              placeholder="UOM"
+                              value={entry.uom}
+                              onChange={(e) =>
+                                updateUomEntry(entry.id, "uom", e.target.value)
+                              }
+                              className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                            />
+                            <input
+                              placeholder="UOM Description"
+                              value={entry.description}
+                              onChange={(e) =>
+                                updateUomEntry(
+                                  entry.id,
+                                  "description",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                            />
+                            <input
+                              type="number"
+                              placeholder="SAM Value"
+                              step="0.0001"
+                              value={entry.samValue}
+                              onChange={(e) =>
+                                updateUomEntry(
+                                  entry.id,
+                                  "samValue",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Best Practices */}
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">Best Practices</h3>
+                      <button
+                        onClick={addBestPractice}
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                      >
+                        + Add Practice
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {bestPractices.map((practice, index) => (
+                        <input
+                          key={index}
+                          placeholder="Enter best practice"
+                          value={practice}
+                          onChange={(e) =>
+                            updateBestPractice(index, e.target.value)
+                          }
+                          className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Process Opportunities */}
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">
+                        Process Opportunities
+                      </h3>
+                      <button
+                        onClick={addProcessOpportunity}
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                      >
+                        + Add Opportunity
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {processOpportunities.map((opportunity, index) => (
+                        <input
+                          key={index}
+                          placeholder="Enter process adherence opportunity"
+                          value={opportunity}
+                          onChange={(e) =>
+                            updateProcessOpportunity(index, e.target.value)
+                          }
+                          className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-4 mt-8 pt-6 border-t">
+                  <button
+                    onClick={() => {
+                      setEditStandardDialogOpen(false);
+                      setEditingStandard(null);
+                      clearSelections();
+                    }}
+                    className="px-6 py-3 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveEditedStandard}
+                    disabled={isLoading || !editVersionNotes.trim()}
+                    className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                  >
+                    {isLoading ? "Creating Version..." : "Create New Version"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Version History Dialog */}
+        {showVersionHistory && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold">Version History</h2>
+                  <button
+                    onClick={() => setShowVersionHistory(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse bg-white rounded-lg overflow-hidden">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="p-3 text-left">Version</th>
+                        <th className="p-3 text-left">Standard Name</th>
+                        <th className="p-3 text-left">Created Date</th>
+                        <th className="p-3 text-left">Created By</th>
+                        <th className="p-3 text-left">Version Notes</th>
+                        <th className="p-3 text-left">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {versionHistory.map((version) => (
+                        <tr
+                          key={version.id}
+                          className="border-b border-gray-300"
+                        >
+                          <td className="p-3">
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                              v{(version as any).version || 1}
+                            </span>
+                          </td>
+                          <td className="p-3">{version.name}</td>
+                          <td className="p-3">
+                            {new Date(version.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="p-3">
+                            {(version as any).createdBy || "System"}
+                          </td>
+                          <td className="p-3">
+                            <div className="max-w-xs">
+                              {(version as any).versionNotes ||
+                                "No notes provided"}
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            {(version as any).isCurrentVersion ? (
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                Current
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                                Historical
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
