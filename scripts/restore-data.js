@@ -138,6 +138,35 @@ async function insertDepartments() {
   }
 }
 
+async function insertFacilities() {
+  const facilitiesData = [
+    {
+      id: 1,
+      name: "PDC",
+      ref: "Barzen",
+      city: "Thief River",
+      organizationId: 3,
+    },
+  ];
+
+  try {
+    console.log("Inserting Facilities...");
+
+    for (const facility of facilitiesData) {
+      await prisma.facility.upsert({
+        where: { id: facility.id },
+        update: facility,
+        create: facility,
+      });
+      console.log(`✓ Inserted Facility: ${facility.name} (${facility.city})`);
+    }
+
+    console.log("✅ All Facilities inserted successfully!");
+  } catch (error) {
+    console.error("❌ Error inserting Facilities:", error);
+  }
+}
+
 async function insertAreas() {
   const areasData = [
     {
@@ -289,6 +318,7 @@ async function main() {
   try {
     await createRequiredDependencies();
     await insertOrganizations();
+    await insertFacilities();
     await insertDepartments();
     await insertAreas();
     await insertStandards();
