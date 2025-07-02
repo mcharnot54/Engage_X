@@ -1343,6 +1343,10 @@ export default function GazeObservationApp() {
                                   </button>
                                 </div>
                               </td>
+                              <td className="p-3 text-center font-medium">
+                                {row.quantity +
+                                  (submittedQuantities[row.id] || 0)}
+                              </td>
                               <td className="p-3 text-right">
                                 {row.samValue.toFixed(4)}
                               </td>
