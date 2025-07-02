@@ -407,6 +407,10 @@ export default function GazeObservationApp() {
     setSelectedDepartment("");
     setSelectedArea("");
     setShowStandardDropdown(false);
+    // Clear highlighted tag group when standard is changed
+    setHighlightedTagGroup(new Set());
+    setActiveRowIds(new Set());
+    setIsDynamicGroupingActive(false);
   };
 
   const getSelectedStandardDisplay = () => {
