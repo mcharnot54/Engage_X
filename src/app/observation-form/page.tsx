@@ -219,8 +219,31 @@ export default function GazeObservationApp() {
     [rows, getActiveTagsForRows],
   );
 
-  // Enhanced dynamic row ordering with active tag group prioritization
+  // Enhanced dynamic row ordering with highlighted tag group prioritization
   const organizedRows = useMemo(() => {
+    // If we have a highlighted tag group, prioritize those rows
+    if (highlightedTagGroup.size > 0) {
+      const highlightedGroupRows: Row[] = [];
+      const otherRows: Row[] = [];
+
+      rows.forEach((row) => {
+        const hasHighlightedTag = row.tags?.some((tag) =>
+          highlightedTagGroup.has(tag),
+        );
+        if (hasHighlightedTag) {
+          highlightedGroupRows.push(row);
+        } else {
+          otherRows.push(row);
+        }
+      });
+
+      // Sort highlighted group rows by original index
+      highlightedGroupRows.sort((a, b) => a.originalIndex - b.originalIndex);
+      otherRows.sort((a, b) => a.originalIndex - b.originalIndex);
+
+      return [...highlightedGroupRows, ...otherRows];
+    }
+
     if (!isDynamicGroupingActive || activeRowIds.size === 0) {
       // Return original order when not actively grouping
       return originalRowOrder.length > 0 ? originalRowOrder : rows;
@@ -276,6 +299,7 @@ export default function GazeObservationApp() {
     isDynamicGroupingActive,
     getRowsWithSharedTags,
     getActiveTagsForRows,
+    highlightedTagGroup,
   ]);
 
   // Helper functions for multi-level dropdown
