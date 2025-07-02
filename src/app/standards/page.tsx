@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Banner } from "@/components/ui/Banner";
 
 interface Organization {
   id: number;
@@ -721,6 +722,10 @@ export default function Standards() {
 
   return (
     <div className="font-poppins text-black bg-gray-100 min-h-screen overflow-x-hidden">
+      <Banner
+        title="Standards Management"
+        subtitle="Manage and configure work standards for facilities and departments"
+      />
       <div className="flex flex-col max-w-7xl mx-auto bg-gray-100 min-h-[calc(100vh-80px)] rounded-xl border border-gray-300 mt-5 p-5 overflow-y-auto">
         <div className="flex flex-row h-full">
           <div
