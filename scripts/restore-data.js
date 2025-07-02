@@ -230,6 +230,7 @@ async function main() {
   try {
     await createRequiredDependencies();
     await insertOrganizations();
+    await insertStandards();
     await insertUomEntries();
     console.log("🎉 Data restoration completed successfully!");
   } catch (error) {
