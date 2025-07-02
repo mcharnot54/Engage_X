@@ -465,22 +465,8 @@ export default function GazeObservationApp() {
       );
       return newRows;
     });
-
-    // Handle dynamic grouping logic
-    const newActiveRowIds = new Set(activeRowIds);
-    const finalValue = Math.max(0, value);
-    const hasSubmittedQuantity = (submittedQuantities[id] || 0) > 0;
-
-    if (finalValue > 0 || hasSubmittedQuantity) {
-      newActiveRowIds.add(id);
-      setIsDynamicGroupingActive(true);
-    } else {
-      newActiveRowIds.delete(id);
-      if (newActiveRowIds.size === 0) {
-        setIsDynamicGroupingActive(false);
-      }
-    }
-    setActiveRowIds(newActiveRowIds);
+    // Note: Dynamic grouping logic will be handled by the syncActiveRowIds function
+    // in the useEffect that triggers when rows change
   };
 
   const updateTempQuantity = (id: number, value: number) => {
