@@ -1200,6 +1200,9 @@ export default function GazeObservationApp() {
                           <th className="p-3 text-center font-semibold">
                             Ticker Quantity
                           </th>
+                          <th className="p-3 text-center font-semibold">
+                            Total Quantity
+                          </th>
                           <th className="p-3 text-right font-semibold">
                             SAM Value
                           </th>
