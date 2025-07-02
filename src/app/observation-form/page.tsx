@@ -1419,9 +1419,19 @@ export default function GazeObservationApp() {
                     <h4 className="text-md font-semibold">Operations</h4>
                     <div className="text-sm font-medium">
                       {highlightedTagGroup.size > 0 && (
-                        <div className="flex items-center gap-2 text-yellow-600 mb-1">
-                          🏆 Tag group highlighted - Group moved to top with
-                          gold styling
+                        <div className="flex items-center gap-3 text-yellow-600 mb-1">
+                          <span className="flex items-center gap-2">
+                            🏆 Tag group highlighted - Group moved to top with
+                            gold styling
+                          </span>
+                          <button
+                            onClick={() => {
+                              setHighlightedTagGroup(new Set());
+                            }}
+                            className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 border border-yellow-300 rounded hover:bg-yellow-200 transition-colors"
+                          >
+                            Clear Highlighting
+                          </button>
                         </div>
                       )}
                       {isDynamicGroupingActive && (
