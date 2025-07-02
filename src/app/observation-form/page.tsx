@@ -1262,6 +1262,45 @@ export default function GazeObservationApp() {
                               </td>
                               <td className="p-3 text-center">
                                 <div className="flex items-center justify-center gap-2">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={tempQuantities[row.id] || 0}
+                                    disabled={!isObserving}
+                                    onChange={(e) =>
+                                      updateTempQuantity(
+                                        row.id,
+                                        parseInt(e.target.value) || 0,
+                                      )
+                                    }
+                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
+                                    placeholder="0"
+                                  />
+                                  <button
+                                    disabled={
+                                      !isObserving || !tempQuantities[row.id]
+                                    }
+                                    onClick={() => submitTempQuantity(row.id)}
+                                    className="p-1 rounded bg-green-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-green-600 flex items-center justify-center w-8 h-8"
+                                    title="Add to total"
+                                  >
+                                    <svg
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <polyline points="20,6 9,17 4,12"></polyline>
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                              <td className="p-3 text-center">
+                                <div className="flex items-center justify-center gap-2">
                                   <button
                                     disabled={!isObserving}
                                     onClick={() =>
