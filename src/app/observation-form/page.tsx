@@ -171,6 +171,21 @@ export default function GazeObservationApp() {
     },
   };
 
+  // Helper function to sync active row IDs based on quantities
+  const syncActiveRowIds = useCallback(() => {
+    const newActiveRowIds = new Set<number>();
+    rows.forEach((row) => {
+      const hasTickerQuantity = row.quantity > 0;
+      const hasSubmittedQuantity = (submittedQuantities[row.id] || 0) > 0;
+      if (hasTickerQuantity || hasSubmittedQuantity) {
+        newActiveRowIds.add(row.id);
+      }
+    });
+
+    setActiveRowIds(newActiveRowIds);
+    setIsDynamicGroupingActive(newActiveRowIds.size > 0);
+  }, [rows, submittedQuantities]);
+
   // Smart UOM grouping logic
   const getActiveTagsForRows = useCallback(
     (activeIds: Set<number>) => {
