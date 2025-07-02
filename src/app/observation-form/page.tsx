@@ -1105,20 +1105,19 @@ export default function GazeObservationApp() {
                 </div>
               </div>
 
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center">
                 <button
-                  onClick={startObservation}
-                  disabled={isObserving || isFinalized || !selectedStandardData}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
+                  onClick={isObserving ? stopObservation : startObservation}
+                  disabled={
+                    isFinalized || (!isObserving && !selectedStandardData)
+                  }
+                  className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
+                    isObserving
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
                 >
-                  Start Observation
-                </button>
-                <button
-                  onClick={stopObservation}
-                  disabled={!isObserving}
-                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
-                >
-                  Stop Observation
+                  {isObserving ? "Stop Observation" : "Start Observation"}
                 </button>
               </div>
             </div>
