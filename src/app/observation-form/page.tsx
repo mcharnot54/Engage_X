@@ -126,6 +126,9 @@ export default function GazeObservationApp() {
   // Dynamic grouping state
   const [activeRowIds, setActiveRowIds] = useState<Set<number>>(new Set());
   const [isDynamicGroupingActive, setIsDynamicGroupingActive] = useState(false);
+  const [highlightedTagGroup, setHighlightedTagGroup] = useState<Set<string>>(
+    new Set(),
+  );
 
   // UI state
   const [showPreviousObservations, setShowPreviousObservations] =
