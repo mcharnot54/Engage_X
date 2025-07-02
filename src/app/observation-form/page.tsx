@@ -1436,67 +1436,67 @@ export default function GazeObservationApp() {
                 {isSubmitting ? "Submitting..." : "Submit Observation"}
               </button>
             </div>
-          </main>
 
-          {/* Performance Trends Section */}
-          <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-            <div className="flex mb-6 items-center justify-between border-b border-gray-300 pb-4">
-              <div className="text-lg font-semibold">Performance Trends</div>
-              <div className="flex gap-3 items-center">
-                <select className="px-3 py-2 rounded border border-gray-300 bg-white">
-                  <option value="7">Last 7 days</option>
-                  <option value="30">Last 30 days</option>
-                  <option value="90">Last 90 days</option>
-                </select>
-                <div className="flex gap-1">
-                  <button
-                    onClick={prevSlide}
-                    className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
-                  >
-                    ←
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
-                  >
-                    →
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative w-full h-96 overflow-hidden">
-              {slides.map((title, index) => (
-                <div
-                  key={index}
-                  className="absolute w-full h-full bg-white rounded-lg p-4 border border-gray-300 transition-transform duration-500 ease-in-out"
-                  style={{
-                    transform: `translateX(${(index - currentSlide) * 100}%)`,
-                  }}
-                >
-                  <h3 className="text-base font-medium mb-4">{title}</h3>
-                  <div className="h-full flex items-center justify-center text-gray-600">
-                    <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                      Chart: {title}
-                    </div>
+            {/* Performance Trends Section */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6 mt-6">
+              <div className="flex mb-6 items-center justify-between border-b border-gray-300 pb-4">
+                <div className="text-lg font-semibold">Performance Trends</div>
+                <div className="flex gap-3 items-center">
+                  <select className="px-3 py-2 rounded border border-gray-300 bg-white">
+                    <option value="7">Last 7 days</option>
+                    <option value="30">Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                  </select>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={prevSlide}
+                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={nextSlide}
+                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
+                    >
+                      →
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="flex justify-center gap-2 mt-4">
-              {slides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className="w-2 h-2 rounded-full border-none p-0 cursor-pointer transition-colors duration-300"
-                  style={{
-                    backgroundColor: currentSlide === i ? "#666" : "#e2e2e2",
-                  }}
-                />
-              ))}
+              <div className="relative w-full h-96 overflow-hidden">
+                {slides.map((title, index) => (
+                  <div
+                    key={index}
+                    className="absolute w-full h-full bg-white rounded-lg p-4 border border-gray-300 transition-transform duration-500 ease-in-out"
+                    style={{
+                      transform: `translateX(${(index - currentSlide) * 100}%)`,
+                    }}
+                  >
+                    <h3 className="text-base font-medium mb-4">{title}</h3>
+                    <div className="h-full flex items-center justify-center text-gray-600">
+                      <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                        Chart: {title}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-center gap-2 mt-4">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentSlide(i)}
+                    className="w-2 h-2 rounded-full border-none p-0 cursor-pointer transition-colors duration-300"
+                    style={{
+                      backgroundColor: currentSlide === i ? "#666" : "#e2e2e2",
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          </main>
         </div>
 
         {/* Previous Observations Popup */}
