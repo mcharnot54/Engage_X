@@ -26,14 +26,7 @@ export function Banner({ title, subtitle, className = "" }: BannerProps) {
             className="h-12 w-auto object-contain"
             alt="Company Logo"
           />
-          <div className="flex-1 mx-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-1">{title}</h1>
-            {subtitle && (
-              <p className="text-red-500 text-sm md:text-base opacity-90">
-                {subtitle}
-              </p>
-            )}
-          </div>
+          <div className="flex-1 mx-6"></div>
           <nav className="flex gap-4">
             {navigationLinks.map((link) => (
               <Link
