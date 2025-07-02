@@ -1470,7 +1470,7 @@ export default function GazeObservationApp() {
                                     return (
                                       <span
                                         key={tagIndex}
-                                        className={`px-2 py-1 rounded-full text-xs border transition-all duration-200 ${getTagColor(tag, isTagActive, isCurrentlyInUse)}`}
+                                        className={`px-2 py-1 rounded-full text-xs border transition-all duration-200 ${getTagColor(tag, isTagActive, isCurrentlyInUse, row.tags || [])}`}
                                       >
                                         {tag}
                                       </span>
