@@ -106,6 +106,40 @@ async function insertOrganizations() {
   }
 }
 
+async function insertStandards() {
+  const standardsData = [
+    {
+      id: 1,
+      name: "Gray Shelf",
+      facilityId: 1,
+      departmentId: 1,
+      areaId: 1,
+      bestPractices: ["Use Maxim"],
+      isActive: true,
+      processOpportunities: ["Leaving C"],
+      version: 1,
+      isCurrentVersion: true,
+    },
+  ];
+
+  try {
+    console.log("Inserting Standards...");
+
+    for (const standard of standardsData) {
+      await prisma.standard.upsert({
+        where: { id: standard.id },
+        update: standard,
+        create: standard,
+      });
+      console.log(`✓ Inserted Standard: ${standard.name}`);
+    }
+
+    console.log("✅ All Standards inserted successfully!");
+  } catch (error) {
+    console.error("❌ Error inserting Standards:", error);
+  }
+}
+
 async function insertUomEntries() {
   const uomData = [
     {
