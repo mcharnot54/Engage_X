@@ -138,6 +138,33 @@ async function insertDepartments() {
   }
 }
 
+async function insertAreas() {
+  const areasData = [
+    {
+      id: 1,
+      name: "Gray Shelf",
+      departmentId: 1,
+    },
+  ];
+
+  try {
+    console.log("Inserting Areas...");
+
+    for (const area of areasData) {
+      await prisma.area.upsert({
+        where: { id: area.id },
+        update: area,
+        create: area,
+      });
+      console.log(`✓ Inserted Area: ${area.name}`);
+    }
+
+    console.log("✅ All Areas inserted successfully!");
+  } catch (error) {
+    console.error("❌ Error inserting Areas:", error);
+  }
+}
+
 async function insertStandards() {
   const standardsData = [
     {
@@ -263,6 +290,7 @@ async function main() {
     await createRequiredDependencies();
     await insertOrganizations();
     await insertDepartments();
+    await insertAreas();
     await insertStandards();
     await insertUomEntries();
     console.log("🎉 Data restoration completed successfully!");
