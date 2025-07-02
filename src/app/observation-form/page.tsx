@@ -1347,6 +1347,7 @@ export default function GazeObservationApp() {
                       }}
                       disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                      style={{ textAlign: "center" }}
                     />
                     <button
                       disabled={
