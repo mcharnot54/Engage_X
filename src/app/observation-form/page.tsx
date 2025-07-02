@@ -1255,9 +1255,19 @@ export default function GazeObservationApp() {
 
             {/* PUMP Grade Factor */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-              <h3 className="text-lg font-semibold mb-4">
-                PUMP Grade Factor (%) Assessment
-              </h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">
+                  PUMP Grade Factor (%) Assessment
+                </h3>
+                {isPumpAssessmentActive && (
+                  <button
+                    onClick={submitPumpAssessment}
+                    className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-medium"
+                  >
+                    Submit PUMP
+                  </button>
+                )}
+              </div>
               <div className="flex items-end justify-between w-full">
                 {/* Pace */}
                 <div className="flex-1 text-center">
