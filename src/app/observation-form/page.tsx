@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Banner } from "@/components/ui/Banner";
+import { Sidebar } from "@/components/Sidebar";
 
 type Row = {
   id: number;
@@ -127,7 +128,6 @@ export default function GazeObservationApp() {
   const [showPreviousObservations, setShowPreviousObservations] =
     useState(false);
   const [showReasonInstructions, setShowReasonInstructions] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
@@ -798,104 +798,21 @@ export default function GazeObservationApp() {
       />
       <div className="flex flex-col max-w-7xl mx-auto bg-gray-100 min-h-[calc(100vh-80px)] rounded-xl border border-gray-300 mt-5 p-5 overflow-y-auto">
         <div className="flex flex-row h-full">
-          <div
-            className="bg-white border-r border-gray-300 transition-all duration-300 flex flex-col justify-between relative shadow-md"
-            style={{
-              width: isSidebarCollapsed ? "80px" : "300px",
-              padding: isSidebarCollapsed ? "24px 12px" : "24px",
-            }}
-          >
-            <div>
-              <div
-                className="flex items-center gap-3 mb-8"
-                style={{
-                  justifyContent: isSidebarCollapsed ? "center" : "flex-start",
-                }}
-              >
-                <button
-                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                  className="absolute -right-3 top-6 w-6 h-6 rounded-full border border-gray-300 bg-white cursor-pointer flex items-center justify-center transition-transform duration-300"
-                  style={{
-                    transform: isSidebarCollapsed
-                      ? "rotate(180deg)"
-                      : "rotate(0deg)",
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M10 2L4 8L10 14"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-                <span
-                  className="text-xl font-semibold"
-                  style={{ display: isSidebarCollapsed ? "none" : "block" }}
-                >
-                  Gaze Observation
-                </span>
-              </div>
-
-              {/* Available Applications */}
-              {!isSidebarCollapsed && (
-                <div className="mt-6">
-                  <h3 className="text-sm font-semibold mb-4 text-gray-700">
-                    Available Applications
-                  </h3>
-                  <div className="space-y-2">
-                    {[
-                      "Labor.X",
-                      "Clock.X",
-                      "Engage.X",
-                      "Staff.X",
-                      "Dash.X",
-                      "Report.X",
-                      "Incent.X",
-                      "Perform.X",
-                      "Plan.X",
-                    ].map((app) => (
-                      <div
-                        key={app}
-                        className="py-2 px-3 bg-gray-50 rounded hover:bg-red-50 transition-colors cursor-pointer border border-gray-100 hover:border-red-200"
-                      >
-                        <div className="font-montserrat text-lg font-medium text-gray-800">
-                          {app}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* User Profile Section */}
-            {!isSidebarCollapsed && (
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center overflow-hidden">
-                    <img
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=96&h=96&fit=crop&crop=face"
-                      alt="User Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-800 text-sm">
-                      John Smith
-                    </div>
-                    <a
-                      href="/profile"
-                      className="text-xs text-red-600 hover:text-red-800 transition-colors cursor-pointer"
-                    >
-                      View Profile
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <Sidebar
+            showLogo={true}
+            applications={[
+              "Labor.X",
+              "Clock.X",
+              "Engage.X",
+              "Staff.X",
+              "Dash.X",
+              "Report.X",
+              "Incent.X",
+              "Perform.X",
+              "Plan.X",
+            ]}
+            showUserProfile={true}
+          />
 
           <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
             <div className="flex justify-between items-center mb-6">
