@@ -1321,7 +1321,10 @@ export default function GazeObservationApp() {
                   </label>
                   <div className="flex items-center justify-center gap-2">
                     <button
-                      disabled={!isObserving || utilization <= 5}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        utilization <= 5
+                      }
                       onClick={() =>
                         setUtilization(Math.max(5, utilization - 5))
                       }
@@ -1341,11 +1344,14 @@ export default function GazeObservationApp() {
                           Math.min(100, Math.round(value / 5) * 5),
                         );
                       }}
-                      disabled={!isObserving}
+                      disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
                     />
                     <button
-                      disabled={!isObserving || utilization >= 100}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        utilization >= 100
+                      }
                       onClick={() =>
                         setUtilization(Math.min(100, utilization + 5))
                       }
