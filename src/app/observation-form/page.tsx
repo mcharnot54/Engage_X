@@ -2349,6 +2349,27 @@ export default function GazeObservationApp() {
           </div>
         )}
       </div>
+
+      {/* PUMP Finalization Modal */}
+      {showPumpFinalizationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Finalize Your PUMP Grade Factor (%) Assessment
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Please review and finalize your PUMP Grade Factor assessment
+              before completing the observation.
+            </p>
+            <button
+              onClick={() => setShowPumpFinalizationModal(false)}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+            >
+              Continue with PUMP Assessment
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
