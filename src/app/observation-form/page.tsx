@@ -1206,22 +1206,21 @@ export default function GazeObservationApp() {
                   </div>
                   <div className="text-gray-600">Observed Performance</div>
                 </div>
-              </div>
-
-              <div className="flex justify-center">
-                <button
-                  onClick={isObserving ? stopObservation : startObservation}
-                  disabled={
-                    isFinalized || (!isObserving && !selectedStandardData)
-                  }
-                  className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
-                    isObserving
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-green-500 hover:bg-green-600"
-                  }`}
-                >
-                  {isObserving ? "Stop Observation" : "Start Observation"}
-                </button>
+                <div className="flex justify-center items-center">
+                  <button
+                    onClick={isObserving ? stopObservation : startObservation}
+                    disabled={
+                      isFinalized || (!isObserving && !selectedStandardData)
+                    }
+                    className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
+                      isObserving
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-green-500 hover:bg-green-600"
+                    }`}
+                  >
+                    {isObserving ? "Stop Observation" : "Start Observation"}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1238,7 +1237,7 @@ export default function GazeObservationApp() {
                     <h4 className="text-md font-semibold">Operations</h4>
                     {isDynamicGroupingActive && (
                       <div className="text-sm text-green-600 font-medium">
-                        🏷️ Smart grouping active - UOMs with shared tags are
+                        ����️ Smart grouping active - UOMs with shared tags are
                         grouped together
                       </div>
                     )}
