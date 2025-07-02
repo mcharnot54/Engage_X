@@ -262,6 +262,7 @@ async function main() {
   try {
     await createRequiredDependencies();
     await insertOrganizations();
+    await insertDepartments();
     await insertStandards();
     await insertUomEntries();
     console.log("🎉 Data restoration completed successfully!");
