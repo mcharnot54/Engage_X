@@ -472,7 +472,9 @@ export default function GazeObservationApp() {
 
   const calculateTotalSams = () => {
     const total = rows.reduce(
-      (sum, row) => sum + row.quantity * row.samValue,
+      (sum, row) =>
+        sum +
+        (row.quantity + (submittedQuantities[row.id] || 0)) * row.samValue,
       0,
     );
     setTotalSams(total);
