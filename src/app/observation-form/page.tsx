@@ -991,6 +991,54 @@ export default function GazeObservationApp() {
               </div>
             </div>
 
+            {/* Delay Tracking */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <input
+                  type="text"
+                  placeholder="Delay reason..."
+                  value={delayReason}
+                  onChange={(e) => setDelayReason(e.target.value)}
+                  disabled={!isObserving || isDelayActive}
+                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                />
+                <button
+                  onClick={startDelay}
+                  disabled={!isObserving || isDelayActive || !delayReason}
+                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
+                >
+                  Start Delay
+                </button>
+                <button
+                  onClick={stopDelay}
+                  disabled={!isDelayActive}
+                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
+                >
+                  Stop Delay
+                </button>
+              </div>
+
+              {delays.length > 0 && (
+                <div className="bg-white rounded-lg p-4">
+                  <h4 className="font-medium mb-3">Recorded Delays</h4>
+                  <div className="space-y-2">
+                    {delays.map((delay, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                      >
+                        <span>{delay.reason}</span>
+                        <span className="text-gray-600">
+                          {delay.duration.toFixed(1)}s at {delay.timestamp}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* PUMP Grade Factor */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">
