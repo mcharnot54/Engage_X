@@ -1166,6 +1166,9 @@ export default function GazeObservationApp() {
                           </th>
                           <th className="p-3 text-left font-semibold">Tags</th>
                           <th className="p-3 text-center font-semibold">
+                            Enter Quantity
+                          </th>
+                          <th className="p-3 text-center font-semibold">
                             Ticker Quantity
                           </th>
                           <th className="p-3 text-right font-semibold">
