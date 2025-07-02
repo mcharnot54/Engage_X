@@ -693,6 +693,142 @@ export default function Standards() {
     setProcessOpportunities(newOpportunities);
   };
 
+  const handleEditStandard = (standard: Standard) => {
+    setEditingStandard(standard);
+
+    // Populate form with current standard data
+    setSelectedOrganization(
+      standard.facility.organization?.id?.toString() || "",
+    );
+    setSelectedFacility(standard.facilityId.toString());
+    setSelectedDepartment(standard.departmentId.toString());
+    setSelectedArea(standard.areaId.toString());
+    setStandardName(standard.name);
+    setBestPractices(
+      standard.bestPractices.length > 0 ? standard.bestPractices : [""],
+    );
+    setProcessOpportunities(
+      standard.processOpportunities.length > 0
+        ? standard.processOpportunities
+        : [""],
+    );
+
+    // Set UOM entries with proper IDs for editing
+    const formattedUomEntries = standard.uomEntries.map((entry, index) => ({
+      id: entry.id || Date.now() + index,
+      uom: entry.uom,
+      description: entry.description,
+      samValue: entry.samValue,
+      tags: entry.tags || [],
+    }));
+    setUomEntries(
+      formattedUomEntries.length > 0
+        ? formattedUomEntries
+        : [{ id: Date.now(), uom: "", description: "", samValue: 0, tags: [] }],
+    );
+
+    setEditVersionNotes("");
+    setEditStandardDialogOpen(true);
+  };
+
+  const handleSaveEditedStandard = async () => {
+    if (!editingStandard) return;
+
+    try {
+      setIsLoading(true);
+
+      const uomData = uomEntries
+        .filter((entry) => entry.uom && entry.description && entry.samValue > 0)
+        .map((entry) => ({
+          uom: entry.uom,
+          description: entry.description,
+          samValue: entry.samValue,
+          tags: entry.tags || [],
+        }));
+
+      const validBestPractices = bestPractices.filter((practice) =>
+        practice.trim(),
+      );
+      const validProcessOpportunities = processOpportunities.filter((opp) =>
+        opp.trim(),
+      );
+
+      const response = await fetch(`/api/standards/${editingStandard.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "create_version",
+          data: {
+            name: standardName,
+            facilityId: Number(selectedFacility),
+            departmentId: Number(selectedDepartment),
+            areaId: Number(selectedArea),
+            bestPractices: validBestPractices,
+            processOpportunities: validProcessOpportunities,
+            uomEntries: uomData,
+            versionNotes: editVersionNotes,
+            createdBy: "current_user", // You can replace this with actual user data
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create new version");
+      }
+
+      await loadStandards();
+      setSuccessMessage("New version of standard created successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => setShowSaveSuccess(false), 3000);
+
+      // Close dialog and reset form
+      setEditStandardDialogOpen(false);
+      setEditingStandard(null);
+      clearSelections();
+      setUomEntries([
+        { id: 1, uom: "", description: "", samValue: 0, tags: [] },
+      ]);
+      setBestPractices([""]);
+      setProcessOpportunities([""]);
+      setEditVersionNotes("");
+    } catch (error) {
+      console.error("Error creating new version:", error);
+      setError("Failed to create new version of standard");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleViewVersionHistory = async (standard: Standard) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/standards/${standard.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "get_history",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch version history");
+      }
+
+      const history = await response.json();
+      setVersionHistory(history);
+      setShowVersionHistory(true);
+    } catch (error) {
+      console.error("Error fetching version history:", error);
+      setError("Failed to fetch version history");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Load dependent data when selections change
   useEffect(() => {
     if (selectedOrganization) {
