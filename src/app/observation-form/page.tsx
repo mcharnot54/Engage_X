@@ -745,7 +745,7 @@ export default function GazeObservationApp() {
 
   useEffect(() => {
     calculateTotalSams();
-  }, [rows]);
+  }, [rows, submittedQuantities]);
 
   useEffect(() => {
     calculatePerformance();
