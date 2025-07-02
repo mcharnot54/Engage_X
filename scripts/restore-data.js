@@ -2,6 +2,78 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
+async function createRequiredDependencies() {
+  // First, let's create the basic organizational structure needed
+  console.log("Creating required organizational structure...");
+
+  // Create organization
+  const org = await prisma.organization.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: "Default Organization",
+      code: "DEFAULT",
+    },
+  });
+  console.log("✓ Organization created");
+
+  // Create facility
+  const facility = await prisma.facility.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: "Default Facility",
+      organizationId: org.id,
+    },
+  });
+  console.log("✓ Facility created");
+
+  // Create department
+  const department = await prisma.department.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: "Default Department",
+      facilityId: facility.id,
+    },
+  });
+  console.log("✓ Department created");
+
+  // Create area
+  const area = await prisma.area.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: "Default Area",
+      departmentId: department.id,
+    },
+  });
+  console.log("✓ Area created");
+
+  // Create standard
+  const standard = await prisma.standard.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: "Default Standard",
+      facilityId: facility.id,
+      departmentId: department.id,
+      areaId: area.id,
+      version: 1,
+      isCurrentVersion: true,
+      isActive: true,
+    },
+  });
+  console.log("✓ Standard created");
+
+  return { org, facility, department, area, standard };
+}
+
 async function insertUomEntries() {
   const uomData = [
     {
