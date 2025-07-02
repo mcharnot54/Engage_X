@@ -201,40 +201,56 @@ export default function GazeObservationApp() {
     [rows, getActiveTagsForRows],
   );
 
-  // Dynamic row ordering based on active state and tags
+  // Enhanced dynamic row ordering with active tag group prioritization
   const organizedRows = useMemo(() => {
     if (!isDynamicGroupingActive || activeRowIds.size === 0) {
       // Return original order when not actively grouping
       return originalRowOrder.length > 0 ? originalRowOrder : rows;
     }
 
+    const activeTags = getActiveTagsForRows(activeRowIds);
     const rowsWithSharedTags = getRowsWithSharedTags(activeRowIds);
-    const activeGroupedRows: Row[] = [];
+
+    // Categorize rows based on their relationship to active tags
+    const currentlyActiveRows: Row[] = []; // Rows that are actively being modified
+    const activeTagGroupRows: Row[] = []; // Rows in the same tag group as active rows
     const inactiveRows: Row[] = [];
 
     rows.forEach((row) => {
-      if (rowsWithSharedTags.has(row.id)) {
-        activeGroupedRows.push(row);
+      if (activeRowIds.has(row.id)) {
+        // Currently active rows (being modified) go to the very top
+        currentlyActiveRows.push(row);
+      } else if (
+        rowsWithSharedTags.has(row.id) &&
+        row.tags?.some((tag) => activeTags.has(tag))
+      ) {
+        // Rows with shared tags in the active group go next
+        activeTagGroupRows.push(row);
       } else {
+        // All other rows go to the bottom
         inactiveRows.push(row);
       }
     });
 
-    // Sort active grouped rows by their shared tags for better organization
-    activeGroupedRows.sort((a, b) => {
-      const aHasActiveTags = a.tags?.some((tag) =>
-        getActiveTagsForRows(activeRowIds).has(tag),
-      );
-      const bHasActiveTags = b.tags?.some((tag) =>
-        getActiveTagsForRows(activeRowIds).has(tag),
-      );
+    // Sort each category for better organization
+    const sortByTagPriority = (a: Row, b: Row) => {
+      const aActiveTagCount =
+        a.tags?.filter((tag) => activeTags.has(tag)).length || 0;
+      const bActiveTagCount =
+        b.tags?.filter((tag) => activeTags.has(tag)).length || 0;
 
-      if (aHasActiveTags && !bHasActiveTags) return -1;
-      if (!aHasActiveTags && bHasActiveTags) return 1;
+      // Prioritize by number of matching active tags, then by original order
+      if (aActiveTagCount !== bActiveTagCount) {
+        return bActiveTagCount - aActiveTagCount;
+      }
       return a.originalIndex - b.originalIndex;
-    });
+    };
 
-    return [...activeGroupedRows, ...inactiveRows];
+    currentlyActiveRows.sort(sortByTagPriority);
+    activeTagGroupRows.sort(sortByTagPriority);
+    inactiveRows.sort((a, b) => a.originalIndex - b.originalIndex);
+
+    return [...currentlyActiveRows, ...activeTagGroupRows, ...inactiveRows];
   }, [
     rows,
     originalRowOrder,
