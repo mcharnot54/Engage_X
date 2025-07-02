@@ -805,155 +805,156 @@ export default function GazeObservationApp() {
               </div>
             )}
 
-            {/* Observation Details */}
+            {/* Observation Overview */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">
-                Observation Details
+                Observation Overview
               </h3>
 
-              {/* Standard Selection - Multi-level Dropdown */}
-              <div className="mb-4 relative standard-dropdown">
-                <button
-                  onClick={() => setShowStandardDropdown(!showStandardDropdown)}
-                  disabled={isObserving}
-                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
-                >
-                  <span className={standard ? "text-black" : "text-gray-500"}>
-                    {getSelectedStandardDisplay()}
-                  </span>
-                  <span
-                    className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+              <div className="grid grid-cols-3 gap-4">
+                {/* Standard Selection - Multi-level Dropdown */}
+                <div className="relative standard-dropdown">
+                  <button
+                    onClick={() =>
+                      setShowStandardDropdown(!showStandardDropdown)
+                    }
+                    disabled={isObserving}
+                    className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
                   >
-                    ▼
-                  </span>
-                </button>
+                    <span className={standard ? "text-black" : "text-gray-500"}>
+                      {getSelectedStandardDisplay()}
+                    </span>
+                    <span
+                      className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+                    >
+                      ▼
+                    </span>
+                  </button>
 
-                {showStandardDropdown && (
-                  <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
-                    <div className="p-4 space-y-4">
-                      {/* Facility Selection */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          1. Select Facility
-                        </label>
-                        <select
-                          value={selectedFacility}
-                          onChange={(e) => {
-                            setSelectedFacility(e.target.value);
-                            setSelectedDepartment("");
-                            setSelectedArea("");
-                            setStandard("");
-                          }}
-                          className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                          <option value="">Choose Facility</option>
-                          {getUniqueFacilities().map((facility) => (
-                            <option key={facility.id} value={facility.name}>
-                              {facility.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Department Selection */}
-                      {selectedFacility && (
+                  {showStandardDropdown && (
+                    <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                      <div className="p-4 space-y-4">
+                        {/* Facility Selection */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            2. Select Department
+                            1. Select Facility
                           </label>
                           <select
-                            value={selectedDepartment}
+                            value={selectedFacility}
                             onChange={(e) => {
-                              setSelectedDepartment(e.target.value);
+                              setSelectedFacility(e.target.value);
+                              setSelectedDepartment("");
                               setSelectedArea("");
                               setStandard("");
                             }}
                             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
-                            <option value="">Choose Department</option>
-                            {getUniqueDepartments(selectedFacility).map(
-                              (dept) => (
-                                <option key={dept.id} value={dept.name}>
-                                  {dept.name}
+                            <option value="">Choose Facility</option>
+                            {getUniqueFacilities().map((facility) => (
+                              <option key={facility.id} value={facility.name}>
+                                {facility.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Department Selection */}
+                        {selectedFacility && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              2. Select Department
+                            </label>
+                            <select
+                              value={selectedDepartment}
+                              onChange={(e) => {
+                                setSelectedDepartment(e.target.value);
+                                setSelectedArea("");
+                                setStandard("");
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Choose Department</option>
+                              {getUniqueDepartments(selectedFacility).map(
+                                (dept) => (
+                                  <option key={dept.id} value={dept.name}>
+                                    {dept.name}
+                                  </option>
+                                ),
+                              )}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Area Selection */}
+                        {selectedDepartment && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              3. Select Area
+                            </label>
+                            <select
+                              value={selectedArea}
+                              onChange={(e) => {
+                                setSelectedArea(e.target.value);
+                                setStandard("");
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Choose Area</option>
+                              {getUniqueAreas(
+                                selectedFacility,
+                                selectedDepartment,
+                              ).map((area) => (
+                                <option key={area.id} value={area.name}>
+                                  {area.name}
                                 </option>
-                              ),
-                            )}
-                          </select>
-                        </div>
-                      )}
+                              ))}
+                            </select>
+                          </div>
+                        )}
 
-                      {/* Area Selection */}
-                      {selectedDepartment && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            3. Select Area
-                          </label>
-                          <select
-                            value={selectedArea}
-                            onChange={(e) => {
-                              setSelectedArea(e.target.value);
-                              setStandard("");
-                            }}
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        {/* Standard Selection */}
+                        {selectedArea && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              4. Select Standard
+                            </label>
+                            <select
+                              value={standard}
+                              onChange={(e) => {
+                                setStandard(e.target.value);
+                                setShowStandardDropdown(false);
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Choose Standard</option>
+                              {getFilteredStandards().map((std) => (
+                                <option key={std.id} value={std.id}>
+                                  {std.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-between pt-3 border-t border-gray-200">
+                          <button
+                            onClick={resetStandardSelection}
+                            className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
                           >
-                            <option value="">Choose Area</option>
-                            {getUniqueAreas(
-                              selectedFacility,
-                              selectedDepartment,
-                            ).map((area) => (
-                              <option key={area.id} value={area.name}>
-                                {area.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-
-                      {/* Standard Selection */}
-                      {selectedArea && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            4. Select Standard
-                          </label>
-                          <select
-                            value={standard}
-                            onChange={(e) => {
-                              setStandard(e.target.value);
-                              setShowStandardDropdown(false);
-                            }}
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            Clear Selection
+                          </button>
+                          <button
+                            onClick={() => setShowStandardDropdown(false)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
                           >
-                            <option value="">Choose Standard</option>
-                            {getFilteredStandards().map((std) => (
-                              <option key={std.id} value={std.id}>
-                                {std.name}
-                              </option>
-                            ))}
-                          </select>
+                            Close
+                          </button>
                         </div>
-                      )}
-
-                      {/* Action Buttons */}
-                      <div className="flex justify-between pt-3 border-t border-gray-200">
-                        <button
-                          onClick={resetStandardSelection}
-                          className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
-                        >
-                          Clear Selection
-                        </button>
-                        <button
-                          onClick={() => setShowStandardDropdown(false)}
-                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                        >
-                          Close
-                        </button>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+                  )}
+                </div>
                 <select
                   value={employeeId}
                   onChange={(e) => {
@@ -991,8 +992,98 @@ export default function GazeObservationApp() {
               </div>
             </div>
 
+            {/* PUMP Grade Factor */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">
+                PUMP Grade Factor (%) Assessment
+              </h3>
+              <div className="flex items-end justify-between w-full">
+                {/* Pace */}
+                <div className="flex-1 text-center">
+                  <label className="block mb-2 font-medium text-center">
+                    Pace
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="200"
+                    value={pace}
+                    onChange={(e) => setPace(parseInt(e.target.value) || 100)}
+                    disabled={!isObserving}
+                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                  />
+                </div>
+
+                {/* Multiplication Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  ×
+                </div>
+
+                {/* Utilization */}
+                <div className="flex-1 text-center">
+                  <label className="block mb-2 font-medium text-center">
+                    Utilization
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="200"
+                    value={utilization}
+                    onChange={(e) =>
+                      setUtilization(parseInt(e.target.value) || 100)
+                    }
+                    disabled={!isObserving}
+                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                  />
+                </div>
+
+                {/* Multiplication Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  ×
+                </div>
+
+                {/* Methods and Procedures */}
+                <div className="flex-1 text-center">
+                  <label className="block mb-2 font-medium text-center">
+                    Methods and Procedures
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="200"
+                    value={methods}
+                    onChange={(e) =>
+                      setMethods(parseInt(e.target.value) || 100)
+                    }
+                    disabled={!isObserving}
+                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                  />
+                </div>
+
+                {/* Equals Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  =
+                </div>
+
+                {/* PUMP Score Display - 10% larger */}
+                <div style={{ flex: "1.1" }} className="text-center">
+                  <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
+                    <div className="text-4xl font-bold text-orange-600 mb-2">
+                      {pumpScore.toFixed(1)}%
+                    </div>
+                    <div className="text-gray-600 font-medium">
+                      PUMP Score %
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Observation Timer and Controls */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">
+                Observed Performance
+              </h3>
               <div className="grid grid-cols-4 gap-6 mb-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600">
@@ -1014,20 +1105,19 @@ export default function GazeObservationApp() {
                 </div>
               </div>
 
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center">
                 <button
-                  onClick={startObservation}
-                  disabled={isObserving || isFinalized || !selectedStandardData}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
+                  onClick={isObserving ? stopObservation : startObservation}
+                  disabled={
+                    isFinalized || (!isObserving && !selectedStandardData)
+                  }
+                  className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
+                    isObserving
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
                 >
-                  Start Observation
-                </button>
-                <button
-                  onClick={stopObservation}
-                  disabled={!isObserving}
-                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
-                >
-                  Stop Observation
+                  {isObserving ? "Stop Observation" : "Start Observation"}
                 </button>
               </div>
             </div>
@@ -1035,7 +1125,9 @@ export default function GazeObservationApp() {
             {/* Standards Form */}
             {selectedStandardData && (
               <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-                <h3 className="text-lg font-semibold mb-6">Standards Form</h3>
+                <h3 className="text-lg font-semibold mb-6">
+                  Observed Performance
+                </h3>
 
                 {/* UOM Operations Table */}
                 <div className="bg-white rounded-lg p-6 border border-gray-300 mb-6">
@@ -1166,122 +1258,6 @@ export default function GazeObservationApp() {
                   </div>
                 </div>
 
-                {/* Delay Tracking */}
-                <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    <input
-                      type="text"
-                      placeholder="Delay reason..."
-                      value={delayReason}
-                      onChange={(e) => setDelayReason(e.target.value)}
-                      disabled={!isObserving || isDelayActive}
-                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                    />
-                    <button
-                      onClick={startDelay}
-                      disabled={!isObserving || isDelayActive || !delayReason}
-                      className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
-                    >
-                      Start Delay
-                    </button>
-                    <button
-                      onClick={stopDelay}
-                      disabled={!isDelayActive}
-                      className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
-                    >
-                      Stop Delay
-                    </button>
-                  </div>
-
-                  {delays.length > 0 && (
-                    <div className="bg-white rounded-lg p-4">
-                      <h4 className="font-medium mb-3">Recorded Delays</h4>
-                      <div className="space-y-2">
-                        {delays.map((delay, index) => (
-                          <div
-                            key={index}
-                            className="flex justify-between items-center p-2 bg-gray-50 rounded"
-                          >
-                            <span>{delay.reason}</span>
-                            <span className="text-gray-600">
-                              {delay.duration.toFixed(1)}s at {delay.timestamp}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* PUMP Grade Factor */}
-                <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-                  <h3 className="text-lg font-semibold mb-4">
-                    PUMP Grade Factor (%) Assessment
-                  </h3>
-                  <div className="grid grid-cols-3 gap-6 mb-6">
-                    <div>
-                      <label className="block mb-2 font-medium">Pace</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="200"
-                        value={pace}
-                        onChange={(e) =>
-                          setPace(parseInt(e.target.value) || 100)
-                        }
-                        disabled={!isObserving}
-                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium">
-                        Utilization
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="200"
-                        value={utilization}
-                        onChange={(e) =>
-                          setUtilization(parseInt(e.target.value) || 100)
-                        }
-                        disabled={!isObserving}
-                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium">
-                        Methods and Procedures
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="200"
-                        value={methods}
-                        onChange={(e) =>
-                          setMethods(parseInt(e.target.value) || 100)
-                        }
-                        disabled={!isObserving}
-                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                      />
-                    </div>
-                  </div>
-
-                  {/* PUMP Score Display */}
-                  <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
-                    <div className="text-4xl font-bold text-orange-600 mb-2">
-                      {pumpScore.toFixed(1)}%
-                    </div>
-                    <div className="text-gray-600 font-medium">
-                      PUMP Score %
-                    </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                      Pace × Utilization × Methods
-                    </div>
-                  </div>
-                </div>
-
                 {/* Best Practices and Process Adherence */}
                 <div className="grid grid-cols-2 gap-6 mb-6">
                   <div className="bg-white rounded-lg p-6 border border-gray-300">
@@ -1334,6 +1310,54 @@ export default function GazeObservationApp() {
                 </div>
               </div>
             )}
+
+            {/* Delay Tracking */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <input
+                  type="text"
+                  placeholder="Delay reason..."
+                  value={delayReason}
+                  onChange={(e) => setDelayReason(e.target.value)}
+                  disabled={!isObserving || isDelayActive}
+                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
+                />
+                <button
+                  onClick={startDelay}
+                  disabled={!isObserving || isDelayActive || !delayReason}
+                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
+                >
+                  Start Delay
+                </button>
+                <button
+                  onClick={stopDelay}
+                  disabled={!isDelayActive}
+                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
+                >
+                  Stop Delay
+                </button>
+              </div>
+
+              {delays.length > 0 && (
+                <div className="bg-white rounded-lg p-4">
+                  <h4 className="font-medium mb-3">Recorded Delays</h4>
+                  <div className="space-y-2">
+                    {delays.map((delay, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                      >
+                        <span>{delay.reason}</span>
+                        <span className="text-gray-600">
+                          {delay.duration.toFixed(1)}s at {delay.timestamp}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Comments Section */}
             <div className="p-5 bg-white rounded-lg border border-gray-300 mb-6">
@@ -1436,67 +1460,67 @@ export default function GazeObservationApp() {
                 {isSubmitting ? "Submitting..." : "Submit Observation"}
               </button>
             </div>
-          </main>
 
-          {/* Performance Trends Section */}
-          <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-            <div className="flex mb-6 items-center justify-between border-b border-gray-300 pb-4">
-              <div className="text-lg font-semibold">Performance Trends</div>
-              <div className="flex gap-3 items-center">
-                <select className="px-3 py-2 rounded border border-gray-300 bg-white">
-                  <option value="7">Last 7 days</option>
-                  <option value="30">Last 30 days</option>
-                  <option value="90">Last 90 days</option>
-                </select>
-                <div className="flex gap-1">
-                  <button
-                    onClick={prevSlide}
-                    className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
-                  >
-                    ←
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
-                  >
-                    →
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative w-full h-96 overflow-hidden">
-              {slides.map((title, index) => (
-                <div
-                  key={index}
-                  className="absolute w-full h-full bg-white rounded-lg p-4 border border-gray-300 transition-transform duration-500 ease-in-out"
-                  style={{
-                    transform: `translateX(${(index - currentSlide) * 100}%)`,
-                  }}
-                >
-                  <h3 className="text-base font-medium mb-4">{title}</h3>
-                  <div className="h-full flex items-center justify-center text-gray-600">
-                    <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                      Chart: {title}
-                    </div>
+            {/* Performance Trends Section */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6 mt-6">
+              <div className="flex mb-6 items-center justify-between border-b border-gray-300 pb-4">
+                <div className="text-lg font-semibold">Performance Trends</div>
+                <div className="flex gap-3 items-center">
+                  <select className="px-3 py-2 rounded border border-gray-300 bg-white">
+                    <option value="7">Last 7 days</option>
+                    <option value="30">Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                  </select>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={prevSlide}
+                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={nextSlide}
+                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
+                    >
+                      →
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="flex justify-center gap-2 mt-4">
-              {slides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className="w-2 h-2 rounded-full border-none p-0 cursor-pointer transition-colors duration-300"
-                  style={{
-                    backgroundColor: currentSlide === i ? "#666" : "#e2e2e2",
-                  }}
-                />
-              ))}
+              <div className="relative w-full h-96 overflow-hidden">
+                {slides.map((title, index) => (
+                  <div
+                    key={index}
+                    className="absolute w-full h-full bg-white rounded-lg p-4 border border-gray-300 transition-transform duration-500 ease-in-out"
+                    style={{
+                      transform: `translateX(${(index - currentSlide) * 100}%)`,
+                    }}
+                  >
+                    <h3 className="text-base font-medium mb-4">{title}</h3>
+                    <div className="h-full flex items-center justify-center text-gray-600">
+                      <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                        Chart: {title}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-center gap-2 mt-4">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentSlide(i)}
+                    className="w-2 h-2 rounded-full border-none p-0 cursor-pointer transition-colors duration-300"
+                    style={{
+                      backgroundColor: currentSlide === i ? "#666" : "#e2e2e2",
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          </main>
         </div>
 
         {/* Previous Observations Popup */}
