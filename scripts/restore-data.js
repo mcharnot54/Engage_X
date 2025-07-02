@@ -161,8 +161,15 @@ async function insertUomEntries() {
 }
 
 async function main() {
-  await insertUomEntries();
-  await prisma.$disconnect();
+  try {
+    await createRequiredDependencies();
+    await insertUomEntries();
+    console.log("🎉 Data restoration completed successfully!");
+  } catch (error) {
+    console.error("❌ Error during restoration:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
 main().catch((e) => {
