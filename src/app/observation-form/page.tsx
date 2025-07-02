@@ -107,6 +107,9 @@ export default function GazeObservationApp() {
   const [delayStartTime, setDelayStartTime] = useState<number | null>(null);
   const [delayReason, setDelayReason] = useState("");
   const [delays, setDelays] = useState<Delay[]>([]);
+  const [delayReasons, setDelayReasons] = useState<
+    { id: string; name: string; description?: string }[]
+  >([]);
 
   // Best practices and process adherence
   const [bestPracticesChecked, setBestPracticesChecked] = useState<string[]>(
