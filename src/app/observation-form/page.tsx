@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Banner } from "@/components/ui/Banner";
+import { Sidebar } from "@/components/Sidebar";
 
 type Row = {
   id: number;
