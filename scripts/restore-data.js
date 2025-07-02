@@ -74,6 +74,38 @@ async function createRequiredDependencies() {
   return { org, facility, department, area, standard };
 }
 
+async function insertOrganizations() {
+  const organizationData = [
+    {
+      id: 3,
+      name: "DigiKey",
+      code: "DK",
+    },
+    {
+      id: 4,
+      name: "Continuum",
+      code: "CT",
+    },
+  ];
+
+  try {
+    console.log("Inserting Organizations...");
+
+    for (const org of organizationData) {
+      await prisma.organization.upsert({
+        where: { id: org.id },
+        update: org,
+        create: org,
+      });
+      console.log(`✓ Inserted Organization: ${org.name} (${org.code})`);
+    }
+
+    console.log("✅ All Organizations inserted successfully!");
+  } catch (error) {
+    console.error("❌ Error inserting Organizations:", error);
+  }
+}
+
 async function insertUomEntries() {
   const uomData = [
     {
