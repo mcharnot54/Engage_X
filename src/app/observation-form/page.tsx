@@ -52,6 +52,11 @@ export default function GazeObservationApp() {
   const [tempQuantities, setTempQuantities] = useState<Record<number, number>>(
     {},
   );
+
+  // Track submitted quantities separately from ticker quantities
+  const [submittedQuantities, setSubmittedQuantities] = useState<
+    Record<number, number>
+  >({});
   const [error, setError] = useState("");
 
   // Observation tracking
