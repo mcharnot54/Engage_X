@@ -77,6 +77,9 @@ export default function GazeObservationApp() {
   const [selectedArea, setSelectedArea] = useState("");
   const [observedPerformance, setObservedPerformance] = useState(0);
   const [isFinalized, setIsFinalized] = useState(false);
+  const [isPumpAssessmentActive, setIsPumpAssessmentActive] = useState(false);
+  const [showPumpFinalizationModal, setShowPumpFinalizationModal] =
+    useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
@@ -510,7 +513,8 @@ export default function GazeObservationApp() {
   const stopObservation = () => {
     if (isObserving) {
       setIsObserving(false);
-      setIsFinalized(true);
+      setIsPumpAssessmentActive(true);
+      setShowPumpFinalizationModal(true);
       setObservationEndTime(Date.now());
       if (timerInterval) {
         clearInterval(timerInterval);
@@ -522,6 +526,12 @@ export default function GazeObservationApp() {
       setActiveRowIds(new Set());
       setHighlightedTagGroup(new Set());
     }
+  };
+
+  const submitPumpAssessment = () => {
+    setIsPumpAssessmentActive(false);
+    setIsFinalized(true);
+    setShowPumpFinalizationModal(false);
   };
 
   const calculatePerformance = () => {
@@ -1245,9 +1255,19 @@ export default function GazeObservationApp() {
 
             {/* PUMP Grade Factor */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-              <h3 className="text-lg font-semibold mb-4">
-                PUMP Grade Factor (%) Assessment
-              </h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">
+                  PUMP Grade Factor (%) Assessment
+                </h3>
+                {isPumpAssessmentActive && (
+                  <button
+                    onClick={submitPumpAssessment}
+                    className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-medium"
+                  >
+                    Submit PUMP
+                  </button>
+                )}
+              </div>
               <div className="flex items-end justify-between w-full">
                 {/* Pace */}
                 <div className="flex-1 text-center">
@@ -1256,7 +1276,9 @@ export default function GazeObservationApp() {
                   </label>
                   <div className="flex items-center justify-center gap-2">
                     <button
-                      disabled={!isObserving || pace <= 5}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) || pace <= 5
+                      }
                       onClick={() => setPace(Math.max(5, pace - 5))}
                       className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
                     >
@@ -1272,11 +1294,13 @@ export default function GazeObservationApp() {
                         const value = parseInt(e.target.value) || 100;
                         setPace(Math.round(value / 5) * 5);
                       }}
-                      disabled={!isObserving}
+                      disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
                     />
                     <button
-                      disabled={!isObserving || pace >= 200}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) || pace >= 200
+                      }
                       onClick={() => setPace(Math.min(200, pace + 5))}
                       className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
                     >
@@ -1297,7 +1321,10 @@ export default function GazeObservationApp() {
                   </label>
                   <div className="flex items-center justify-center gap-2">
                     <button
-                      disabled={!isObserving || utilization <= 5}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        utilization <= 5
+                      }
                       onClick={() =>
                         setUtilization(Math.max(5, utilization - 5))
                       }
@@ -1317,11 +1344,14 @@ export default function GazeObservationApp() {
                           Math.min(100, Math.round(value / 5) * 5),
                         );
                       }}
-                      disabled={!isObserving}
+                      disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
                     />
                     <button
-                      disabled={!isObserving || utilization >= 100}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        utilization >= 100
+                      }
                       onClick={() =>
                         setUtilization(Math.min(100, utilization + 5))
                       }
@@ -1344,7 +1374,10 @@ export default function GazeObservationApp() {
                   </label>
                   <div className="flex items-center justify-center gap-2">
                     <button
-                      disabled={!isObserving || methods <= 5}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        methods <= 5
+                      }
                       onClick={() => setMethods(Math.max(5, methods - 5))}
                       className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
                     >
@@ -1360,11 +1393,14 @@ export default function GazeObservationApp() {
                         const value = parseInt(e.target.value) || 100;
                         setMethods(Math.round(value / 5) * 5);
                       }}
-                      disabled={!isObserving}
+                      disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
                     />
                     <button
-                      disabled={!isObserving || methods >= 200}
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        methods >= 200
+                      }
                       onClick={() => setMethods(Math.min(200, methods + 5))}
                       className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
                     >
@@ -1406,13 +1442,17 @@ export default function GazeObservationApp() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">
-                    {isObserving ? "—" : totalSams.toFixed(2)}
+                    {isObserving || isPumpAssessmentActive
+                      ? "—"
+                      : totalSams.toFixed(2)}
                   </div>
                   <div className="text-gray-600">Total SAMs</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600">
-                    {isObserving ? "—" : `${observedPerformance.toFixed(1)}%`}
+                    {isObserving || isPumpAssessmentActive
+                      ? "—"
+                      : `${observedPerformance.toFixed(1)}%`}
                   </div>
                   <div className="text-gray-600">Observed Performance</div>
                 </div>
@@ -1420,7 +1460,9 @@ export default function GazeObservationApp() {
                   <button
                     onClick={isObserving ? stopObservation : startObservation}
                     disabled={
-                      isFinalized || (!isObserving && !selectedStandardData)
+                      isFinalized ||
+                      isPumpAssessmentActive ||
+                      (!isObserving && !selectedStandardData)
                     }
                     className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
                       isObserving
@@ -1454,9 +1496,11 @@ export default function GazeObservationApp() {
                           </span>
                           <button
                             onClick={() => {
+                              // Only clear visual highlighting states, preserve all quantities and data
                               setHighlightedTagGroup(new Set());
-                              setActiveRowIds(new Set());
                               setIsDynamicGroupingActive(false);
+                              // Don't clear activeRowIds immediately, let syncActiveRowIds handle it
+                              // to ensure data preservation
                             }}
                             className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 border border-yellow-300 rounded hover:bg-yellow-200 transition-colors"
                           >
@@ -1744,12 +1788,19 @@ export default function GazeObservationApp() {
             {/* Delay Tracking */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
-              <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="flex gap-4 mb-4 items-center">
+                <button
+                  onClick={startDelay}
+                  disabled={!isObserving || isDelayActive}
+                  className="px-4 py-2 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50 text-sm font-medium"
+                >
+                  Start Delay
+                </button>
                 <select
                   value={delayReason}
                   onChange={(e) => setDelayReason(e.target.value)}
-                  disabled={!isObserving || isDelayActive}
-                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
+                  disabled={!isObserving || !isDelayActive}
+                  className="flex-1 p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
                 >
                   <option value="">Select delay reason...</option>
                   {delayReasons.map((reason) => (
@@ -1759,16 +1810,9 @@ export default function GazeObservationApp() {
                   ))}
                 </select>
                 <button
-                  onClick={startDelay}
-                  disabled={!isObserving || isDelayActive || !delayReason}
-                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
-                >
-                  Start Delay
-                </button>
-                <button
                   onClick={stopDelay}
-                  disabled={!isDelayActive}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
+                  disabled={!isDelayActive || !delayReason}
+                  className="px-4 py-2 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50 text-sm font-medium"
                 >
                   Stop Delay
                 </button>
@@ -2307,6 +2351,27 @@ export default function GazeObservationApp() {
           </div>
         )}
       </div>
+
+      {/* PUMP Finalization Modal */}
+      {showPumpFinalizationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Finalize Your PUMP Grade Factor (%) Assessment
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Please review and finalize your PUMP Grade Factor assessment
+              before completing the observation.
+            </p>
+            <button
+              onClick={() => setShowPumpFinalizationModal(false)}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+            >
+              Continue with PUMP Assessment
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
