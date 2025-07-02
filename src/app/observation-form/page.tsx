@@ -1081,6 +1081,9 @@ export default function GazeObservationApp() {
 
             {/* Observation Timer and Controls */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">
+                Observed Performance
+              </h3>
               <div className="grid grid-cols-4 gap-6 mb-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600">
