@@ -997,9 +997,9 @@ export default function GazeObservationApp() {
               <h3 className="text-lg font-semibold mb-4">
                 PUMP Grade Factor (%) Assessment
               </h3>
-              <div className="flex items-end gap-4 justify-center">
+              <div className="flex items-end justify-between w-full">
                 {/* Pace */}
-                <div className="flex-1 max-w-32">
+                <div className="flex-1 text-center">
                   <label className="block mb-2 font-medium text-center">
                     Pace
                   </label>
@@ -1015,10 +1015,12 @@ export default function GazeObservationApp() {
                 </div>
 
                 {/* Multiplication Symbol */}
-                <div className="text-2xl font-bold text-gray-600 pb-3">×</div>
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  ×
+                </div>
 
                 {/* Utilization */}
-                <div className="flex-1 max-w-32">
+                <div className="flex-1 text-center">
                   <label className="block mb-2 font-medium text-center">
                     Utilization
                   </label>
@@ -1036,10 +1038,12 @@ export default function GazeObservationApp() {
                 </div>
 
                 {/* Multiplication Symbol */}
-                <div className="text-2xl font-bold text-gray-600 pb-3">×</div>
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  ×
+                </div>
 
                 {/* Methods and Procedures */}
-                <div className="flex-1 max-w-32">
+                <div className="flex-1 text-center">
                   <label className="block mb-2 font-medium text-center">
                     Methods and Procedures
                   </label>
@@ -1057,12 +1061,14 @@ export default function GazeObservationApp() {
                 </div>
 
                 {/* Equals Symbol */}
-                <div className="text-2xl font-bold text-gray-600 pb-3">=</div>
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  =
+                </div>
 
-                {/* PUMP Score Display - Oversized */}
-                <div className="flex-2 max-w-48">
-                  <div className="text-center bg-white rounded-lg p-6 border border-gray-300">
-                    <div className="text-5xl font-bold text-orange-600 mb-2">
+                {/* PUMP Score Display - 25% larger */}
+                <div style={{ flex: "1.25" }} className="text-center">
+                  <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
+                    <div className="text-4xl font-bold text-orange-600 mb-2">
                       {pumpScore.toFixed(1)}%
                     </div>
                     <div className="text-gray-600 font-medium">
