@@ -1049,15 +1049,35 @@ export default function GazeObservationApp() {
                   <label className="block mb-2 font-medium text-center">
                     Pace
                   </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="200"
-                    value={pace}
-                    onChange={(e) => setPace(parseInt(e.target.value) || 100)}
-                    disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
-                  />
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      disabled={!isObserving || pace <= 5}
+                      onClick={() => setPace(Math.max(5, pace - 5))}
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="5"
+                      max="200"
+                      step="5"
+                      value={pace}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 100;
+                        setPace(Math.round(value / 5) * 5);
+                      }}
+                      disabled={!isObserving}
+                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                    />
+                    <button
+                      disabled={!isObserving || pace >= 200}
+                      onClick={() => setPace(Math.min(200, pace + 5))}
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
 
                 {/* Multiplication Symbol */}
@@ -1070,17 +1090,41 @@ export default function GazeObservationApp() {
                   <label className="block mb-2 font-medium text-center">
                     Utilization
                   </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="200"
-                    value={utilization}
-                    onChange={(e) =>
-                      setUtilization(parseInt(e.target.value) || 100)
-                    }
-                    disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
-                  />
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      disabled={!isObserving || utilization <= 5}
+                      onClick={() =>
+                        setUtilization(Math.max(5, utilization - 5))
+                      }
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="5"
+                      max="100"
+                      step="5"
+                      value={utilization}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 100;
+                        setUtilization(
+                          Math.min(100, Math.round(value / 5) * 5),
+                        );
+                      }}
+                      disabled={!isObserving}
+                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                    />
+                    <button
+                      disabled={!isObserving || utilization >= 100}
+                      onClick={() =>
+                        setUtilization(Math.min(100, utilization + 5))
+                      }
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
 
                 {/* Multiplication Symbol */}
@@ -1093,17 +1137,35 @@ export default function GazeObservationApp() {
                   <label className="block mb-2 font-medium text-center">
                     Methods and Procedures
                   </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="200"
-                    value={methods}
-                    onChange={(e) =>
-                      setMethods(parseInt(e.target.value) || 100)
-                    }
-                    disabled={!isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
-                  />
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      disabled={!isObserving || methods <= 5}
+                      onClick={() => setMethods(Math.max(5, methods - 5))}
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="5"
+                      max="200"
+                      step="5"
+                      value={methods}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 100;
+                        setMethods(Math.round(value / 5) * 5);
+                      }}
+                      disabled={!isObserving}
+                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                    />
+                    <button
+                      disabled={!isObserving || methods >= 200}
+                      onClick={() => setMethods(Math.min(200, methods + 5))}
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
 
                 {/* Equals Symbol */}
