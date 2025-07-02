@@ -911,6 +911,7 @@ export default function GazeObservationApp() {
     tag: string,
     isActive: boolean,
     isCurrentlyInUse: boolean = false,
+    rowTags: string[] = [],
   ) => {
     if (highlightedTagGroup.has(tag)) {
       return "bg-yellow-200 text-yellow-800 border-yellow-500 shadow-md font-semibold";
@@ -921,7 +922,14 @@ export default function GazeObservationApp() {
     if (isActive) {
       return "bg-green-100 text-green-700 border-green-300";
     }
-    return "bg-blue-100 text-blue-700 border-blue-300";
+
+    // Use pastel colors for tag groups
+    const tagGroupColor = getTagGroupColor(rowTags);
+    if (tagGroupColor && rowTags.length > 0) {
+      return `bg-${tagGroupColor.bg.replace("bg-", "").replace("-50", "-100")} ${tagGroupColor.text} border-${tagGroupColor.border.replace("border-l-", "").replace("-200", "-300")}`;
+    }
+
+    return "bg-gray-100 text-gray-700 border-gray-300";
   };
 
   return (
