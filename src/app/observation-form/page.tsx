@@ -805,10 +805,10 @@ export default function GazeObservationApp() {
               </div>
             )}
 
-            {/* Observed Performance */}
+            {/* Observation Overview */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">
-                Observed Performance
+                Observation Overview
               </h3>
 
               <div className="grid grid-cols-3 gap-4">
