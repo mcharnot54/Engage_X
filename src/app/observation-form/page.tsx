@@ -913,9 +913,39 @@ export default function GazeObservationApp() {
     isCurrentlyInUse: boolean = false,
     rowTags: string[] = [],
   ) => {
+    // Only highlight gold if this tag is in the currently highlighted group
     if (highlightedTagGroup.has(tag)) {
       return "bg-yellow-200 text-yellow-800 border-yellow-500 shadow-md font-semibold";
     }
+
+    // If there's a highlighted tag group, all other tags should use pastel colors
+    // regardless of their active state
+    if (highlightedTagGroup.size > 0) {
+      // Use pastel colors for tag groups
+      const tagGroupColor = getTagGroupColor(rowTags);
+      if (tagGroupColor && rowTags.length > 0) {
+        // Map to appropriate tag background colors (darker than row backgrounds)
+        const colorMap: Record<string, string> = {
+          "bg-rose-50": "bg-rose-100 text-rose-700 border-rose-300",
+          "bg-blue-50": "bg-blue-100 text-blue-700 border-blue-300",
+          "bg-green-50": "bg-green-100 text-green-700 border-green-300",
+          "bg-purple-50": "bg-purple-100 text-purple-700 border-purple-300",
+          "bg-indigo-50": "bg-indigo-100 text-indigo-700 border-indigo-300",
+          "bg-pink-50": "bg-pink-100 text-pink-700 border-pink-300",
+          "bg-cyan-50": "bg-cyan-100 text-cyan-700 border-cyan-300",
+          "bg-amber-50": "bg-amber-100 text-amber-700 border-amber-300",
+          "bg-emerald-50": "bg-emerald-100 text-emerald-700 border-emerald-300",
+          "bg-violet-50": "bg-violet-100 text-violet-700 border-violet-300",
+        };
+        return (
+          colorMap[tagGroupColor.bg] ||
+          "bg-gray-100 text-gray-700 border-gray-300"
+        );
+      }
+      return "bg-gray-100 text-gray-700 border-gray-300";
+    }
+
+    // When no group is highlighted, use the original logic
     if (isCurrentlyInUse && isActive) {
       return "bg-yellow-200 text-yellow-800 border-yellow-400 shadow-md font-semibold";
     }
