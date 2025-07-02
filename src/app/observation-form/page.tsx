@@ -1259,9 +1259,14 @@ export default function GazeObservationApp() {
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-md font-semibold">Operations</h4>
                     {isDynamicGroupingActive && (
-                      <div className="text-sm text-green-600 font-medium">
-                        ����️ Smart grouping active - UOMs with shared tags are
-                        grouped together
+                      <div className="text-sm font-medium">
+                        <div className="flex items-center gap-2 text-green-600">
+                          ⚡️ Smart grouping active - Active tag groups moved to
+                          top
+                        </div>
+                        <div className="flex items-center gap-2 text-yellow-600 mt-1 text-xs">
+                          ✨ Gold highlighting shows currently active rows
+                        </div>
                       </div>
                     )}
                   </div>
