@@ -486,6 +486,12 @@ export default function GazeObservationApp() {
         ...prev,
         [id]: 0,
       }));
+
+      // Handle dynamic grouping logic (same as updateQuantity)
+      const newActiveRowIds = new Set(activeRowIds);
+      newActiveRowIds.add(id);
+      setIsDynamicGroupingActive(true);
+      setActiveRowIds(newActiveRowIds);
     }
   };
 
