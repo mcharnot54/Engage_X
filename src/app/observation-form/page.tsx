@@ -1460,7 +1460,9 @@ export default function GazeObservationApp() {
                   <button
                     onClick={isObserving ? stopObservation : startObservation}
                     disabled={
-                      isFinalized || (!isObserving && !selectedStandardData)
+                      isFinalized ||
+                      isPumpAssessmentActive ||
+                      (!isObserving && !selectedStandardData)
                     }
                     className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
                       isObserving
