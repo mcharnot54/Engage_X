@@ -468,6 +468,12 @@ export default function GazeObservationApp() {
       );
       return newRows;
     });
+
+    // Set highlighted tag group when ticker quantity is used
+    const targetRow = rows.find((row) => row.id === id);
+    if (targetRow && targetRow.tags && targetRow.tags.length > 0) {
+      setHighlightedTagGroup(new Set(targetRow.tags));
+    }
     // Note: Dynamic grouping logic will be handled by the syncActiveRowIds function
     // in the useEffect that triggers when rows change
   };
