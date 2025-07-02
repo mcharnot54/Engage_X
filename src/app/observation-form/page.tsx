@@ -1333,10 +1333,12 @@ export default function GazeObservationApp() {
                                     const activeTags =
                                       getActiveTagsForRows(activeRowIds);
                                     const isTagActive = activeTags.has(tag);
+                                    const isCurrentlyInUse =
+                                      activeRowIds.has(row.id) && isTagActive;
                                     return (
                                       <span
                                         key={tagIndex}
-                                        className={`px-2 py-1 rounded-full text-xs border ${getTagColor(tag, isTagActive)}`}
+                                        className={`px-2 py-1 rounded-full text-xs border transition-all duration-200 ${getTagColor(tag, isTagActive, isCurrentlyInUse)}`}
                                       >
                                         {tag}
                                       </span>
