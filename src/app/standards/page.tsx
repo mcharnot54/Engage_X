@@ -61,6 +61,7 @@ interface Standard {
     name: string;
     organization?: {
       name: string;
+      id?: number;
     };
   };
   department: {
@@ -72,6 +73,12 @@ interface Standard {
   uomEntries: UomEntry[];
   bestPractices: string[];
   processOpportunities: string[];
+  createdAt: string;
+  version?: number;
+  baseStandardId?: number;
+  isCurrentVersion?: boolean;
+  versionNotes?: string;
+  createdBy?: string;
 }
 
 export default function Standards() {
