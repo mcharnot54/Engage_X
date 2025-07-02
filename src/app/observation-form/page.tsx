@@ -453,7 +453,10 @@ export default function GazeObservationApp() {
 
     // Handle dynamic grouping logic
     const newActiveRowIds = new Set(activeRowIds);
-    if (value > 0) {
+    const finalValue = Math.max(0, value);
+    const hasSubmittedQuantity = (submittedQuantities[id] || 0) > 0;
+
+    if (finalValue > 0 || hasSubmittedQuantity) {
       newActiveRowIds.add(id);
       setIsDynamicGroupingActive(true);
     } else {
