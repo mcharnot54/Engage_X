@@ -228,6 +228,246 @@ async function insertStandards() {
   }
 }
 
+async function insertObservationsAndData() {
+  // First create users if they don't exist
+  const userData = [
+    {
+      id: "user1",
+      employeeId: "EMP001",
+      name: "Default User",
+    },
+  ];
+
+  for (const user of userData) {
+    await prisma.user.upsert({
+      where: { id: user.id },
+      update: user,
+      create: user,
+    });
+  }
+
+  // Create observations
+  const observationsData = [
+    {
+      id: "cmcldafyaC",
+      observationReason: "Standard Assessment",
+      standardId: 1,
+      timeObserved: 8.0,
+      totalSams: 3.889,
+      observedPerformance: 100.0,
+      pace: 100,
+      utilization: 100,
+      methods: 100,
+      pumpScore: 100.0,
+      isFinalized: false,
+      bestPracticesChecked: [],
+      delays: [],
+      processAdherenceChecked: [],
+      userId: "user1",
+    },
+    {
+      id: "cmclf0im1C",
+      observationReason: "Follow-up Assessment",
+      standardId: 1,
+      timeObserved: 8.0,
+      totalSams: 1.599,
+      observedPerformance: 100.0,
+      pace: 100,
+      utilization: 100,
+      methods: 100,
+      pumpScore: 100.0,
+      isFinalized: false,
+      bestPracticesChecked: [],
+      delays: [],
+      processAdherenceChecked: [],
+      userId: "user1",
+    },
+  ];
+
+  // Create observation data
+  const observationDataEntries = [
+    // First observation data set
+    {
+      id: "data1",
+      observationId: "cmcldafyaC",
+      uom: "TASKS STA",
+      description: "Tasks/Cart:",
+      quantity: 1,
+      samValue: 1.026,
+      totalSams: 1.026,
+    },
+    {
+      id: "data2",
+      observationId: "cmcldafyaC",
+      uom: "BINS SET U",
+      description: "Bins Set Ur",
+      quantity: 1,
+      samValue: 0.016,
+      totalSams: 0.016,
+    },
+    {
+      id: "data3",
+      observationId: "cmcldafyaC",
+      uom: "UNIQUE LO",
+      description: "Locations f",
+      quantity: 1,
+      samValue: 0.257,
+      totalSams: 0.257,
+    },
+    {
+      id: "data4",
+      observationId: "cmcldafyaC",
+      uom: "FULL ILPNs",
+      description: "Full ILPNs f",
+      quantity: 1,
+      samValue: 0.782,
+      totalSams: 0.782,
+    },
+    {
+      id: "data5",
+      observationId: "cmcldafyaC",
+      uom: "ILPNs SHO",
+      description: "ILPNs Shor",
+      quantity: 0,
+      samValue: 2.577,
+      totalSams: 0,
+    },
+    {
+      id: "data6",
+      observationId: "cmcldafyaC",
+      uom: "TRAYS IND",
+      description: "Picks on Tr",
+      quantity: 0,
+      samValue: 0.202,
+      totalSams: 0,
+    },
+    {
+      id: "data7",
+      observationId: "cmcldafyaC",
+      uom: "NONCON I",
+      description: "Picks Drop",
+      quantity: 0,
+      samValue: 0.843,
+      totalSams: 0,
+    },
+    {
+      id: "data8",
+      observationId: "cmcldafyaC",
+      uom: "TASK GRO",
+      description: "# of Times",
+      quantity: 1,
+      samValue: 1.808,
+      totalSams: 1.808,
+    },
+
+    // Second observation data set
+    {
+      id: "data9",
+      observationId: "cmclf0im1C",
+      uom: "TASKS STA",
+      description: "Tasks/Cart:",
+      quantity: 1,
+      samValue: 1.026,
+      totalSams: 1.026,
+    },
+    {
+      id: "data10",
+      observationId: "cmclf0im1C",
+      uom: "BINS SET U",
+      description: "Bins Set Ur",
+      quantity: 0,
+      samValue: 0.016,
+      totalSams: 0,
+    },
+    {
+      id: "data11",
+      observationId: "cmclf0im1C",
+      uom: "UNIQUE LO",
+      description: "Locations f",
+      quantity: 1,
+      samValue: 0.257,
+      totalSams: 0.257,
+    },
+    {
+      id: "data12",
+      observationId: "cmclf0im1C",
+      uom: "FULL ILPNs",
+      description: "Full ILPNs f",
+      quantity: 0,
+      samValue: 0.782,
+      totalSams: 0,
+    },
+    {
+      id: "data13",
+      observationId: "cmclf0im1C",
+      uom: "ILPNs SHO",
+      description: "ILPNs Shor",
+      quantity: 0,
+      samValue: 2.577,
+      totalSams: 0,
+    },
+    {
+      id: "data14",
+      observationId: "cmclf0im1C",
+      uom: "TRAYS IND",
+      description: "Picks on Tr",
+      quantity: 0,
+      samValue: 0.202,
+      totalSams: 0,
+    },
+    {
+      id: "data15",
+      observationId: "cmclf0im1C",
+      uom: "NONCON I",
+      description: "Picks Drop",
+      quantity: 0,
+      samValue: 0.843,
+      totalSams: 0,
+    },
+    {
+      id: "data16",
+      observationId: "cmclf0im1C",
+      uom: "TASK GRO",
+      description: "# of Times",
+      quantity: 0,
+      samValue: 1.808,
+      totalSams: 0,
+    },
+  ];
+
+  try {
+    console.log("Inserting Observations...");
+
+    for (const obs of observationsData) {
+      await prisma.observation.upsert({
+        where: { id: obs.id },
+        update: obs,
+        create: obs,
+      });
+      console.log(`✓ Inserted Observation: ${obs.id}`);
+    }
+
+    console.log("Inserting Observation Data...");
+
+    for (const data of observationDataEntries) {
+      await prisma.observationData.upsert({
+        where: { id: data.id },
+        update: data,
+        create: data,
+      });
+      console.log(
+        `✓ Inserted Observation Data: ${data.uom} for ${data.observationId}`,
+      );
+    }
+
+    console.log(
+      "✅ All Observations and Observation Data inserted successfully!",
+    );
+  } catch (error) {
+    console.error("❌ Error inserting Observations:", error);
+  }
+}
+
 async function insertUomEntries() {
   const uomData = [
     {
@@ -323,6 +563,7 @@ async function main() {
     await insertAreas();
     await insertStandards();
     await insertUomEntries();
+    await insertObservationsAndData();
     console.log("🎉 Data restoration completed successfully!");
   } catch (error) {
     console.error("❌ Error during restoration:", error);
