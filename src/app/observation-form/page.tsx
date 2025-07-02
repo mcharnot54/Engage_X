@@ -830,12 +830,22 @@ export default function GazeObservationApp() {
                     />
                   </svg>
                 </button>
-                <span
-                  className="text-xl font-semibold"
-                  style={{ display: isSidebarCollapsed ? "none" : "block" }}
-                >
-                  Gaze Observation
-                </span>
+                <img
+                  loading="lazy"
+                  srcSet="https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F981851a2ebf64f97b0e4c0d203be9b02?width=100 100w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F981851a2ebf64f97b0e4c0d203be9b02?width=200 200w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F981851a2ebf64f97b0e4c0d203be9b02?width=400 400w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F981851a2ebf64f97b0e4c0d203be9b02?width=800 800w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F981851a2ebf64f97b0e4c0d203be9b02?width=1200 1200w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F981851a2ebf64f97b0e4c0d203be9b02?width=1600 1600w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F981851a2ebf64f97b0e4c0d203be9b02?width=2000 2000w, https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F981851a2ebf64f97b0e4c0d203be9b02"
+                  style={{
+                    aspectRatio: "0.46",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    width: "100%",
+                    marginLeft: "20px",
+                    minHeight: "20px",
+                    minWidth: "20px",
+                    overflow: "hidden",
+                    maxWidth: "189px",
+                    display: isSidebarCollapsed ? "none" : "block",
+                  }}
+                />
               </div>
 
               {/* Available Applications */}
