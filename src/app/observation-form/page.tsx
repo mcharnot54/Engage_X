@@ -201,40 +201,56 @@ export default function GazeObservationApp() {
     [rows, getActiveTagsForRows],
   );
 
-  // Dynamic row ordering based on active state and tags
+  // Enhanced dynamic row ordering with active tag group prioritization
   const organizedRows = useMemo(() => {
     if (!isDynamicGroupingActive || activeRowIds.size === 0) {
       // Return original order when not actively grouping
       return originalRowOrder.length > 0 ? originalRowOrder : rows;
     }
 
+    const activeTags = getActiveTagsForRows(activeRowIds);
     const rowsWithSharedTags = getRowsWithSharedTags(activeRowIds);
-    const activeGroupedRows: Row[] = [];
+
+    // Categorize rows based on their relationship to active tags
+    const currentlyActiveRows: Row[] = []; // Rows that are actively being modified
+    const activeTagGroupRows: Row[] = []; // Rows in the same tag group as active rows
     const inactiveRows: Row[] = [];
 
     rows.forEach((row) => {
-      if (rowsWithSharedTags.has(row.id)) {
-        activeGroupedRows.push(row);
+      if (activeRowIds.has(row.id)) {
+        // Currently active rows (being modified) go to the very top
+        currentlyActiveRows.push(row);
+      } else if (
+        rowsWithSharedTags.has(row.id) &&
+        row.tags?.some((tag) => activeTags.has(tag))
+      ) {
+        // Rows with shared tags in the active group go next
+        activeTagGroupRows.push(row);
       } else {
+        // All other rows go to the bottom
         inactiveRows.push(row);
       }
     });
 
-    // Sort active grouped rows by their shared tags for better organization
-    activeGroupedRows.sort((a, b) => {
-      const aHasActiveTags = a.tags?.some((tag) =>
-        getActiveTagsForRows(activeRowIds).has(tag),
-      );
-      const bHasActiveTags = b.tags?.some((tag) =>
-        getActiveTagsForRows(activeRowIds).has(tag),
-      );
+    // Sort each category for better organization
+    const sortByTagPriority = (a: Row, b: Row) => {
+      const aActiveTagCount =
+        a.tags?.filter((tag) => activeTags.has(tag)).length || 0;
+      const bActiveTagCount =
+        b.tags?.filter((tag) => activeTags.has(tag)).length || 0;
 
-      if (aHasActiveTags && !bHasActiveTags) return -1;
-      if (!aHasActiveTags && bHasActiveTags) return 1;
+      // Prioritize by number of matching active tags, then by original order
+      if (aActiveTagCount !== bActiveTagCount) {
+        return bActiveTagCount - aActiveTagCount;
+      }
       return a.originalIndex - b.originalIndex;
-    });
+    };
 
-    return [...activeGroupedRows, ...inactiveRows];
+    currentlyActiveRows.sort(sortByTagPriority);
+    activeTagGroupRows.sort(sortByTagPriority);
+    inactiveRows.sort((a, b) => a.originalIndex - b.originalIndex);
+
+    return [...currentlyActiveRows, ...activeTagGroupRows, ...inactiveRows];
   }, [
     rows,
     originalRowOrder,
@@ -798,8 +814,15 @@ export default function GazeObservationApp() {
     };
   }, [showStandardDropdown]);
 
-  // Helper function to get tag color
-  const getTagColor = (tag: string, isActive: boolean) => {
+  // Helper function to get tag color with gold highlighting for active use
+  const getTagColor = (
+    tag: string,
+    isActive: boolean,
+    isCurrentlyInUse: boolean = false,
+  ) => {
+    if (isCurrentlyInUse && isActive) {
+      return "bg-yellow-200 text-yellow-800 border-yellow-400 shadow-md font-semibold";
+    }
     if (isActive) {
       return "bg-green-100 text-green-700 border-green-300";
     }
@@ -1236,9 +1259,14 @@ export default function GazeObservationApp() {
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-md font-semibold">Operations</h4>
                     {isDynamicGroupingActive && (
-                      <div className="text-sm text-green-600 font-medium">
-                        ����️ Smart grouping active - UOMs with shared tags are
-                        grouped together
+                      <div className="text-sm font-medium">
+                        <div className="flex items-center gap-2 text-green-600">
+                          ⚡️ Smart grouping active - Active tag groups moved to
+                          top
+                        </div>
+                        <div className="flex items-center gap-2 text-yellow-600 mt-1 text-xs">
+                          ✨ Gold highlighting shows currently active rows
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1271,27 +1299,28 @@ export default function GazeObservationApp() {
                       <tbody>
                         {organizedRows.map((row, index) => {
                           const isActive = activeRowIds.has(row.id);
-                          const sharedTaggedRows = getRowsWithSharedTags(
-                            new Set([row.id]),
-                          );
+                          const activeTags = getActiveTagsForRows(activeRowIds);
                           const hasActiveSharedTags =
-                            isDynamicGroupingActive &&
-                            sharedTaggedRows.size > 1 &&
-                            Array.from(sharedTaggedRows).some((id) =>
-                              activeRowIds.has(id),
-                            );
+                            row.tags?.some((tag) => activeTags.has(tag)) ||
+                            false;
+                          const isInActiveTagGroup =
+                            isDynamicGroupingActive && hasActiveSharedTags;
+
+                          // Determine row styling based on activity level
+                          let rowClasses =
+                            "border-b border-gray-300 transition-all duration-200";
+
+                          if (isActive) {
+                            rowClasses +=
+                              " bg-yellow-50 border-l-4 border-l-yellow-400"; // Gold highlighting for active rows
+                          } else if (isInActiveTagGroup) {
+                            rowClasses += " bg-green-50"; // Green highlighting for rows in active tag group
+                          } else {
+                            rowClasses += " bg-white"; // Default background
+                          }
 
                           return (
-                            <tr
-                              key={row.id}
-                              className={`border-b border-gray-300 transition-all duration-300 ${
-                                isActive
-                                  ? "bg-green-50"
-                                  : hasActiveSharedTags
-                                    ? "bg-blue-50"
-                                    : ""
-                              }`}
-                            >
+                            <tr key={row.id} className={rowClasses}>
                               <td className="p-3">
                                 <div className="font-medium">{row.uom}</div>
                                 <div
@@ -1310,10 +1339,12 @@ export default function GazeObservationApp() {
                                     const activeTags =
                                       getActiveTagsForRows(activeRowIds);
                                     const isTagActive = activeTags.has(tag);
+                                    const isCurrentlyInUse =
+                                      activeRowIds.has(row.id) && isTagActive;
                                     return (
                                       <span
                                         key={tagIndex}
-                                        className={`px-2 py-1 rounded-full text-xs border ${getTagColor(tag, isTagActive)}`}
+                                        className={`px-2 py-1 rounded-full text-xs border transition-all duration-200 ${getTagColor(tag, isTagActive, isCurrentlyInUse)}`}
                                       >
                                         {tag}
                                       </span>
