@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Banner } from "@/components/ui/Banner";
 
 interface Organization {
   id: number;
