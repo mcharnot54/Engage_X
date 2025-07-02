@@ -130,6 +130,13 @@ export default function Standards() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<any>(null);
 
+  // Edit Standard state
+  const [editStandardDialogOpen, setEditStandardDialogOpen] = useState(false);
+  const [editingStandard, setEditingStandard] = useState<Standard | null>(null);
+  const [editVersionNotes, setEditVersionNotes] = useState("");
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [versionHistory, setVersionHistory] = useState<Standard[]>([]);
+
   // Load data from API
   const loadOrganizations = async () => {
     try {
