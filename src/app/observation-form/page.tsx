@@ -837,6 +837,37 @@ export default function GazeObservationApp() {
                   Gaze Observation
                 </span>
               </div>
+
+              {/* Available Applications */}
+              {!isSidebarCollapsed && (
+                <div className="mt-6">
+                  <h3 className="text-sm font-semibold mb-4 text-gray-700">
+                    Available Applications
+                  </h3>
+                  <div className="space-y-2">
+                    {[
+                      "Labor.X",
+                      "Clock.X",
+                      "Engage.X",
+                      "Staff.X",
+                      "Dash.X",
+                      "Report.X",
+                      "Incent.X",
+                      "Perform.X",
+                      "Plan.X",
+                    ].map((app) => (
+                      <div
+                        key={app}
+                        className="py-2 px-3 bg-gray-50 rounded hover:bg-red-50 transition-colors cursor-pointer border border-gray-100 hover:border-red-200"
+                      >
+                        <div className="font-montserrat text-lg font-medium text-gray-800">
+                          {app}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* User Profile Section */}
@@ -881,35 +912,6 @@ export default function GazeObservationApp() {
                 {error}
               </div>
             )}
-
-            {/* Application List */}
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-              <h3 className="text-lg font-semibold mb-6 text-gray-800">
-                Available Applications
-              </h3>
-              <div className="grid grid-cols-3 gap-4">
-                {[
-                  "Labor.X",
-                  "Clock.X",
-                  "Engage.X",
-                  "Staff.X",
-                  "Dash.X",
-                  "Report.X",
-                  "Incent.X",
-                  "Perform.X",
-                  "Plan.X",
-                ].map((app) => (
-                  <div
-                    key={app}
-                    className="text-center py-3 px-4 bg-white rounded-lg border border-gray-200 hover:border-red-300 transition-colors cursor-pointer"
-                  >
-                    <div className="font-montserrat text-2xl font-medium text-gray-800">
-                      {app}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             {/* Observation Overview */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
