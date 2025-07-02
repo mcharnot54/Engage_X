@@ -805,10 +805,10 @@ export default function GazeObservationApp() {
               </div>
             )}
 
-            {/* Observation Details */}
+            {/* Observed Performance */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">
-                Observation Details
+                Observed Performance
               </h3>
 
               {/* Standard Selection - Multi-level Dropdown */}
