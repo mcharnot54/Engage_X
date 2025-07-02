@@ -34,7 +34,7 @@ export function Sidebar({
 
   return (
     <div
-      className={`bg-white border-r border-gray-300 transition-all duration-300 flex flex-col justify-between relative shadow-md ${className}`}
+      className={`bg-white border-r border-gray-300 transition-all duration-300 flex flex-col justify-between relative shadow-md hidden lg:flex ${className}`}
       style={{
         width: isSidebarCollapsed ? "80px" : "300px",
         padding: isSidebarCollapsed ? "24px 12px" : "24px",
