@@ -1511,7 +1511,16 @@ export default function GazeObservationApp() {
 
               {delays.length > 0 && (
                 <div className="bg-white rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Recorded Delays</h4>
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-medium">Recorded Delays</h4>
+                    <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                      Total:{" "}
+                      {delays
+                        .reduce((total, delay) => total + delay.duration, 0)
+                        .toFixed(1)}
+                      s
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     {delays.map((delay, index) => (
                       <div
