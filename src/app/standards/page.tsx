@@ -1619,6 +1619,7 @@ export default function Standards() {
                         <th className="p-3 text-left">Department</th>
                         <th className="p-3 text-left">Area</th>
                         <th className="p-3 text-left">Standard</th>
+                        <th className="p-3 text-left">Version</th>
                         <th className="p-3 text-left">Best Practices</th>
                         <th className="p-3 text-left">Process Opportunities</th>
                         <th className="p-3 text-right">Actions</th>
@@ -1638,6 +1639,11 @@ export default function Standards() {
                           <td className="p-3">{standard.area.name}</td>
                           <td className="p-3">{standard.name}</td>
                           <td className="p-3">
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                              v{(standard as any).version || 1}
+                            </span>
+                          </td>
+                          <td className="p-3">
                             <div className="text-sm text-gray-600">
                               {standard.bestPractices.length} practices
                             </div>
@@ -1649,12 +1655,24 @@ export default function Standards() {
                             </div>
                           </td>
                           <td className="p-3 text-right">
-                            <button
-                              disabled={isLoading}
-                              className="px-3 py-1.5 bg-green-500 text-white border-none rounded cursor-pointer disabled:opacity-50"
-                            >
-                              Edit
-                            </button>
+                            <div className="flex gap-2 justify-end">
+                              <button
+                                onClick={() => handleEditStandard(standard)}
+                                disabled={isLoading}
+                                className="px-3 py-1.5 bg-blue-500 text-white border-none rounded cursor-pointer disabled:opacity-50 hover:bg-blue-600"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleViewVersionHistory(standard)
+                                }
+                                disabled={isLoading}
+                                className="px-3 py-1.5 bg-gray-500 text-white border-none rounded cursor-pointer disabled:opacity-50 hover:bg-gray-600"
+                              >
+                                History
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
