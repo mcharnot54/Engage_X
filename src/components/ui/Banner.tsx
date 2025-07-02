@@ -27,9 +27,11 @@ export function Banner({ title, subtitle, className = "" }: BannerProps) {
             alt="Company Logo"
           />
           <div className="flex-1 mx-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-1">{title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-1 hidden lg:block">
+              {title}
+            </h1>
             {subtitle && (
-              <p className="text-red-500 text-sm md:text-base opacity-90">
+              <p className="text-red-500 text-sm md:text-base opacity-90 hidden lg:block">
                 {subtitle}
               </p>
             )}

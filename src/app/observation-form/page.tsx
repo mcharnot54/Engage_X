@@ -1296,6 +1296,7 @@ export default function GazeObservationApp() {
                       }}
                       disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                      style={{ textAlign: "center", margin: "auto" }}
                     />
                     <button
                       disabled={
@@ -1346,6 +1347,7 @@ export default function GazeObservationApp() {
                       }}
                       disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                      style={{ textAlign: "center", margin: "auto" }}
                     />
                     <button
                       disabled={
@@ -1395,6 +1397,7 @@ export default function GazeObservationApp() {
                       }}
                       disabled={!isObserving && !isPumpAssessmentActive}
                       className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                      style={{ textAlign: "center", margin: "auto" }}
                     />
                     <button
                       disabled={
@@ -1414,10 +1417,13 @@ export default function GazeObservationApp() {
                   =
                 </div>
 
-                {/* PUMP Score Display - 10% larger */}
-                <div style={{ flex: "1.1" }} className="text-center">
+                {/* PUMP Score Display */}
+                <div className="flex-1 text-center">
                   <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
-                    <div className="text-4xl font-bold text-orange-600 mb-2">
+                    <div
+                      className="text-3xl font-bold text-orange-600 mb-2"
+                      style={{ fontSize: "31px" }}
+                    >
                       {pumpScore.toFixed(1)}%
                     </div>
                     <div className="text-gray-600 font-medium">
