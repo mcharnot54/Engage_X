@@ -1788,12 +1788,19 @@ export default function GazeObservationApp() {
             {/* Delay Tracking */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
-              <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="flex gap-4 mb-4 items-center">
+                <button
+                  onClick={startDelay}
+                  disabled={!isObserving || isDelayActive}
+                  className="px-4 py-2 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50 text-sm font-medium"
+                >
+                  Start Delay
+                </button>
                 <select
                   value={delayReason}
                   onChange={(e) => setDelayReason(e.target.value)}
-                  disabled={!isObserving || isDelayActive}
-                  className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
+                  disabled={!isObserving || !isDelayActive}
+                  className="flex-1 p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
                 >
                   <option value="">Select delay reason...</option>
                   {delayReasons.map((reason) => (
@@ -1803,16 +1810,9 @@ export default function GazeObservationApp() {
                   ))}
                 </select>
                 <button
-                  onClick={startDelay}
-                  disabled={!isObserving || isDelayActive || !delayReason}
-                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
-                >
-                  Start Delay
-                </button>
-                <button
                   onClick={stopDelay}
-                  disabled={!isDelayActive}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
+                  disabled={!isDelayActive || !delayReason}
+                  className="px-4 py-2 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50 text-sm font-medium"
                 >
                   Stop Delay
                 </button>
