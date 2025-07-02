@@ -1156,9 +1156,8 @@ export default function GazeObservationApp() {
                     <table className="w-full border-collapse bg-white">
                       <thead>
                         <tr className="bg-gray-100 border-b-2 border-gray-300">
-                          <th className="p-3 text-left font-semibold">UOM</th>
                           <th className="p-3 text-left font-semibold">
-                            Description
+                            UOM / Description
                           </th>
                           <th className="p-3 text-left font-semibold">Tags</th>
                           <th className="p-3 text-center font-semibold">
