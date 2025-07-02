@@ -310,13 +310,24 @@ export default function GazeObservationApp() {
       setIsLoading(true);
       const response = await fetch("/api/standards");
       if (!response.ok) {
-        throw new Error("Failed to fetch standards");
+        const errorData = await response.json().catch(() => ({}));
+        if (
+          errorData.error &&
+          errorData.error.includes("Database connection failed")
+        ) {
+          throw new Error(
+            "Database not configured. Please check your DATABASE_URL environment variable.",
+          );
+        }
+        throw new Error(errorData.error || "Failed to fetch standards");
       }
       const data = await response.json();
       setStandards(data);
     } catch (error) {
       console.error("Error loading standards:", error);
-      setError("Failed to load standards");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to load standards";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
