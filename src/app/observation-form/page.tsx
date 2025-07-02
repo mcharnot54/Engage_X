@@ -1351,7 +1351,11 @@ export default function GazeObservationApp() {
                                 {row.samValue.toFixed(4)}
                               </td>
                               <td className="p-3 text-right font-medium">
-                                {(row.quantity * row.samValue).toFixed(4)}
+                                {(
+                                  (row.quantity +
+                                    (submittedQuantities[row.id] || 0)) *
+                                  row.samValue
+                                ).toFixed(4)}
                               </td>
                             </tr>
                           );
