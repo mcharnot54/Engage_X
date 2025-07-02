@@ -212,7 +212,7 @@ export async function createStandard(data: {
 
 export async function getStandards() {
   return prisma.standard.findMany({
-    where: { isActive: true },
+    where: { isActive: true, isCurrentVersion: true },
     include: {
       facility: {
         include: {
@@ -222,6 +222,12 @@ export async function getStandards() {
       department: true,
       area: true,
       uomEntries: true,
+      versions: {
+        orderBy: { version: "desc" },
+        include: {
+          uomEntries: true,
+        },
+      },
     },
     orderBy: { name: "asc" },
   });
@@ -285,6 +291,137 @@ export async function updateStandard(
       area: true,
       uomEntries: true,
     },
+  });
+}
+
+export async function createStandardVersion(
+  originalStandardId: number,
+  data: {
+    name?: string;
+    facilityId?: number;
+    departmentId?: number;
+    areaId?: number;
+    bestPractices?: string[];
+    processOpportunities?: string[];
+    versionNotes?: string;
+    createdBy?: string;
+    uomEntries?: {
+      uom: string;
+      description: string;
+      samValue: number;
+      tags?: string[];
+    }[];
+  },
+) {
+  return prisma.$transaction(async (tx) => {
+    // Get the original standard with all its data
+    const originalStandard = await tx.standard.findUnique({
+      where: { id: originalStandardId },
+      include: {
+        uomEntries: true,
+      },
+    });
+
+    if (!originalStandard) {
+      throw new Error("Original standard not found");
+    }
+
+    // Get the current highest version number for this standard group
+    const baseId = originalStandard.baseStandardId || originalStandardId;
+    const latestVersion = await tx.standard.findFirst({
+      where: {
+        OR: [{ id: baseId }, { baseStandardId: baseId }],
+      },
+      orderBy: { version: "desc" },
+    });
+
+    const newVersion = (latestVersion?.version || 1) + 1;
+
+    // Mark current version as not current
+    await tx.standard.updateMany({
+      where: {
+        OR: [{ id: baseId }, { baseStandardId: baseId }],
+        isCurrentVersion: true,
+      },
+      data: { isCurrentVersion: false },
+    });
+
+    // Create new version with updated data
+    const newStandard = await tx.standard.create({
+      data: {
+        name: data.name || originalStandard.name,
+        facilityId: data.facilityId || originalStandard.facilityId,
+        departmentId: data.departmentId || originalStandard.departmentId,
+        areaId: data.areaId || originalStandard.areaId,
+        bestPractices: data.bestPractices || originalStandard.bestPractices,
+        processOpportunities:
+          data.processOpportunities || originalStandard.processOpportunities,
+        version: newVersion,
+        baseStandardId: baseId,
+        isCurrentVersion: true,
+        isActive: true,
+        versionNotes: data.versionNotes,
+        createdBy: data.createdBy,
+        uomEntries: {
+          create:
+            data.uomEntries ||
+            originalStandard.uomEntries.map((entry) => ({
+              uom: entry.uom,
+              description: entry.description,
+              samValue: entry.samValue,
+              tags: entry.tags,
+            })),
+        },
+      },
+      include: {
+        facility: {
+          include: {
+            organization: true,
+          },
+        },
+        department: true,
+        area: true,
+        uomEntries: true,
+        baseStandard: true,
+        versions: {
+          orderBy: { version: "desc" },
+          include: {
+            uomEntries: true,
+          },
+        },
+      },
+    });
+
+    return newStandard;
+  });
+}
+
+export async function getStandardVersionHistory(standardId: number) {
+  const standard = await prisma.standard.findUnique({
+    where: { id: standardId },
+  });
+
+  if (!standard) {
+    throw new Error("Standard not found");
+  }
+
+  const baseId = standard.baseStandardId || standardId;
+
+  return prisma.standard.findMany({
+    where: {
+      OR: [{ id: baseId }, { baseStandardId: baseId }],
+    },
+    include: {
+      facility: {
+        include: {
+          organization: true,
+        },
+      },
+      department: true,
+      area: true,
+      uomEntries: true,
+    },
+    orderBy: { version: "desc" },
   });
 }
 
