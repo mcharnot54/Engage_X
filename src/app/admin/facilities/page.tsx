@@ -30,6 +30,7 @@ export default function FacilitiesAdminPage() {
     city: "",
     organizationId: "",
   });
+  const [editingFacility, setEditingFacility] = useState<Facility | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +107,42 @@ export default function FacilitiesAdminPage() {
     }
   };
 
+  const handleEditFacility = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingFacility) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/facilities/${editingFacility.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: editingFacility.name.trim(),
+          ref: editingFacility.ref?.trim() || undefined,
+          city: editingFacility.city?.trim() || undefined,
+          organizationId: editingFacility.organizationId,
+        }),
+      });
+
+      if (response.ok) {
+        setEditingFacility(null);
+        fetchFacilities();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to update facility");
+      }
+    } catch (error) {
+      console.error("Error updating facility:", error);
+      setError("Failed to update facility");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleDeleteFacility = async (id: number) => {
     if (
       !confirm(
@@ -142,6 +179,7 @@ export default function FacilitiesAdminPage() {
               title: "User Management",
               items: [
                 { label: "Users", href: "/admin/users" },
+                { label: "Roles & Permissions", href: "/admin/roles" },
                 { label: "Observations", href: "/admin/observations" },
               ],
             },
@@ -159,6 +197,10 @@ export default function FacilitiesAdminPage() {
               items: [
                 { label: "Standards", href: "/admin/standards" },
                 { label: "Delay Reasons", href: "/admin/delay-reasons" },
+                {
+                  label: "Observation Reasons",
+                  href: "/admin/observation-reasons",
+                },
               ],
             },
           ]}
@@ -288,6 +330,111 @@ export default function FacilitiesAdminPage() {
             </form>
           </div>
 
+          {/* Edit Modal */}
+          {editingFacility && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 className="text-lg font-semibold mb-4">Edit Facility</h3>
+                <form onSubmit={handleEditFacility}>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Facility Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={editingFacility.name}
+                        onChange={(e) =>
+                          setEditingFacility({
+                            ...editingFacility,
+                            name: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Organization *
+                      </label>
+                      <select
+                        value={editingFacility.organizationId}
+                        onChange={(e) =>
+                          setEditingFacility({
+                            ...editingFacility,
+                            organizationId: parseInt(e.target.value),
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        required
+                      >
+                        <option value="">Select Organization</option>
+                        {organizations.map((org) => (
+                          <option key={org.id} value={org.id}>
+                            {org.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reference
+                      </label>
+                      <input
+                        type="text"
+                        value={editingFacility.ref || ""}
+                        onChange={(e) =>
+                          setEditingFacility({
+                            ...editingFacility,
+                            ref: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        value={editingFacility.city || ""}
+                        onChange={(e) =>
+                          setEditingFacility({
+                            ...editingFacility,
+                            city: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 mt-6">
+                    <button
+                      type="button"
+                      onClick={() => setEditingFacility(null)}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={
+                        isSubmitting ||
+                        !editingFacility.name.trim() ||
+                        !editingFacility.organizationId
+                      }
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {isSubmitting ? "Updating..." : "Update"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
           {/* Facilities List */}
           <div className="bg-gray-100 rounded-lg p-6 border border-gray-300">
             <div className="flex justify-between items-center mb-4">
@@ -358,12 +505,22 @@ export default function FacilitiesAdminPage() {
                             {new Date(facility.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3 text-sm">
-                            <button
-                              onClick={() => handleDeleteFacility(facility.id)}
-                              className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200"
-                            >
-                              Delete
-                            </button>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setEditingFacility(facility)}
+                                className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleDeleteFacility(facility.id)
+                                }
+                                className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}

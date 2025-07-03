@@ -4,84 +4,97 @@ import { useState, useEffect } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 
-interface DelayReason {
+interface ObservationReason {
   id: string;
   name: string;
   description?: string;
+  externalApiUrl?: string;
+  apiConfiguration?: any;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export default function DelayReasonsAdminPage() {
-  const [delayReasons, setDelayReasons] = useState<DelayReason[]>([]);
-  const [newDelayReason, setNewDelayReason] = useState({
+export default function ObservationReasonsAdminPage() {
+  const [observationReasons, setObservationReasons] = useState<
+    ObservationReason[]
+  >([]);
+  const [newObservationReason, setNewObservationReason] = useState({
     name: "",
     description: "",
+    externalApiUrl: "",
   });
-  const [editingReason, setEditingReason] = useState<DelayReason | null>(null);
+  const [editingReason, setEditingReason] = useState<ObservationReason | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDelayReasons();
+    fetchObservationReasons();
   }, []);
 
-  const fetchDelayReasons = async () => {
+  const fetchObservationReasons = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/delay-reasons");
+      const response = await fetch("/api/observation-reasons");
       if (response.ok) {
         const data = await response.json();
-        setDelayReasons(data);
+        setObservationReasons(data);
       } else {
-        setError("Failed to fetch delay reasons");
+        setError("Failed to fetch observation reasons");
       }
     } catch (error) {
-      console.error("Error fetching delay reasons:", error);
-      setError("Failed to fetch delay reasons");
+      console.error("Error fetching observation reasons:", error);
+      setError("Failed to fetch observation reasons");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAddDelayReason = async (e: React.FormEvent) => {
+  const handleAddObservationReason = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDelayReason.name.trim()) return;
+    if (!newObservationReason.name.trim()) return;
 
     setIsSubmitting(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/delay-reasons", {
+      const response = await fetch("/api/observation-reasons", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: newDelayReason.name.trim(),
-          description: newDelayReason.description.trim() || undefined,
+          name: newObservationReason.name.trim(),
+          description: newObservationReason.description.trim() || undefined,
+          externalApiUrl:
+            newObservationReason.externalApiUrl.trim() || undefined,
         }),
       });
 
       if (response.ok) {
-        setNewDelayReason({ name: "", description: "" });
-        fetchDelayReasons();
+        setNewObservationReason({
+          name: "",
+          description: "",
+          externalApiUrl: "",
+        });
+        fetchObservationReasons();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to add delay reason");
+        setError(errorData.error || "Failed to add observation reason");
       }
     } catch (error) {
-      console.error("Error adding delay reason:", error);
-      setError("Failed to add delay reason");
+      console.error("Error adding observation reason:", error);
+      setError("Failed to add observation reason");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleEditDelayReason = async (e: React.FormEvent) => {
+  const handleEditObservationReason = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingReason) return;
 
@@ -89,58 +102,66 @@ export default function DelayReasonsAdminPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/delay-reasons/${editingReason.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `/api/observation-reasons/${editingReason.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: editingReason.name.trim(),
+            description: editingReason.description?.trim() || undefined,
+            externalApiUrl: editingReason.externalApiUrl?.trim() || undefined,
+          }),
         },
-        body: JSON.stringify({
-          name: editingReason.name.trim(),
-          description: editingReason.description?.trim() || undefined,
-        }),
-      });
+      );
 
       if (response.ok) {
         setEditingReason(null);
-        fetchDelayReasons();
+        fetchObservationReasons();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to update delay reason");
+        setError(errorData.error || "Failed to update observation reason");
       }
     } catch (error) {
-      console.error("Error updating delay reason:", error);
-      setError("Failed to update delay reason");
+      console.error("Error updating observation reason:", error);
+      setError("Failed to update observation reason");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteDelayReason = async (id: string) => {
-    if (!confirm("Are you sure you want to deactivate this delay reason?"))
+  const handleDeleteObservationReason = async (id: string) => {
+    if (
+      !confirm("Are you sure you want to deactivate this observation reason?")
+    )
       return;
 
     try {
-      const response = await fetch(`/api/delay-reasons/${id}`, {
+      const response = await fetch(`/api/observation-reasons/${id}`, {
         method: "DELETE",
       });
 
       if (response.ok) {
-        fetchDelayReasons();
+        fetchObservationReasons();
       } else {
-        setError("Failed to deactivate delay reason");
+        setError("Failed to deactivate observation reason");
       }
     } catch (error) {
-      console.error("Error deactivating delay reason:", error);
-      setError("Failed to deactivate delay reason");
+      console.error("Error deactivating observation reason:", error);
+      setError("Failed to deactivate observation reason");
     }
   };
 
-  const handleReactivateDelayReason = async (id: string) => {
-    if (!confirm("Are you sure you want to reactivate this delay reason?"))
+  const handleReactivateObservationReason = async (id: string) => {
+    if (
+      !confirm("Are you sure you want to reactivate this observation reason?")
+    )
       return;
 
     try {
-      const response = await fetch(`/api/delay-reasons/${id}`, {
+      const response = await fetch(`/api/observation-reasons/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -149,22 +170,27 @@ export default function DelayReasonsAdminPage() {
       });
 
       if (response.ok) {
-        fetchDelayReasons();
+        fetchObservationReasons();
       } else {
-        setError("Failed to reactivate delay reason");
+        setError("Failed to reactivate observation reason");
       }
     } catch (error) {
-      console.error("Error reactivating delay reason:", error);
-      setError("Failed to reactivate delay reason");
+      console.error("Error reactivating observation reason:", error);
+      setError("Failed to reactivate observation reason");
     }
   };
 
-  const activeReasons = delayReasons.filter((reason) => reason.isActive);
-  const inactiveReasons = delayReasons.filter((reason) => !reason.isActive);
+  const activeReasons = observationReasons.filter((reason) => reason.isActive);
+  const inactiveReasons = observationReasons.filter(
+    (reason) => !reason.isActive,
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Banner title="Guardian Admin" subtitle="Delay Reasons Management" />
+      <Banner
+        title="Guardian Admin"
+        subtitle="Observation Reasons Management"
+      />
 
       <div className="flex flex-row h-full">
         <Sidebar
@@ -205,10 +231,10 @@ export default function DelayReasonsAdminPage() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-semibold text-red-600">
-                Delay Reasons Management
+                Observation Reasons Management
               </h1>
               <p className="text-gray-600 mt-1">
-                Manage delay reasons used in observations
+                Manage observation reasons used in the system
               </p>
             </div>
             <a
@@ -225,29 +251,29 @@ export default function DelayReasonsAdminPage() {
             </div>
           )}
 
-          {/* Add Delay Reason Form */}
+          {/* Add Observation Reason Form */}
           <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              Add New Delay Reason
+              Add New Observation Reason
             </h3>
 
-            <form onSubmit={handleAddDelayReason}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form onSubmit={handleAddObservationReason}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Delay Reason Name *
+                    Observation Reason Name *
                   </label>
                   <input
                     type="text"
-                    value={newDelayReason.name}
+                    value={newObservationReason.name}
                     onChange={(e) =>
-                      setNewDelayReason({
-                        ...newDelayReason,
+                      setNewObservationReason({
+                        ...newObservationReason,
                         name: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="e.g., Equipment Failure"
+                    placeholder="e.g., Performance Review"
                     required
                   />
                 </div>
@@ -257,10 +283,10 @@ export default function DelayReasonsAdminPage() {
                   </label>
                   <input
                     type="text"
-                    value={newDelayReason.description}
+                    value={newObservationReason.description}
                     onChange={(e) =>
-                      setNewDelayReason({
-                        ...newDelayReason,
+                      setNewObservationReason({
+                        ...newObservationReason,
                         description: e.target.value,
                       })
                     }
@@ -268,15 +294,35 @@ export default function DelayReasonsAdminPage() {
                     placeholder="Optional description"
                   />
                 </div>
-                <div className="flex items-end">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !newDelayReason.name.trim()}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? "Adding..." : "Add Delay Reason"}
-                  </button>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    External API URL
+                    <span className="text-xs text-gray-500 ml-1">
+                      (for future client integrations)
+                    </span>
+                  </label>
+                  <input
+                    type="url"
+                    value={newObservationReason.externalApiUrl}
+                    onChange={(e) =>
+                      setNewObservationReason({
+                        ...newObservationReason,
+                        externalApiUrl: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="https://api.client.com/observations/performance"
+                  />
                 </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !newObservationReason.name.trim()}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Adding..." : "Add Observation Reason"}
+                </button>
               </div>
             </form>
           </div>
@@ -286,13 +332,13 @@ export default function DelayReasonsAdminPage() {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-lg p-6 w-full max-w-md">
                 <h3 className="text-lg font-semibold mb-4">
-                  Edit Delay Reason
+                  Edit Observation Reason
                 </h3>
-                <form onSubmit={handleEditDelayReason}>
+                <form onSubmit={handleEditObservationReason}>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Delay Reason Name *
+                        Observation Reason Name *
                       </label>
                       <input
                         type="text"
@@ -323,6 +369,26 @@ export default function DelayReasonsAdminPage() {
                         className="w-full p-2 border border-gray-300 rounded-md"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        External API URL
+                        <span className="text-xs text-gray-500 ml-1">
+                          (for future client integrations)
+                        </span>
+                      </label>
+                      <input
+                        type="url"
+                        value={editingReason.externalApiUrl || ""}
+                        onChange={(e) =>
+                          setEditingReason({
+                            ...editingReason,
+                            externalApiUrl: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        placeholder="https://api.client.com/observations/performance"
+                      />
+                    </div>
                   </div>
                   <div className="flex justify-end gap-2 mt-6">
                     <button
@@ -345,11 +411,11 @@ export default function DelayReasonsAdminPage() {
             </div>
           )}
 
-          {/* Active Delay Reasons */}
+          {/* Active Observation Reasons */}
           <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-800">
-                Active Delay Reasons
+                Active Observation Reasons
               </h3>
               <div className="text-sm text-gray-600">
                 Active: {activeReasons.length}
@@ -358,11 +424,11 @@ export default function DelayReasonsAdminPage() {
 
             {isLoading ? (
               <div className="text-center py-8 text-gray-500">
-                Loading delay reasons...
+                Loading observation reasons...
               </div>
             ) : activeReasons.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No active delay reasons configured yet
+                No active observation reasons configured yet
               </div>
             ) : (
               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -375,6 +441,9 @@ export default function DelayReasonsAdminPage() {
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Description
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          External API
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Created
@@ -394,6 +463,21 @@ export default function DelayReasonsAdminPage() {
                             {reason.description || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
+                            {reason.externalApiUrl ? (
+                              <a
+                                href={reason.externalApiUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 underline truncate block max-w-48"
+                                title={reason.externalApiUrl}
+                              >
+                                {reason.externalApiUrl}
+                              </a>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
                             {new Date(reason.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3 text-sm">
@@ -406,7 +490,7 @@ export default function DelayReasonsAdminPage() {
                               </button>
                               <button
                                 onClick={() =>
-                                  handleDeleteDelayReason(reason.id)
+                                  handleDeleteObservationReason(reason.id)
                                 }
                                 className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200"
                               >
@@ -423,12 +507,12 @@ export default function DelayReasonsAdminPage() {
             )}
           </div>
 
-          {/* Inactive Delay Reasons */}
+          {/* Inactive Observation Reasons */}
           {inactiveReasons.length > 0 && (
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">
-                  Inactive Delay Reasons
+                  Inactive Observation Reasons
                 </h3>
                 <div className="text-sm text-gray-600">
                   Inactive: {inactiveReasons.length}
@@ -472,7 +556,7 @@ export default function DelayReasonsAdminPage() {
                           <td className="px-4 py-3 text-sm">
                             <button
                               onClick={() =>
-                                handleReactivateDelayReason(reason.id)
+                                handleReactivateObservationReason(reason.id)
                               }
                               className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200"
                             >

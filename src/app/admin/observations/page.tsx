@@ -95,6 +95,7 @@ export default function ObservationsAdminPage() {
               title: "User Management",
               items: [
                 { label: "Users", href: "/admin/users" },
+                { label: "Roles & Permissions", href: "/admin/roles" },
                 { label: "Observations", href: "/admin/observations" },
               ],
             },
@@ -112,6 +113,10 @@ export default function ObservationsAdminPage() {
               items: [
                 { label: "Standards", href: "/admin/standards" },
                 { label: "Delay Reasons", href: "/admin/delay-reasons" },
+                {
+                  label: "Observation Reasons",
+                  href: "/admin/observation-reasons",
+                },
               ],
             },
           ]}
