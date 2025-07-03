@@ -103,6 +103,7 @@ export default function AdminPage() {
               title: "User Management",
               items: [
                 { label: "Users", href: "/admin/users" },
+                { label: "Roles & Permissions", href: "/admin/roles" },
                 { label: "Observations", href: "/admin/observations" },
               ],
             },
