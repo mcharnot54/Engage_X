@@ -30,6 +30,7 @@ export default function FacilitiesAdminPage() {
     city: "",
     organizationId: "",
   });
+  const [editingFacility, setEditingFacility] = useState<Facility | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
