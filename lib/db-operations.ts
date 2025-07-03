@@ -651,7 +651,11 @@ export async function getRecentObservations(limit: number = 10) {
       user: true,
       standard: {
         include: {
-          facility: true,
+          facility: {
+            include: {
+              organization: true,
+            },
+          },
           department: true,
           area: true,
         },
