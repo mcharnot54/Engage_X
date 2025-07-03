@@ -428,25 +428,129 @@ export async function getStandardVersionHistory(standardId: number) {
 // User operations
 export async function createUser(data: {
   employeeId: string;
+  employeeNumber?: string;
   name: string;
   email?: string;
   department?: string;
   role?: string;
+  roleId?: string;
+  isActive?: boolean;
+  externalSource?: string;
+  lastSyncAt?: Date;
 }) {
   return prisma.user.create({
     data,
+    include: {
+      userRole: true,
+    },
+  });
+}
+
+export async function updateUser(
+  id: string,
+  data: {
+    employeeId?: string;
+    employeeNumber?: string;
+    name?: string;
+    email?: string;
+    department?: string;
+    role?: string;
+    roleId?: string;
+    isActive?: boolean;
+    externalSource?: string;
+    lastSyncAt?: Date;
+  },
+) {
+  return prisma.user.update({
+    where: { id },
+    data,
+    include: {
+      userRole: true,
+    },
+  });
+}
+
+export async function deleteUser(id: string) {
+  return prisma.user.delete({
+    where: { id },
   });
 }
 
 export async function getUserByEmployeeId(employeeId: string) {
   return prisma.user.findUnique({
     where: { employeeId },
+    include: {
+      userRole: true,
+    },
+  });
+}
+
+export async function getUserById(id: string) {
+  return prisma.user.findUnique({
+    where: { id },
+    include: {
+      userRole: true,
+    },
   });
 }
 
 export async function getUsers() {
   return prisma.user.findMany({
     orderBy: { name: "asc" },
+    include: {
+      userRole: true,
+    },
+  });
+}
+
+export async function syncUserFromExternal(data: {
+  employeeId: string;
+  employeeNumber?: string;
+  name: string;
+  email?: string;
+  department?: string;
+  externalSource: string;
+}) {
+  const existingUser = await getUserByEmployeeId(data.employeeId);
+
+  const userData = {
+    ...data,
+    lastSyncAt: new Date(),
+    isActive: true,
+  };
+
+  if (existingUser) {
+    return updateUser(existingUser.id, userData);
+  } else {
+    return createUser(userData);
+  }
+}
+
+// Role operations
+export async function getRoles() {
+  return prisma.role.findMany({
+    where: { isActive: true },
+    orderBy: { name: "asc" },
+    include: {
+      permissions: {
+        include: {
+          permission: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getRoleById(id: string) {
+  return prisma.role.findUnique({
+    where: { id },
+    include: {
+      permissions: {
+        include: {
+          permission: true,
+        },
+      },
+    },
   });
 }
 
