@@ -427,14 +427,17 @@ export default function GazeObservationApp() {
   };
 
   // Database operations via API
-  const loadStandards = async () => {
+  const loadStandards = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => {
+        if (!signal?.aborted) {
+          console.warn("Standards request timed out after 10 seconds");
+        }
+      }, 10000);
 
       const response = await fetch("/api/standards", {
-        signal: controller.signal,
+        signal: signal,
         headers: {
           "Content-Type": "application/json",
         },
@@ -461,14 +464,19 @@ export default function GazeObservationApp() {
       setStandards(data);
       setError(""); // Clear any previous errors
     } catch (error) {
+      // Don't show errors for aborted requests during component unmount
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!signal?.aborted) {
+          console.warn("Standards request was aborted");
+        }
+        return; // Silently return for component unmount
+      }
+
       console.error("Error loading standards:", error);
       let errorMessage = "Failed to load standards";
 
       if (error instanceof Error) {
-        if (error.name === "AbortError") {
-          errorMessage =
-            "Request timed out. Please check your network connection.";
-        } else if (error.message.includes("fetch")) {
+        if (error.message.includes("fetch")) {
           errorMessage =
             "Network error. Please check your connection and try again.";
         } else {
@@ -883,17 +891,26 @@ export default function GazeObservationApp() {
 
   // Effects
   useEffect(() => {
-    loadStandards();
-    loadDelayReasons();
+    const controller = new AbortController();
+
+    loadStandards(controller.signal);
+    loadDelayReasons(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
-  const loadDelayReasons = async () => {
+  const loadDelayReasons = async (signal?: AbortSignal) => {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => {
+        if (!signal?.aborted) {
+          console.warn("Delay reasons request timed out after 10 seconds");
+        }
+      }, 10000);
 
       const response = await fetch("/api/delay-reasons", {
-        signal: controller.signal,
+        signal: signal,
         headers: {
           "Content-Type": "application/json",
         },
@@ -912,14 +929,19 @@ export default function GazeObservationApp() {
         );
       }
     } catch (error) {
+      // Don't show errors for aborted requests during component unmount
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!signal?.aborted) {
+          console.warn("Delay reasons request was aborted");
+        }
+        return; // Silently return for component unmount
+      }
+
       console.error("Error loading delay reasons:", error);
       let errorMessage = "Failed to load delay reasons";
 
       if (error instanceof Error) {
-        if (error.name === "AbortError") {
-          errorMessage =
-            "Request timed out. Please check your network connection.";
-        } else if (error.message.includes("fetch")) {
+        if (error.message.includes("fetch")) {
           errorMessage =
             "Network error. Please check your connection and try again.";
         } else {
