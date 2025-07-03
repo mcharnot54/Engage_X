@@ -172,114 +172,80 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Delay Reason Management */}
-          <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              Delay Reason Management
-            </h3>
-
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleAddDelayReason} className="mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Delay Reason Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newDelayReason.name}
-                    onChange={(e) =>
-                      setNewDelayReason({
-                        ...newDelayReason,
-                        name: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="e.g., Equipment Failure"
-                    required
-                  />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div
+              className="bg-gray-100 rounded-lg p-6 border border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={() => router.push("/admin/organizations")}
+            >
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Organizations & Facilities
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="text-gray-600">
+                  Manage organizational structure
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    value={newDelayReason.description}
-                    onChange={(e) =>
-                      setNewDelayReason({
-                        ...newDelayReason,
-                        description: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Optional description"
-                  />
+                <div className="text-blue-600 hover:text-blue-800">
+                  → View Organizations
                 </div>
-                <div className="flex items-end">
-                  <button
-                    type="submit"
-                    disabled={isLoading || !newDelayReason.name.trim()}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? "Adding..." : "Add Delay Reason"}
-                  </button>
+                <div className="text-blue-600 hover:text-blue-800">
+                  → Manage Facilities
                 </div>
               </div>
-            </form>
+            </div>
 
-            <div className="bg-white rounded-lg border border-gray-200">
-              <div className="px-4 py-3 border-b border-gray-200">
-                <h4 className="font-medium">Active Delay Reasons</h4>
+            <div
+              className="bg-gray-100 rounded-lg p-6 border border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={() => router.push("/admin/standards")}
+            >
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Standards & Processes
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="text-gray-600">Configure system standards</div>
+                <div className="text-blue-600 hover:text-blue-800">
+                  → Manage Standards
+                </div>
+                <div className="text-blue-600 hover:text-blue-800">
+                  → Observation Reasons
+                </div>
               </div>
-              <div className="divide-y divide-gray-200">
-                {delayReasons.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-gray-500">
-                    No delay reasons configured yet
-                  </div>
-                ) : (
-                  delayReasons.map((reason) => (
-                    <div
-                      key={reason.id}
-                      className="px-4 py-3 flex justify-between items-center"
-                    >
-                      <div>
-                        <div className="font-medium">{reason.name}</div>
-                        {reason.description && (
-                          <div className="text-sm text-gray-500">
-                            {reason.description}
-                          </div>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => handleDeleteDelayReason(reason.id)}
-                        className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200"
-                      >
-                        Deactivate
-                      </button>
-                    </div>
-                  ))
-                )}
+            </div>
+
+            <div
+              className="bg-gray-100 rounded-lg p-6 border border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={() => router.push("/admin/roles")}
+            >
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Roles & Permissions
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="text-gray-600">Manage user access control</div>
+                <div className="text-blue-600 hover:text-blue-800">
+                  → Manage Roles
+                </div>
+                <div className="text-blue-600 hover:text-blue-800">
+                  → View Permissions
+                </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300">
+            <div
+              className="bg-gray-100 rounded-lg p-6 border border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={() => router.push("/admin/observations")}
+            >
               <h3 className="text-lg font-semibold mb-4 text-gray-800">
                 Recent Activity
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-gray-600">
-                    No recent admin activity
+                    View recent observations and activities
                   </span>
-                  <span className="text-xs text-gray-400">--</span>
+                </div>
+                <div className="text-blue-600 hover:text-blue-800">
+                  Click to view observations →
                 </div>
               </div>
             </div>
