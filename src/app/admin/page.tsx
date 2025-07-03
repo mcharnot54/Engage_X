@@ -120,6 +120,10 @@ export default function AdminPage() {
               items: [
                 { label: "Standards", href: "/admin/standards" },
                 { label: "Delay Reasons", href: "/admin/delay-reasons" },
+                {
+                  label: "Observation Reasons",
+                  href: "/admin/observation-reasons",
+                },
               ],
             },
           ]}
