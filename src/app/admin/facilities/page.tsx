@@ -107,6 +107,42 @@ export default function FacilitiesAdminPage() {
     }
   };
 
+  const handleEditFacility = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingFacility) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/facilities/${editingFacility.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: editingFacility.name.trim(),
+          ref: editingFacility.ref?.trim() || undefined,
+          city: editingFacility.city?.trim() || undefined,
+          organizationId: editingFacility.organizationId,
+        }),
+      });
+
+      if (response.ok) {
+        setEditingFacility(null);
+        fetchFacilities();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to update facility");
+      }
+    } catch (error) {
+      console.error("Error updating facility:", error);
+      setError("Failed to update facility");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleDeleteFacility = async (id: number) => {
     if (
       !confirm(
