@@ -1,91 +1,46 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 
-interface DelayReason {
-  id: string;
-  name: string;
-  description?: string;
-  isActive: boolean;
-  createdAt: string;
+interface SystemStats {
+  totalUsers: number;
+  activeSessions: number;
+  adminUsers: number;
 }
 
 export default function AdminPage() {
-  const [delayReasons, setDelayReasons] = useState<DelayReason[]>([]);
-  const [newDelayReason, setNewDelayReason] = useState({
-    name: "",
-    description: "",
+  const [systemStats, setSystemStats] = useState<SystemStats>({
+    totalUsers: 0,
+    activeSessions: 0,
+    adminUsers: 0,
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchDelayReasons();
+    fetchSystemStats();
   }, []);
 
-  const fetchDelayReasons = async () => {
+  const fetchSystemStats = async () => {
     try {
-      const response = await fetch("/api/delay-reasons");
+      const response = await fetch("/api/users");
       if (response.ok) {
-        const data = await response.json();
-        setDelayReasons(data);
+        const users = await response.json();
+        setSystemStats({
+          totalUsers: users.length,
+          activeSessions: users.filter((user: any) => user.isActive).length,
+          adminUsers: users.filter((user: any) =>
+            user.userRole?.name?.toLowerCase().includes("admin"),
+          ).length,
+        });
       }
     } catch (error) {
-      console.error("Error fetching delay reasons:", error);
-      setError("Failed to fetch delay reasons");
-    }
-  };
-
-  const handleAddDelayReason = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newDelayReason.name.trim()) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/delay-reasons", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newDelayReason),
-      });
-
-      if (response.ok) {
-        setNewDelayReason({ name: "", description: "" });
-        fetchDelayReasons();
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to add delay reason");
-      }
-    } catch (error) {
-      console.error("Error adding delay reason:", error);
-      setError("Failed to add delay reason");
+      console.error("Error fetching system stats:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleDeleteDelayReason = async (id: string) => {
-    if (!confirm("Are you sure you want to deactivate this delay reason?"))
-      return;
-
-    try {
-      const response = await fetch(`/api/delay-reasons/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        fetchDelayReasons();
-      } else {
-        setError("Failed to deactivate delay reason");
-      }
-    } catch (error) {
-      console.error("Error deactivating delay reason:", error);
-      setError("Failed to deactivate delay reason");
     }
   };
   return (
