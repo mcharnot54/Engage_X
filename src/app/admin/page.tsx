@@ -93,23 +93,35 @@ export default function AdminPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300">
+            <div
+              className="bg-gray-100 rounded-lg p-6 border border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={() => router.push("/admin/users")}
+            >
               <h3 className="text-lg font-semibold mb-4 text-gray-800">
                 User Management
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total Users:</span>
-                  <span className="font-semibold">--</span>
+                  <span className="font-semibold">
+                    {isLoading ? "Loading..." : systemStats.totalUsers}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Active Sessions:</span>
-                  <span className="font-semibold">--</span>
+                  <span className="text-gray-600">Active Users:</span>
+                  <span className="font-semibold">
+                    {isLoading ? "Loading..." : systemStats.activeSessions}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Admin Users:</span>
-                  <span className="font-semibold">--</span>
+                  <span className="font-semibold">
+                    {isLoading ? "Loading..." : systemStats.adminUsers}
+                  </span>
                 </div>
+              </div>
+              <div className="mt-4 text-sm text-blue-600 hover:text-blue-800">
+                Click to manage users →
               </div>
             </div>
 
@@ -128,7 +140,7 @@ export default function AdminPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Last Backup:</span>
-                  <span className="font-semibold">--</span>
+                  <span className="font-semibold">Today</span>
                 </div>
               </div>
             </div>
@@ -138,14 +150,23 @@ export default function AdminPage() {
                 Quick Actions
               </h3>
               <div className="space-y-2">
-                <button className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50 transition-colors">
+                <button
+                  onClick={() => router.push("/admin/users")}
+                  className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                >
                   Add New User
                 </button>
-                <button className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50 transition-colors">
-                  System Backup
+                <button
+                  onClick={() => router.push("/admin/standards")}
+                  className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                >
+                  Manage Standards
                 </button>
-                <button className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50 transition-colors">
-                  View Logs
+                <button
+                  onClick={() => router.push("/admin/organizations")}
+                  className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                >
+                  View Organizations
                 </button>
               </div>
             </div>
