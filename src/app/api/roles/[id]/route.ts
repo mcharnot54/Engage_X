@@ -1,5 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getRoleById, updateRole, deleteRole } from "@/lib/db-operations";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  try {
+    const role = await getRoleById(params.id);
+
+    if (!role) {
+      return NextResponse.json({ error: "Role not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(role);
+  } catch (error) {
+    console.error("Error fetching role:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch role" },
+      { status: 500 },
+    );
+  }
+}
 
 export async function PUT(
   request: NextRequest,
@@ -7,55 +28,38 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { name, description, permissionIds = [] } = body;
+    const { name, description, isActive, permissionIds } = body;
 
-    if (!name || !name.trim()) {
+    if (!name?.trim()) {
       return NextResponse.json(
         { error: "Role name is required" },
         { status: 400 },
       );
     }
 
-    // Update role and replace permissions
-    const role = await prisma.role.update({
-      where: {
-        id: params.id,
-      },
-      data: {
-        name: name.trim(),
-        description: description?.trim() || null,
-        permissions: {
-          deleteMany: {},
-          create: permissionIds.map((permissionId: string) => ({
-            permissionId,
-            granted: true,
-          })),
-        },
-      },
-      include: {
-        permissions: {
-          include: {
-            permission: true,
-          },
-        },
-      },
+    const role = await updateRole(params.id, {
+      name: name.trim(),
+      description: description?.trim() || undefined,
+      isActive,
+      permissionIds,
     });
+
+    if (!role) {
+      return NextResponse.json({ error: "Role not found" }, { status: 404 });
+    }
 
     return NextResponse.json(role);
   } catch (error) {
     console.error("Error updating role:", error);
-    if (
-      error instanceof Error &&
-      error.message.includes("Record to update not found")
-    ) {
-      return NextResponse.json({ error: "Role not found" }, { status: 404 });
-    }
+
+    // Handle unique constraint error
     if (error instanceof Error && error.message.includes("Unique constraint")) {
       return NextResponse.json(
         { error: "A role with this name already exists" },
         { status: 409 },
       );
     }
+
     return NextResponse.json(
       { error: "Failed to update role" },
       { status: 500 },
@@ -68,21 +72,24 @@ export async function DELETE(
   { params }: { params: { id: string } },
 ) {
   try {
-    await prisma.role.delete({
-      where: {
-        id: params.id,
-      },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting role:", error);
-    if (
-      error instanceof Error &&
-      error.message.includes("Record to delete does not exist")
-    ) {
+    // Check if role exists first
+    const existingRole = await getRoleById(params.id);
+    if (!existingRole) {
       return NextResponse.json({ error: "Role not found" }, { status: 404 });
     }
+
+    // Check if role is assigned to any users
+    if (existingRole._count?.users && existingRole._count.users > 0) {
+      return NextResponse.json(
+        { error: "Cannot delete role that is assigned to users" },
+        { status: 400 },
+      );
+    }
+
+    await deleteRole(params.id);
+    return NextResponse.json({ message: "Role deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting role:", error);
     return NextResponse.json(
       { error: "Failed to delete role" },
       { status: 500 },

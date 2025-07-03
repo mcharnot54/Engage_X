@@ -529,12 +529,16 @@ export async function syncUserFromExternal(data: {
 // Role operations
 export async function getRoles() {
   return prisma.role.findMany({
-    where: { isActive: true },
     orderBy: { name: "asc" },
     include: {
       permissions: {
         include: {
           permission: true,
+        },
+      },
+      _count: {
+        select: {
+          users: true,
         },
       },
     },
@@ -550,7 +554,116 @@ export async function getRoleById(id: string) {
           permission: true,
         },
       },
+      _count: {
+        select: {
+          users: true,
+        },
+      },
     },
+  });
+}
+
+export async function createRole(data: {
+  name: string;
+  description?: string;
+  permissionIds?: string[];
+}) {
+  const { permissionIds, ...roleData } = data;
+
+  return prisma.role.create({
+    data: {
+      ...roleData,
+      permissions: permissionIds
+        ? {
+            create: permissionIds.map((permissionId) => ({
+              permissionId,
+              granted: true,
+            })),
+          }
+        : undefined,
+    },
+    include: {
+      permissions: {
+        include: {
+          permission: true,
+        },
+      },
+      _count: {
+        select: {
+          users: true,
+        },
+      },
+    },
+  });
+}
+
+export async function updateRole(
+  id: string,
+  data: {
+    name?: string;
+    description?: string;
+    isActive?: boolean;
+    permissionIds?: string[];
+  },
+) {
+  const { permissionIds, ...roleData } = data;
+
+  return prisma.$transaction(async (tx) => {
+    // Update the role
+    const updatedRole = await tx.role.update({
+      where: { id },
+      data: roleData,
+    });
+
+    // If permissionIds are provided, update role permissions
+    if (permissionIds !== undefined) {
+      // Delete existing permissions
+      await tx.rolePermission.deleteMany({
+        where: { roleId: id },
+      });
+
+      // Create new permissions
+      if (permissionIds.length > 0) {
+        await tx.rolePermission.createMany({
+          data: permissionIds.map((permissionId) => ({
+            roleId: id,
+            permissionId,
+            granted: true,
+          })),
+        });
+      }
+    }
+
+    // Return the updated role with permissions
+    return tx.role.findUnique({
+      where: { id },
+      include: {
+        permissions: {
+          include: {
+            permission: true,
+          },
+        },
+        _count: {
+          select: {
+            users: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+export async function deleteRole(id: string) {
+  return prisma.role.delete({
+    where: { id },
+  });
+}
+
+// Permission operations
+export async function getPermissions() {
+  return prisma.permission.findMany({
+    where: { isActive: true },
+    orderBy: [{ module: "asc" }, { action: "asc" }],
   });
 }
 
