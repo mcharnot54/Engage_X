@@ -7,7 +7,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { name, description, isActive } = body;
+    const { name, description, externalApiUrl, isActive } = body;
 
     if (!name || !name.trim()) {
       return NextResponse.json(
@@ -23,6 +23,7 @@ export async function PUT(
       data: {
         name: name.trim(),
         description: description?.trim() || null,
+        externalApiUrl: externalApiUrl?.trim() || null,
         isActive: isActive !== undefined ? isActive : true,
       },
     });

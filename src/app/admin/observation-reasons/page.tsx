@@ -8,6 +8,8 @@ interface ObservationReason {
   id: string;
   name: string;
   description?: string;
+  externalApiUrl?: string;
+  apiConfiguration?: any;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -20,6 +22,7 @@ export default function ObservationReasonsAdminPage() {
   const [newObservationReason, setNewObservationReason] = useState({
     name: "",
     description: "",
+    externalApiUrl: "",
   });
   const [editingReason, setEditingReason] = useState<ObservationReason | null>(
     null,
@@ -67,11 +70,17 @@ export default function ObservationReasonsAdminPage() {
         body: JSON.stringify({
           name: newObservationReason.name.trim(),
           description: newObservationReason.description.trim() || undefined,
+          externalApiUrl:
+            newObservationReason.externalApiUrl.trim() || undefined,
         }),
       });
 
       if (response.ok) {
-        setNewObservationReason({ name: "", description: "" });
+        setNewObservationReason({
+          name: "",
+          description: "",
+          externalApiUrl: "",
+        });
         fetchObservationReasons();
       } else {
         const errorData = await response.json();
@@ -103,6 +112,7 @@ export default function ObservationReasonsAdminPage() {
           body: JSON.stringify({
             name: editingReason.name.trim(),
             description: editingReason.description?.trim() || undefined,
+            externalApiUrl: editingReason.externalApiUrl?.trim() || undefined,
           }),
         },
       );
@@ -247,7 +257,7 @@ export default function ObservationReasonsAdminPage() {
             </h3>
 
             <form onSubmit={handleAddObservationReason}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Observation Reason Name *
@@ -283,15 +293,35 @@ export default function ObservationReasonsAdminPage() {
                     placeholder="Optional description"
                   />
                 </div>
-                <div className="flex items-end">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !newObservationReason.name.trim()}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? "Adding..." : "Add Observation Reason"}
-                  </button>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    External API URL
+                    <span className="text-xs text-gray-500 ml-1">
+                      (for future client integrations)
+                    </span>
+                  </label>
+                  <input
+                    type="url"
+                    value={newObservationReason.externalApiUrl}
+                    onChange={(e) =>
+                      setNewObservationReason({
+                        ...newObservationReason,
+                        externalApiUrl: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="https://api.client.com/observations/performance"
+                  />
                 </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !newObservationReason.name.trim()}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Adding..." : "Add Observation Reason"}
+                </button>
               </div>
             </form>
           </div>
@@ -336,6 +366,26 @@ export default function ObservationReasonsAdminPage() {
                           })
                         }
                         className="w-full p-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        External API URL
+                        <span className="text-xs text-gray-500 ml-1">
+                          (for future client integrations)
+                        </span>
+                      </label>
+                      <input
+                        type="url"
+                        value={editingReason.externalApiUrl || ""}
+                        onChange={(e) =>
+                          setEditingReason({
+                            ...editingReason,
+                            externalApiUrl: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        placeholder="https://api.client.com/observations/performance"
                       />
                     </div>
                   </div>
@@ -392,6 +442,9 @@ export default function ObservationReasonsAdminPage() {
                           Description
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          External API
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Created
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
@@ -407,6 +460,21 @@ export default function ObservationReasonsAdminPage() {
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {reason.description || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            {reason.externalApiUrl ? (
+                              <a
+                                href={reason.externalApiUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 underline truncate block max-w-48"
+                                title={reason.externalApiUrl}
+                              >
+                                {reason.externalApiUrl}
+                              </a>
+                            ) : (
+                              "—"
+                            )}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {new Date(reason.createdAt).toLocaleDateString()}
