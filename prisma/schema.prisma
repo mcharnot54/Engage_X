@@ -157,6 +157,17 @@ model DelayReason {
   @@map("delay_reasons")
 }
 
+model ObservationReason {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("observation_reasons")
+}
+
 model ObservationData {
   id            String      @id @default(cuid())
   observationId String
