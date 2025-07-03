@@ -430,7 +430,18 @@ export default function GazeObservationApp() {
   const loadStandards = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/standards");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch("/api/standards", {
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         if (
@@ -441,15 +452,32 @@ export default function GazeObservationApp() {
             "Database not configured. Please check your DATABASE_URL environment variable.",
           );
         }
-        throw new Error(errorData.error || "Failed to fetch standards");
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to fetch standards`,
+        );
       }
       const data = await response.json();
       setStandards(data);
+      setError(""); // Clear any previous errors
     } catch (error) {
       console.error("Error loading standards:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to load standards";
+      let errorMessage = "Failed to load standards";
+
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          errorMessage =
+            "Request timed out. Please check your network connection.";
+        } else if (error.message.includes("fetch")) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       setError(errorMessage);
+      setStandards([]); // Set empty array as fallback
     } finally {
       setIsLoading(false);
     }
@@ -861,13 +889,47 @@ export default function GazeObservationApp() {
 
   const loadDelayReasons = async () => {
     try {
-      const response = await fetch("/api/delay-reasons");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch("/api/delay-reasons", {
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
       if (response.ok) {
         const data = await response.json();
         setDelayReasons(data);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to fetch delay reasons`,
+        );
       }
     } catch (error) {
       console.error("Error loading delay reasons:", error);
+      let errorMessage = "Failed to load delay reasons";
+
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          errorMessage =
+            "Request timed out. Please check your network connection.";
+        } else if (error.message.includes("fetch")) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      // Set empty array as fallback and show non-blocking notification
+      setDelayReasons([]);
+      console.warn("Delay reasons could not be loaded:", errorMessage);
     }
   };
 
