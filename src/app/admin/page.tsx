@@ -102,26 +102,24 @@ export default function AdminPage() {
             {
               title: "User Management",
               items: [
-                { label: "Users" },
-                { label: "Roles & Permissions" },
-                { label: "Access Control" },
+                { label: "Users", href: "/admin/users" },
+                { label: "Observations", href: "/admin/observations" },
               ],
             },
             {
               title: "System Settings",
               items: [
-                { label: "Organizations" },
-                { label: "Facilities" },
-                { label: "Departments" },
-                { label: "Configuration" },
+                { label: "Organizations", href: "/admin/organizations" },
+                { label: "Facilities", href: "/admin/facilities" },
+                { label: "Departments", href: "/admin/departments" },
+                { label: "Areas", href: "/admin/areas" },
               ],
             },
             {
-              title: "Maintenance",
+              title: "Standards & Process",
               items: [
-                { label: "System Logs" },
-                { label: "Data Backup" },
-                { label: "Database Tools" },
+                { label: "Standards", href: "/admin/standards" },
+                { label: "Delay Reasons", href: "/admin/delay-reasons" },
               ],
             },
           ]}

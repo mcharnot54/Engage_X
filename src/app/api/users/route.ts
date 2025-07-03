@@ -6,23 +6,22 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const employeeId = searchParams.get("employeeId");
 
-    if (!employeeId) {
-      return NextResponse.json(
-        { error: "Employee ID is required" },
-        { status: 400 },
-      );
+    if (employeeId) {
+      const user = await getUserByEmployeeId(employeeId);
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+      return NextResponse.json(user);
+    } else {
+      // Get all users
+      const { getUsers } = await import("@/lib/db-operations");
+      const users = await getUsers();
+      return NextResponse.json(users);
     }
-
-    const user = await getUserByEmployeeId(employeeId);
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(user);
   } catch (error) {
-    console.error("Error fetching user:", error);
+    console.error("Error fetching user(s):", error);
     return NextResponse.json(
-      { error: "Failed to fetch user" },
+      { error: "Failed to fetch user(s)" },
       { status: 500 },
     );
   }
