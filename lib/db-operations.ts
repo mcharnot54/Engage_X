@@ -637,7 +637,11 @@ export async function getObservationsByStandard(standardId: number) {
       user: true,
       standard: {
         include: {
-          facility: true,
+          facility: {
+            include: {
+              organization: true,
+            },
+          },
           department: true,
           area: true,
         },
