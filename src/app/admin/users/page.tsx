@@ -3,26 +3,54 @@
 import { useState, useEffect } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
+import { UserManagementModal } from "@/components/UserManagementModal";
+import { ExternalSyncModal } from "@/components/ExternalSyncModal";
 
 interface User {
   id: string;
   employeeId: string;
+  employeeNumber?: string;
   name: string;
   email?: string;
   department?: string;
   role?: string;
+  roleId?: string;
+  isActive: boolean;
+  externalSource?: string;
+  lastSyncAt?: string;
   createdAt: string;
   updatedAt: string;
+  userRole?: {
+    id: string;
+    name: string;
+    description?: string;
+  };
 }
 
 export default function UsersAdminPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterActive, setFilterActive] = useState<
+    "all" | "active" | "inactive"
+  >("all");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    filterUsers();
+  }, [users, searchTerm, filterActive]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -41,6 +69,107 @@ export default function UsersAdminPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const filterUsers = () => {
+    let filtered = users;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.department?.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    }
+
+    // Active/Inactive filter
+    if (filterActive !== "all") {
+      filtered = filtered.filter((user) =>
+        filterActive === "active" ? user.isActive : !user.isActive,
+      );
+    }
+
+    setFilteredUsers(filtered);
+  };
+
+  const handleCreateUser = () => {
+    setSelectedUser(null);
+    setModalMode("create");
+    setIsModalOpen(true);
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setModalMode("edit");
+    setIsModalOpen(true);
+  };
+
+  const handleSaveUser = async (userData: any) => {
+    try {
+      let response;
+
+      if (modalMode === "create") {
+        response = await fetch("/api/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        });
+      } else {
+        response = await fetch(`/api/users/${selectedUser?.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        });
+      }
+
+      if (response.ok) {
+        await fetchUsers();
+        setIsModalOpen(false);
+      } else {
+        throw new Error("Failed to save user");
+      }
+    } catch (error) {
+      console.error("Error saving user:", error);
+      throw error;
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        await fetchUsers();
+        setShowDeleteConfirm(null);
+      } else {
+        throw new Error("Failed to delete user");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      setError("Failed to delete user");
+    }
+  };
+
+  const handleExternalSync = async (source: string) => {
+    await fetchUsers();
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatDateTime = (dateString?: string) => {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleString();
   };
 
   return (
@@ -89,7 +218,7 @@ export default function UsersAdminPage() {
                 User Management
               </h1>
               <p className="text-gray-600 mt-1">
-                Manage system users and their access
+                Manage system users, roles, and external integrations
               </p>
             </div>
             <a
@@ -107,23 +236,77 @@ export default function UsersAdminPage() {
           )}
 
           <div className="bg-gray-100 rounded-lg p-6 border border-gray-300">
+            {/* Header and Controls */}
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-800">
                 System Users
               </h3>
-              <div className="text-sm text-gray-600">
-                Total Users: {users.length}
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setIsSyncModalOpen(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  🔄 External Sync
+                </button>
+                <button
+                  onClick={handleCreateUser}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  + Add User
+                </button>
               </div>
             </div>
 
+            {/* Search and Filter Controls */}
+            <div className="flex space-x-4 mb-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Search users by name, employee ID, email, or department..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+              <select
+                value={filterActive}
+                onChange={(e) =>
+                  setFilterActive(
+                    e.target.value as "all" | "active" | "inactive",
+                  )
+                }
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                <option value="all">All Users</option>
+                <option value="active">Active Only</option>
+                <option value="inactive">Inactive Only</option>
+              </select>
+            </div>
+
+            {/* Stats */}
+            <div className="flex justify-between items-center mb-4 text-sm text-gray-600">
+              <div>
+                Showing {filteredUsers.length} of {users.length} users
+              </div>
+              <div className="flex space-x-4">
+                <span>Active: {users.filter((u) => u.isActive).length}</span>
+                <span>Inactive: {users.filter((u) => !u.isActive).length}</span>
+                <span>
+                  External: {users.filter((u) => u.externalSource).length}
+                </span>
+              </div>
+            </div>
+
+            {/* Users Table */}
             {isLoading ? (
               <div className="text-center py-8 text-gray-500">
                 Loading users...
               </div>
-            ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No users found. Users are created automatically when they first
-                use the system.
+                {searchTerm || filterActive !== "all"
+                  ? "No users match your search criteria."
+                  : "No users found. Add users manually or sync from external sources."}
               </div>
             ) : (
               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -133,6 +316,9 @@ export default function UsersAdminPage() {
                       <tr>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Employee ID
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Employee #
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Name
@@ -147,15 +333,24 @@ export default function UsersAdminPage() {
                           Role
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                          Created
+                          Status
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Source
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Actions
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {users.map((user) => (
+                      {filteredUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm font-medium text-gray-900">
                             {user.employeeId}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            {user.employeeNumber || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900">
                             {user.name}
@@ -167,10 +362,51 @@ export default function UsersAdminPage() {
                             {user.department || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {user.role || "—"}
+                            {user.userRole?.name || user.role || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                user.isActive
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {user.isActive ? "Active" : "Inactive"}
+                            </span>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {new Date(user.createdAt).toLocaleDateString()}
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs rounded-full ${
+                                user.externalSource
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {user.externalSource === "active_directory"
+                                ? "AD"
+                                : user.externalSource === "sailpoint"
+                                  ? "SP"
+                                  : user.externalSource || "Manual"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleEditUser(user)}
+                                className="text-blue-600 hover:text-blue-800 transition-colors"
+                                title="Edit user"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                onClick={() => setShowDeleteConfirm(user.id)}
+                                className="text-red-600 hover:text-red-800 transition-colors"
+                                title="Delete user"
+                              >
+                                🗑️
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -182,6 +418,53 @@ export default function UsersAdminPage() {
           </div>
         </main>
       </div>
+
+      {/* User Management Modal */}
+      <UserManagementModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveUser}
+        user={selectedUser}
+        mode={modalMode}
+      />
+
+      {/* External Sync Modal */}
+      <ExternalSyncModal
+        isOpen={isSyncModalOpen}
+        onClose={() => setIsSyncModalOpen(false)}
+        onSync={handleExternalSync}
+      />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Delete User
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this user? This action cannot be
+                undone.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(null)}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteUser(showDeleteConfirm)}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
