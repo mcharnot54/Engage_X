@@ -8,8 +8,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { source, filters } = body;
 
-    let syncedUsers: any[] = [];
-    let errors: string[] = [];
+    const syncedUsers: any[] = [];
+    const errors: string[] = [];
 
     if (source === "active_directory" || source === "all") {
       try {
