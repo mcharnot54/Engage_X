@@ -6,6 +6,7 @@ import { useUser, UserButton } from "@stackframe/stack";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 import ProtectedRoute from "../../../components/ProtectedRoute";
+export const dynamic = "force-dynamic";
 
 interface SystemStats {
   totalUsers: number;
