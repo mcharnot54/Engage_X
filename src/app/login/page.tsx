@@ -97,7 +97,7 @@ export default function PhoenixPGSLogin() {
 
                 {/* Stack Auth Sign In Component */}
                 <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-lg">
-                  <SignIn />
+                  <StackSignInWrapper />
                 </div>
 
                 {/* Footer */}
