@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes
-  const publicRoutes = ["/login", "/handler", "/api/public"];
+  const publicRoutes = ["/", "/login", "/handler", "/api/public"];
   const isPublicRoute = publicRoutes.some((route) =>
     pathname.startsWith(route),
   );
