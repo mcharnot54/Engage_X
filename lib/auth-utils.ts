@@ -5,7 +5,7 @@ export async function syncUserWithDatabase(stackUser: any) {
   try {
     // Check if user already exists in our database
     let dbUser = await prisma.user.findUnique({
-      where: { email: stackUser.primaryEmail || stackUser.id },
+      where: { id: stackUser.id },
       include: { userRole: true },
     });
 
