@@ -1008,7 +1008,7 @@ export default function GazeObservationApp() {
   const getTagColor = (
     tag: string,
     isActive: boolean,
-    isCurrentlyInUse: boolean = false,
+    isCurrentlyInUse = false,
     rowTags: string[] = [],
   ) => {
     // Only highlight gold if this tag is in the currently highlighted group
@@ -1020,7 +1020,7 @@ export default function GazeObservationApp() {
     const tagGroupColor = getTagGroupColor(rowTags);
 
     // Create a single consistent color mapping that we'll use with different opacities
-    const getConsistentTagColors = (reducedOpacity: boolean = false) => {
+    const getConsistentTagColors = (reducedOpacity = false) => {
       if (!tagGroupColor || !rowTags.length) {
         return reducedOpacity
           ? "bg-gray-100 text-gray-600 border-gray-200 opacity-60"
