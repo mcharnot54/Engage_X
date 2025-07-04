@@ -1,11 +1,11 @@
 // src/components/builder.tsx
-'use client';
+"use client";
 
 import {
   builder,
   BuilderComponent,
   useIsPreviewing,
-  type BuilderContent,   // ← add this
+  type BuilderContent, // ← add this
 } from "@builder.io/react";
 import { useEffect, useState } from "react";
 
@@ -14,8 +14,6 @@ if (typeof window !== "undefined" && !builder.apiKey) {
   const key = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
   if (key) {
     builder.init(key);
-  } else {
-    console.warn("NEXT_PUBLIC_BUILDER_API_KEY is missing");
   }
 }
 
