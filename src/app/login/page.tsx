@@ -3,6 +3,30 @@
 import { SignIn, useStackApp } from "@stackframe/stack";
 import { useEffect, useState } from "react";
 
+function StackSignInWrapper() {
+  try {
+    const stackApp = useStackApp();
+    if (!stackApp) {
+      return (
+        <div className="text-center p-4">
+          <p className="text-red-600">
+            Stack Auth is not properly initialized.
+          </p>
+        </div>
+      );
+    }
+    return <SignIn />;
+  } catch (error) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-red-600">
+          Unable to load authentication. Please check your configuration.
+        </p>
+      </div>
+    );
+  }
+}
+
 export default function PhoenixPGSLogin() {
   const [isStackConfigured, setIsStackConfigured] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
