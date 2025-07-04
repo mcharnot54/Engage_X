@@ -46,21 +46,18 @@ export default function RootLayout({
             <StackTheme>{children}</StackTheme>
           </StackProvider>
         ) : (
-          <StackProvider app={stackServerApp}>
-            <StackTheme>
-              {!process.env.NODE_ENV ||
-              process.env.NODE_ENV === "development" ? (
-                <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
-                  <p className="font-bold">Development Mode</p>
-                  <p>
-                    Stack Auth is not configured. Please set up your environment
-                    variables in .env.local
-                  </p>
-                </div>
-              ) : null}
-              {children}
-            </StackTheme>
-          </StackProvider>
+          <div>
+            {!process.env.NODE_ENV || process.env.NODE_ENV === "development" ? (
+              <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+                <p className="font-bold">Development Mode</p>
+                <p>
+                  Stack Auth is not configured. Please set up your environment
+                  variables in .env.local
+                </p>
+              </div>
+            ) : null}
+            {children}
+          </div>
         )}
       </body>
     </html>
