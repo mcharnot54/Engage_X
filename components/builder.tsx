@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   builder,
+  Builder,
   BuilderComponent,
   useIsPreviewing,
-  type BuilderContent,   // ← add this
-} from "@builder.io/react"
+  type BuilderContent,
+} from "@builder.io/react";
 
-import { Button } from './ui/Button';
-import { Card } from './ui/Card';
+import { Button } from "./ui/Button";
+import { Card } from "./ui/Card";
 
 /* 1 ▸ Initialise the SDK only when the key exists */
 const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
@@ -18,41 +19,56 @@ if (apiKey) {
   builder.init(apiKey);
 } else {
   console.warn(
-    'NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will not load.',
+    "NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will not load.",
   );
 }
 
 /* 2 ▸ Register custom components once */
 export function registerBuilderComponents(): void {
   Builder.registerComponent(Button, {
-    name: 'Button',
+    name: "Button",
     inputs: [
-      { name: 'text', type: 'string', defaultValue: 'Click me' },
+      { name: "text", type: "string", defaultValue: "Click me" },
       {
-        name: 'variant',
-        type: 'enum',
-        enum: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
-        defaultValue: 'default',
+        name: "variant",
+        type: "enum",
+        enum: [
+          "default",
+          "destructive",
+          "outline",
+          "secondary",
+          "ghost",
+          "link",
+        ],
+        defaultValue: "default",
       },
       {
-        name: 'size',
-        type: 'enum',
-        enum: ['default', 'sm', 'lg', 'icon'],
-        defaultValue: 'default',
+        name: "size",
+        type: "enum",
+        enum: ["default", "sm", "lg", "icon"],
+        defaultValue: "default",
       },
     ],
   });
 
   Builder.registerComponent(Card, {
-    name: 'Card',
+    name: "Card",
     inputs: [
-      { name: 'title', type: 'string', defaultValue: 'Card Title' },
-      { name: 'description', type: 'string', defaultValue: 'Card description goes here' },
-      { name: 'image', type: 'url', defaultValue: 'https://placehold.co/600x400' },
-      { name: 'buttonText', type: 'string', defaultValue: 'Learn More' },
-      { name: 'buttonLink', type: 'string', defaultValue: '#' },
-      { name: 'elevation', type: 'number', defaultValue: 1 },
-      { name: 'className', type: 'string', defaultValue: '' },
+      { name: "title", type: "string", defaultValue: "Card Title" },
+      {
+        name: "description",
+        type: "string",
+        defaultValue: "Card description goes here",
+      },
+      {
+        name: "image",
+        type: "url",
+        defaultValue: "https://placehold.co/600x400",
+      },
+      { name: "buttonText", type: "string", defaultValue: "Learn More" },
+      { name: "buttonLink", type: "string", defaultValue: "#" },
+      { name: "elevation", type: "number", defaultValue: 1 },
+      { name: "className", type: "string", defaultValue: "" },
     ],
   });
 }
@@ -62,10 +78,10 @@ export default function BuilderContentComponent(props: {
   model?: string;
   entry?: string;
 }) {
-  const { model = 'page', entry } = props;
+  const { model = "page", entry } = props;
 
   // explicit, safe type instead of `any`
-  const [content, setContent] = useState<BuilderContentType | null>(null);
+  const [content, setContent] = useState<BuilderContent | null>(null);
 
   useEffect(() => {
     if (!entry) return;
@@ -74,7 +90,7 @@ export default function BuilderContentComponent(props: {
       .get(model, { entry })
       .toPromise()
       .then(setContent)
-      .catch((err) => console.error('Builder fetch error:', err));
+      .catch((err) => console.error("Builder fetch error:", err));
   }, [model, entry]);
 
   if (!content) return <div>Loading…</div>;
@@ -84,13 +100,8 @@ export default function BuilderContentComponent(props: {
     content && content.data === null
       ? { ...content, data: undefined }
       : content === null
-      ? undefined
-      : content;
+        ? undefined
+        : content;
 
-  return (
-    <BuilderComponent
-      model={model}
-      content={safeContent}
-    />
-  );
+  return <BuilderComponent model={model} content={safeContent} />;
 }
