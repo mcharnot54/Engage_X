@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useUser, UserButton } from "@stackframe/stack";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
-import ProtectedRoute from "../../../components/ProtectedRoute";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
 export const dynamic = "force-dynamic";
 
 interface SystemStats {
@@ -47,6 +48,7 @@ export default function AdminPage() {
       setIsLoading(false);
     }
   };
+
   return (
     <ProtectedRoute requiredPermission={{ module: "admin", action: "read" }}>
       <div className="min-h-screen bg-gray-50">
