@@ -1,8 +1,57 @@
 "use client";
 
-import { SignIn } from "@stackframe/stack";
+import { SignIn, useStackApp } from "@stackframe/stack";
+import { useEffect, useState } from "react";
 
 export default function PhoenixPGSLogin() {
+  const [isStackConfigured, setIsStackConfigured] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if Stack Auth is properly configured
+    const hasRequiredEnvVars =
+      process.env.NEXT_PUBLIC_STACK_PROJECT_ID &&
+      process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY &&
+      process.env.NEXT_PUBLIC_STACK_PROJECT_ID !== "st_proj_placeholder" &&
+      process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY !== "pk_placeholder";
+
+    setIsStackConfigured(!!hasRequiredEnvVars);
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isStackConfigured) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="max-w-md mx-auto text-center p-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-red-800 mb-4">
+              Authentication Not Configured
+            </h2>
+            <p className="text-red-600 mb-4">
+              Stack Auth environment variables are missing or invalid. Please
+              configure the following in your .env.local file:
+            </p>
+            <ul className="text-left text-sm text-red-600 space-y-1">
+              <li>• NEXT_PUBLIC_STACK_PROJECT_ID</li>
+              <li>• NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY</li>
+              <li>• STACK_SECRET_SERVER_KEY</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="text-gray-300 bg-black min-h-screen">
       <div className="bg-white flex flex-col min-h-screen">
