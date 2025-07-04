@@ -80,7 +80,7 @@ export default function BuilderContent(props: {
   const { model = "page", entry } = props;
 
   //  ✨  explicit type instead of “any”
-  const [content, setContent] = useState<BuilderContentType | null>(null);
+  const [content, setContent] = useState<BuilderContent | null>(null);
 
   useEffect(() => {
     if (!entry) return;
