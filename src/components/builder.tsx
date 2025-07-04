@@ -35,6 +35,9 @@ export function RenderBuilderContent({
   const isPreviewing = useIsPreviewing();
   const [hydrated, setHydrated] = useState(false);
 
+  // Don't render anything if no API key is configured
+  if (!builder.apiKey) return null;
+
   // Ensure we only render <BuilderComponent> after hydration to avoid
   // a React hydration mismatch in the browser.
   useEffect(() => setHydrated(true), []);
