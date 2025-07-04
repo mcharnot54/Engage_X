@@ -1,81 +1,38 @@
 "use client";
 
-import { SignIn, useStackApp } from "@stackframe/stack";
+import { SignIn } from "@stackframe/stack";
 import { useEffect, useState } from "react";
 
-function StackSignInWrapper() {
-  try {
-    const stackApp = useStackApp();
-    if (!stackApp) {
-      return (
-        <div className="text-center p-4">
-          <p className="text-red-600">
-            Stack Auth is not properly initialized.
-          </p>
-        </div>
-      );
-    }
-    return <SignIn />;
-  } catch (error) {
-    return (
-      <div className="text-center p-4">
-        <p className="text-red-600">
-          Unable to load authentication. Please check your configuration.
-        </p>
-      </div>
-    );
-  }
-}
-
 export default function PhoenixPGSLogin() {
-  const [isStackConfigured, setIsStackConfigured] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isConfigured, setIsConfigured] = useState(true); // Default to true to avoid flash
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    // Check if Stack Auth is properly configured
-    const hasRequiredEnvVars =
-      process.env.NEXT_PUBLIC_STACK_PROJECT_ID &&
-      process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY &&
-      process.env.NEXT_PUBLIC_STACK_PROJECT_ID !== "st_proj_placeholder" &&
-      process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY !== "pk_placeholder";
+    // Only check configuration client-side to avoid SSR issues
+    const checkConfig = () => {
+      try {
+        const hasRequiredEnvVars =
+          process.env.NEXT_PUBLIC_STACK_PROJECT_ID &&
+          process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY &&
+          process.env.NEXT_PUBLIC_STACK_PROJECT_ID !== "st_proj_placeholder" &&
+          process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY !==
+            "pk_placeholder";
 
-    setIsStackConfigured(!!hasRequiredEnvVars);
-    setIsLoading(false);
+        if (!hasRequiredEnvVars) {
+          setIsConfigured(false);
+          setShowError(true);
+        }
+      } catch (error) {
+        setIsConfigured(false);
+        setShowError(true);
+      }
+    };
+
+    // Small delay to avoid flash
+    const timer = setTimeout(checkConfig, 100);
+    return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isStackConfigured) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="max-w-md mx-auto text-center p-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-red-800 mb-4">
-              Authentication Not Configured
-            </h2>
-            <p className="text-red-600 mb-4">
-              Stack Auth environment variables are missing or invalid. Please
-              configure the following in your .env.local file:
-            </p>
-            <ul className="text-left text-sm text-red-600 space-y-1">
-              <li>• NEXT_PUBLIC_STACK_PROJECT_ID</li>
-              <li>• NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY</li>
-              <li>• STACK_SECRET_SERVER_KEY</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="text-gray-300 bg-black min-h-screen">
       <div className="bg-white flex flex-col min-h-screen">
@@ -119,9 +76,33 @@ export default function PhoenixPGSLogin() {
                   </p>
                 </div>
 
-                {/* Stack Auth Sign In Component */}
+                {/* Login Content */}
                 <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-lg">
-                  <StackSignInWrapper />
+                  {showError ? (
+                    <div className="text-center">
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                        <h2 className="text-lg font-semibold text-red-800 mb-4">
+                          Authentication Not Configured
+                        </h2>
+                        <p className="text-red-600 mb-4">
+                          Stack Auth environment variables are missing. Please
+                          configure:
+                        </p>
+                        <ul className="text-left text-sm text-red-600 space-y-1">
+                          <li>• NEXT_PUBLIC_STACK_PROJECT_ID</li>
+                          <li>• NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY</li>
+                          <li>• STACK_SECRET_SERVER_KEY</li>
+                        </ul>
+                      </div>
+                    </div>
+                  ) : isConfigured ? (
+                    <StackSignInWrapper />
+                  ) : (
+                    <div className="text-center p-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                      <p className="mt-2 text-gray-600">Loading...</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Footer */}
@@ -137,4 +118,20 @@ export default function PhoenixPGSLogin() {
       </div>
     </div>
   );
+}
+
+function StackSignInWrapper() {
+  try {
+    return <SignIn />;
+  } catch (error) {
+    return (
+      <div className="text-center p-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <p className="text-yellow-800">
+            Unable to load authentication component. Please refresh the page.
+          </p>
+        </div>
+      </div>
+    );
+  }
 }
