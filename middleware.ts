@@ -14,6 +14,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // If Stack Auth is not configured, allow access (dev mode)
+  if (!stackServerApp) {
+    console.warn(
+      "Stack Auth not configured - allowing all access for development",
+    );
+    return NextResponse.next();
+  }
+
   // Check authentication for protected routes
   const user = await stackServerApp.getUser({ or: "return-undefined" });
 
