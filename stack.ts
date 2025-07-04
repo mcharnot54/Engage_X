@@ -9,8 +9,11 @@ const hasRequiredEnvVars =
   process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY !== "pk_placeholder" &&
   process.env.STACK_SECRET_SERVER_KEY !== "sk_placeholder";
 
-export const stackServerApp = hasRequiredEnvVars
-  ? new StackServerApp({
+let stackServerApp: StackServerApp | null = null;
+
+try {
+  if (hasRequiredEnvVars) {
+    stackServerApp = new StackServerApp({
       tokenStore: "nextjs-cookie",
       projectId: process.env.NEXT_PUBLIC_STACK_PROJECT_ID!,
       publishableClientKey:
@@ -22,5 +25,11 @@ export const stackServerApp = hasRequiredEnvVars
         afterSignIn: "/observation-form",
         afterSignUp: "/observation-form",
       },
-    })
-  : null;
+    });
+  }
+} catch (error) {
+  console.warn("Stack Auth initialization failed:", error);
+  stackServerApp = null;
+}
+
+export { stackServerApp };
