@@ -41,24 +41,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} antialiased`}
       >
-        {stackServerApp ? (
-          <StackProvider app={stackServerApp}>
-            <StackTheme>{children}</StackTheme>
-          </StackProvider>
-        ) : (
-          <div>
-            {!process.env.NODE_ENV || process.env.NODE_ENV === "development" ? (
-              <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
-                <p className="font-bold">Development Mode</p>
-                <p>
-                  Stack Auth is not configured. Please set up your environment
-                  variables in .env.local
-                </p>
-              </div>
-            ) : null}
-            {children}
+        <div>
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+            <p className="font-bold">Development Mode</p>
+            <p>
+              Stack Auth is temporarily disabled for debugging. Please set up
+              your environment variables in .env.local
+            </p>
           </div>
-        )}
+          {children}
+        </div>
       </body>
     </html>
   );
