@@ -22,6 +22,7 @@ const config = {
       fontFamily: {
         sans: ["var(--font-poppins)", "ui-sans-serif", "system-ui"],
         poppins: ["var(--font-poppins)"],
+        montserrat: ["var(--font-montserrat)"],
       },
       colors: {
         border: "hsl(var(--border))",

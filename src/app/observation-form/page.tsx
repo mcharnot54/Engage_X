@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { Banner } from "@/components/ui/Banner";
+import { Sidebar } from "@/components/Sidebar";
 
 type Row = {
   id: number;
@@ -47,6 +49,16 @@ export default function GazeObservationApp() {
   const [selectedStandardData, setSelectedStandardData] =
     useState<Standard | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Temporary quantity inputs for each row
+  const [tempQuantities, setTempQuantities] = useState<Record<number, number>>(
+    {},
+  );
+
+  // Track submitted quantities separately from ticker quantities
+  const [submittedQuantities, setSubmittedQuantities] = useState<
+    Record<number, number>
+  >({});
   const [error, setError] = useState("");
 
   // Observation tracking
@@ -65,6 +77,9 @@ export default function GazeObservationApp() {
   const [selectedArea, setSelectedArea] = useState("");
   const [observedPerformance, setObservedPerformance] = useState(0);
   const [isFinalized, setIsFinalized] = useState(false);
+  const [isPumpAssessmentActive, setIsPumpAssessmentActive] = useState(false);
+  const [showPumpFinalizationModal, setShowPumpFinalizationModal] =
+    useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
@@ -95,6 +110,9 @@ export default function GazeObservationApp() {
   const [delayStartTime, setDelayStartTime] = useState<number | null>(null);
   const [delayReason, setDelayReason] = useState("");
   const [delays, setDelays] = useState<Delay[]>([]);
+  const [delayReasons, setDelayReasons] = useState<
+    { id: string; name: string; description?: string }[]
+  >([]);
 
   // Best practices and process adherence
   const [bestPracticesChecked, setBestPracticesChecked] = useState<string[]>(
@@ -111,12 +129,57 @@ export default function GazeObservationApp() {
   // Dynamic grouping state
   const [activeRowIds, setActiveRowIds] = useState<Set<number>>(new Set());
   const [isDynamicGroupingActive, setIsDynamicGroupingActive] = useState(false);
+  const [highlightedTagGroup, setHighlightedTagGroup] = useState<Set<string>>(
+    new Set(),
+  );
+
+  // Pastel colors for tag group differentiation
+  const pastelColors = [
+    { bg: "bg-rose-50", border: "border-l-rose-200", text: "text-rose-700" },
+    { bg: "bg-blue-50", border: "border-l-blue-200", text: "text-blue-700" },
+    { bg: "bg-green-50", border: "border-l-green-200", text: "text-green-700" },
+    {
+      bg: "bg-purple-50",
+      border: "border-l-purple-200",
+      text: "text-purple-700",
+    },
+    {
+      bg: "bg-indigo-50",
+      border: "border-l-indigo-200",
+      text: "text-indigo-700",
+    },
+    { bg: "bg-pink-50", border: "border-l-pink-200", text: "text-pink-700" },
+    { bg: "bg-cyan-50", border: "border-l-cyan-200", text: "text-cyan-700" },
+    { bg: "bg-amber-50", border: "border-l-amber-200", text: "text-amber-700" },
+    {
+      bg: "bg-emerald-50",
+      border: "border-l-emerald-200",
+      text: "text-emerald-700",
+    },
+    {
+      bg: "bg-violet-50",
+      border: "border-l-violet-200",
+      text: "text-violet-700",
+    },
+  ];
+
+  // Helper function to get tag group color
+  const getTagGroupColor = useCallback((tags: string[]) => {
+    if (!tags || tags.length === 0) return null;
+    // Use the first tag to determine group identity, create a simple hash
+    const firstTag = tags[0];
+    const hash = firstTag.split("").reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    const colorIndex = Math.abs(hash) % pastelColors.length;
+    return pastelColors[colorIndex];
+  }, []);
 
   // UI state
   const [showPreviousObservations, setShowPreviousObservations] =
     useState(false);
   const [showReasonInstructions, setShowReasonInstructions] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
@@ -157,6 +220,21 @@ export default function GazeObservationApp() {
     },
   };
 
+  // Helper function to sync active row IDs based on quantities
+  const syncActiveRowIds = useCallback(() => {
+    const newActiveRowIds = new Set<number>();
+    rows.forEach((row) => {
+      const hasTickerQuantity = row.quantity > 0;
+      const hasSubmittedQuantity = (submittedQuantities[row.id] || 0) > 0;
+      if (hasTickerQuantity || hasSubmittedQuantity) {
+        newActiveRowIds.add(row.id);
+      }
+    });
+
+    setActiveRowIds(newActiveRowIds);
+    setIsDynamicGroupingActive(newActiveRowIds.size > 0);
+  }, [rows, submittedQuantities]);
+
   // Smart UOM grouping logic
   const getActiveTagsForRows = useCallback(
     (activeIds: Set<number>) => {
@@ -187,40 +265,79 @@ export default function GazeObservationApp() {
     [rows, getActiveTagsForRows],
   );
 
-  // Dynamic row ordering based on active state and tags
+  // Enhanced dynamic row ordering with highlighted tag group prioritization
   const organizedRows = useMemo(() => {
+    // If we have a highlighted tag group, prioritize those rows
+    if (highlightedTagGroup.size > 0) {
+      const highlightedGroupRows: Row[] = [];
+      const otherRows: Row[] = [];
+
+      rows.forEach((row) => {
+        const hasHighlightedTag = row.tags?.some((tag) =>
+          highlightedTagGroup.has(tag),
+        );
+        if (hasHighlightedTag) {
+          highlightedGroupRows.push(row);
+        } else {
+          otherRows.push(row);
+        }
+      });
+
+      // Sort highlighted group rows by original index
+      highlightedGroupRows.sort((a, b) => a.originalIndex - b.originalIndex);
+      otherRows.sort((a, b) => a.originalIndex - b.originalIndex);
+
+      return [...highlightedGroupRows, ...otherRows];
+    }
+
     if (!isDynamicGroupingActive || activeRowIds.size === 0) {
       // Return original order when not actively grouping
       return originalRowOrder.length > 0 ? originalRowOrder : rows;
     }
 
+    const activeTags = getActiveTagsForRows(activeRowIds);
     const rowsWithSharedTags = getRowsWithSharedTags(activeRowIds);
-    const activeGroupedRows: Row[] = [];
+
+    // Categorize rows based on their relationship to active tags
+    const currentlyActiveRows: Row[] = []; // Rows that are actively being modified
+    const activeTagGroupRows: Row[] = []; // Rows in the same tag group as active rows
     const inactiveRows: Row[] = [];
 
     rows.forEach((row) => {
-      if (rowsWithSharedTags.has(row.id)) {
-        activeGroupedRows.push(row);
+      if (activeRowIds.has(row.id)) {
+        // Currently active rows (being modified) go to the very top
+        currentlyActiveRows.push(row);
+      } else if (
+        rowsWithSharedTags.has(row.id) &&
+        row.tags?.some((tag) => activeTags.has(tag))
+      ) {
+        // Rows with shared tags in the active group go next
+        activeTagGroupRows.push(row);
       } else {
+        // All other rows go to the bottom
         inactiveRows.push(row);
       }
     });
 
-    // Sort active grouped rows by their shared tags for better organization
-    activeGroupedRows.sort((a, b) => {
-      const aHasActiveTags = a.tags?.some((tag) =>
-        getActiveTagsForRows(activeRowIds).has(tag),
-      );
-      const bHasActiveTags = b.tags?.some((tag) =>
-        getActiveTagsForRows(activeRowIds).has(tag),
-      );
+    // Sort each category for better organization
+    const sortByTagPriority = (a: Row, b: Row) => {
+      const aActiveTagCount =
+        a.tags?.filter((tag) => activeTags.has(tag)).length || 0;
+      const bActiveTagCount =
+        b.tags?.filter((tag) => activeTags.has(tag)).length || 0;
 
-      if (aHasActiveTags && !bHasActiveTags) return -1;
-      if (!aHasActiveTags && bHasActiveTags) return 1;
+      // Prioritize by number of matching active tags, then by original order
+      if (aActiveTagCount !== bActiveTagCount) {
+        return bActiveTagCount - aActiveTagCount;
+      }
       return a.originalIndex - b.originalIndex;
-    });
+    };
 
-    return [...activeGroupedRows, ...inactiveRows];
+    currentlyActiveRows.sort(sortByTagPriority);
+    activeTagGroupRows.sort(sortByTagPriority);
+    inactiveRows.sort((a, b) => a.originalIndex - b.originalIndex);
+
+    return [...currentlyActiveRows, ...activeTagGroupRows, ...inactiveRows];
   }, [
     rows,
     originalRowOrder,
@@ -228,6 +345,7 @@ export default function GazeObservationApp() {
     isDynamicGroupingActive,
     getRowsWithSharedTags,
     getActiveTagsForRows,
+    highlightedTagGroup,
   ]);
 
   // Helper functions for multi-level dropdown
@@ -292,6 +410,10 @@ export default function GazeObservationApp() {
     setSelectedDepartment("");
     setSelectedArea("");
     setShowStandardDropdown(false);
+    // Clear highlighted tag group when standard is changed
+    setHighlightedTagGroup(new Set());
+    setActiveRowIds(new Set());
+    setIsDynamicGroupingActive(false);
   };
 
   const getSelectedStandardDisplay = () => {
@@ -305,18 +427,65 @@ export default function GazeObservationApp() {
   };
 
   // Database operations via API
-  const loadStandards = async () => {
+  const loadStandards = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/standards");
+      const timeoutId = setTimeout(() => {
+        if (!signal?.aborted) {
+          console.warn("Standards request timed out after 10 seconds");
+        }
+      }, 10000);
+
+      const response = await fetch("/api/standards", {
+        signal: signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error("Failed to fetch standards");
+        const errorData = await response.json().catch(() => ({}));
+        if (
+          errorData.error &&
+          errorData.error.includes("Database connection failed")
+        ) {
+          throw new Error(
+            "Database not configured. Please check your DATABASE_URL environment variable.",
+          );
+        }
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to fetch standards`,
+        );
       }
       const data = await response.json();
       setStandards(data);
+      setError(""); // Clear any previous errors
     } catch (error) {
+      // Don't show errors for aborted requests during component unmount
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!signal?.aborted) {
+          console.warn("Standards request was aborted");
+        }
+        return; // Silently return for component unmount
+      }
+
       console.error("Error loading standards:", error);
-      setError("Failed to load standards");
+      let errorMessage = "Failed to load standards";
+
+      if (error instanceof Error) {
+        if (error.message.includes("fetch")) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setError(errorMessage);
+      setStandards([]); // Set empty array as fallback
     } finally {
       setIsLoading(false);
     }
@@ -348,6 +517,7 @@ export default function GazeObservationApp() {
         // Reset dynamic grouping state
         setActiveRowIds(new Set());
         setIsDynamicGroupingActive(false);
+        setHighlightedTagGroup(new Set());
 
         // Reset checkboxes when standard changes
         setBestPracticesChecked([]);
@@ -379,7 +549,8 @@ export default function GazeObservationApp() {
   const stopObservation = () => {
     if (isObserving) {
       setIsObserving(false);
-      setIsFinalized(true);
+      setIsPumpAssessmentActive(true);
+      setShowPumpFinalizationModal(true);
       setObservationEndTime(Date.now());
       if (timerInterval) {
         clearInterval(timerInterval);
@@ -389,7 +560,14 @@ export default function GazeObservationApp() {
       // When observation stops, return to original order
       setIsDynamicGroupingActive(false);
       setActiveRowIds(new Set());
+      setHighlightedTagGroup(new Set());
     }
+  };
+
+  const submitPumpAssessment = () => {
+    setIsPumpAssessmentActive(false);
+    setIsFinalized(true);
+    setShowPumpFinalizationModal(false);
   };
 
   const calculatePerformance = () => {
@@ -397,10 +575,9 @@ export default function GazeObservationApp() {
       const performance = (totalSams / timeObserved) * 100;
       setObservedPerformance(Number(performance.toFixed(2)));
     }
-    // Calculate PUMP score and round to nearest 5% increment
+    // Calculate PUMP score as straight multiplication
     const score = (pace * utilization * methods) / 10000;
-    const roundedScore = Math.round(score / 5) * 5;
-    setPumpScore(roundedScore);
+    setPumpScore(Number(score.toFixed(1)));
   };
 
   const updateQuantity = (id: number, value: number) => {
@@ -411,23 +588,52 @@ export default function GazeObservationApp() {
       return newRows;
     });
 
-    // Handle dynamic grouping logic
-    const newActiveRowIds = new Set(activeRowIds);
-    if (value > 0) {
-      newActiveRowIds.add(id);
-      setIsDynamicGroupingActive(true);
-    } else {
-      newActiveRowIds.delete(id);
-      if (newActiveRowIds.size === 0) {
-        setIsDynamicGroupingActive(false);
-      }
+    // Set highlighted tag group when ticker quantity is used
+    const targetRow = rows.find((row) => row.id === id);
+    if (targetRow && targetRow.tags && targetRow.tags.length > 0) {
+      setHighlightedTagGroup(new Set(targetRow.tags));
     }
-    setActiveRowIds(newActiveRowIds);
+    // Note: Dynamic grouping logic will be handled by the syncActiveRowIds function
+    // in the useEffect that triggers when rows change
+  };
+
+  const updateTempQuantity = (id: number, value: number) => {
+    setTempQuantities((prev) => ({
+      ...prev,
+      [id]: Math.max(0, value),
+    }));
+  };
+
+  const submitTempQuantity = (id: number) => {
+    const tempValue = tempQuantities[id] || 0;
+    if (tempValue > 0) {
+      // Add to submitted quantities (separate from ticker quantities)
+      setSubmittedQuantities((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) + tempValue,
+      }));
+
+      // Clear the temporary input
+      setTempQuantities((prev) => ({
+        ...prev,
+        [id]: 0,
+      }));
+
+      // Set highlighted tag group when enter quantity is used
+      const targetRow = rows.find((row) => row.id === id);
+      if (targetRow && targetRow.tags && targetRow.tags.length > 0) {
+        setHighlightedTagGroup(new Set(targetRow.tags));
+      }
+      // Note: Dynamic grouping logic will be handled by the syncActiveRowIds function
+      // in the useEffect that triggers when submittedQuantities change
+    }
   };
 
   const calculateTotalSams = () => {
     const total = rows.reduce(
-      (sum, row) => sum + row.quantity * row.samValue,
+      (sum, row) =>
+        sum +
+        (row.quantity + (submittedQuantities[row.id] || 0)) * row.samValue,
       0,
     );
     setTotalSams(total);
@@ -435,7 +641,7 @@ export default function GazeObservationApp() {
 
   // Delay timer functionality
   const startDelay = () => {
-    if (!isDelayActive && delayReason) {
+    if (!isDelayActive) {
       setIsDelayActive(true);
       setDelayStartTime(Date.now());
     }
@@ -655,6 +861,7 @@ export default function GazeObservationApp() {
     setOriginalRowOrder([]);
     setActiveRowIds(new Set());
     setIsDynamicGroupingActive(false);
+    setHighlightedTagGroup(new Set());
     setTimeObserved(0);
     setPace(100);
     setUtilization(100);
@@ -684,8 +891,69 @@ export default function GazeObservationApp() {
 
   // Effects
   useEffect(() => {
-    loadStandards();
+    const controller = new AbortController();
+
+    loadStandards(controller.signal);
+    loadDelayReasons(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, []);
+
+  const loadDelayReasons = async (signal?: AbortSignal) => {
+    try {
+      const timeoutId = setTimeout(() => {
+        if (!signal?.aborted) {
+          console.warn("Delay reasons request timed out after 10 seconds");
+        }
+      }, 10000);
+
+      const response = await fetch("/api/delay-reasons", {
+        signal: signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        setDelayReasons(data);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to fetch delay reasons`,
+        );
+      }
+    } catch (error) {
+      // Don't show errors for aborted requests during component unmount
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!signal?.aborted) {
+          console.warn("Delay reasons request was aborted");
+        }
+        return; // Silently return for component unmount
+      }
+
+      console.error("Error loading delay reasons:", error);
+      let errorMessage = "Failed to load delay reasons";
+
+      if (error instanceof Error) {
+        if (error.message.includes("fetch")) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      // Set empty array as fallback and show non-blocking notification
+      setDelayReasons([]);
+      console.warn("Delay reasons could not be loaded:", errorMessage);
+    }
+  };
 
   useEffect(() => {
     if (standard && standards.length > 0) {
@@ -698,7 +966,8 @@ export default function GazeObservationApp() {
 
   useEffect(() => {
     calculateTotalSams();
-  }, [rows]);
+    syncActiveRowIds();
+  }, [rows, submittedQuantities, syncActiveRowIds]);
 
   useEffect(() => {
     calculatePerformance();
@@ -735,59 +1004,135 @@ export default function GazeObservationApp() {
     };
   }, [showStandardDropdown]);
 
-  // Helper function to get tag color
-  const getTagColor = (tag: string, isActive: boolean) => {
+  // Helper function to get tag color with gold highlighting for active use
+  const getTagColor = (
+    tag: string,
+    isActive: boolean,
+    isCurrentlyInUse = false,
+    rowTags: string[] = [],
+  ) => {
+    // Only highlight gold if this tag is in the currently highlighted group
+    if (highlightedTagGroup.has(tag)) {
+      return "bg-yellow-200 text-yellow-800 border-yellow-500 shadow-md font-semibold";
+    }
+
+    // Get the original tag group color for consistent mapping
+    const tagGroupColor = getTagGroupColor(rowTags);
+
+    // Create a single consistent color mapping that we'll use with different opacities
+    const getConsistentTagColors = (reducedOpacity = false) => {
+      if (!tagGroupColor || !rowTags.length) {
+        return reducedOpacity
+          ? "bg-gray-100 text-gray-600 border-gray-200 opacity-60"
+          : "bg-gray-100 text-gray-700 border-gray-300";
+      }
+
+      const baseColorMap: Record<
+        string,
+        { bg: string; text: string; border: string }
+      > = {
+        "bg-rose-50": {
+          bg: "bg-rose-100",
+          text: "text-rose-700",
+          border: "border-rose-300",
+        },
+        "bg-blue-50": {
+          bg: "bg-blue-100",
+          text: "text-blue-700",
+          border: "border-blue-300",
+        },
+        "bg-green-50": {
+          bg: "bg-green-100",
+          text: "text-green-700",
+          border: "border-green-300",
+        },
+        "bg-purple-50": {
+          bg: "bg-purple-100",
+          text: "text-purple-700",
+          border: "border-purple-300",
+        },
+        "bg-indigo-50": {
+          bg: "bg-indigo-100",
+          text: "text-indigo-700",
+          border: "border-indigo-300",
+        },
+        "bg-pink-50": {
+          bg: "bg-pink-100",
+          text: "text-pink-700",
+          border: "border-pink-300",
+        },
+        "bg-cyan-50": {
+          bg: "bg-cyan-100",
+          text: "text-cyan-700",
+          border: "border-cyan-300",
+        },
+        "bg-amber-50": {
+          bg: "bg-amber-100",
+          text: "text-amber-700",
+          border: "border-amber-300",
+        },
+        "bg-emerald-50": {
+          bg: "bg-emerald-100",
+          text: "text-emerald-700",
+          border: "border-emerald-300",
+        },
+        "bg-violet-50": {
+          bg: "bg-violet-100",
+          text: "text-violet-700",
+          border: "border-violet-300",
+        },
+      };
+
+      const colors = baseColorMap[tagGroupColor.bg] || {
+        bg: "bg-gray-100",
+        text: "text-gray-700",
+        border: "border-gray-300",
+      };
+
+      const opacity = reducedOpacity ? " opacity-60" : "";
+      return `${colors.bg} ${colors.text} ${colors.border}${opacity}`;
+    };
+
+    // If there's a highlighted tag group, all other tags should use reduced opacity
+    if (highlightedTagGroup.size > 0) {
+      return getConsistentTagColors(true);
+    }
+
+    // When no group is highlighted, use the original logic with proper state handling
+    if (isCurrentlyInUse && isActive) {
+      return "bg-yellow-200 text-yellow-800 border-yellow-400 shadow-md font-semibold";
+    }
     if (isActive) {
       return "bg-green-100 text-green-700 border-green-300";
     }
-    return "bg-blue-100 text-blue-700 border-blue-300";
+
+    // Use original pastel colors for tag groups (full opacity)
+    return getConsistentTagColors(false);
   };
 
   return (
     <div className="font-poppins text-black bg-gray-100 min-h-screen overflow-x-hidden">
+      <Banner
+        title="Observation Form"
+        subtitle="Complete work sampling observations and performance analysis"
+      />
       <div className="flex flex-col max-w-7xl mx-auto bg-gray-100 min-h-[calc(100vh-80px)] rounded-xl border border-gray-300 mt-5 p-5 overflow-y-auto">
         <div className="flex flex-row h-full">
-          <div
-            className="bg-white border-r border-gray-300 transition-all duration-300 flex flex-col justify-between relative shadow-md"
-            style={{
-              width: isSidebarCollapsed ? "80px" : "300px",
-              padding: isSidebarCollapsed ? "24px 12px" : "24px",
-            }}
-          >
-            <div>
-              <div
-                className="flex items-center gap-3 mb-8"
-                style={{
-                  justifyContent: isSidebarCollapsed ? "center" : "flex-start",
-                }}
-              >
-                <button
-                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                  className="absolute -right-3 top-6 w-6 h-6 rounded-full border border-gray-300 bg-white cursor-pointer flex items-center justify-center transition-transform duration-300"
-                  style={{
-                    transform: isSidebarCollapsed
-                      ? "rotate(180deg)"
-                      : "rotate(0deg)",
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M10 2L4 8L10 14"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-                <span
-                  className="text-xl font-semibold"
-                  style={{ display: isSidebarCollapsed ? "none" : "block" }}
-                >
-                  Gaze Observation
-                </span>
-              </div>
-            </div>
-          </div>
+          <Sidebar
+            showLogo={true}
+            applications={[
+              "Labor.X",
+              "Clock.X",
+              "Engage.X",
+              "Staff.X",
+              "Dash.X",
+              "Report.X",
+              "Incent.X",
+              "Perform.X",
+              "Plan.X",
+            ]}
+            showUserProfile={true}
+          />
 
           <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
             <div className="flex justify-between items-center mb-6">
@@ -805,155 +1150,156 @@ export default function GazeObservationApp() {
               </div>
             )}
 
-            {/* Observation Details */}
+            {/* Observation Overview */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">
-                Observation Details
+                Observation Overview
               </h3>
 
-              {/* Standard Selection - Multi-level Dropdown */}
-              <div className="mb-4 relative standard-dropdown">
-                <button
-                  onClick={() => setShowStandardDropdown(!showStandardDropdown)}
-                  disabled={isObserving}
-                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
-                >
-                  <span className={standard ? "text-black" : "text-gray-500"}>
-                    {getSelectedStandardDisplay()}
-                  </span>
-                  <span
-                    className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+              <div className="grid grid-cols-3 gap-4">
+                {/* Standard Selection - Multi-level Dropdown */}
+                <div className="relative standard-dropdown">
+                  <button
+                    onClick={() =>
+                      setShowStandardDropdown(!showStandardDropdown)
+                    }
+                    disabled={isObserving}
+                    className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
                   >
-                    ▼
-                  </span>
-                </button>
+                    <span className={standard ? "text-black" : "text-gray-500"}>
+                      {getSelectedStandardDisplay()}
+                    </span>
+                    <span
+                      className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+                    >
+                      ▼
+                    </span>
+                  </button>
 
-                {showStandardDropdown && (
-                  <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
-                    <div className="p-4 space-y-4">
-                      {/* Facility Selection */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          1. Select Facility
-                        </label>
-                        <select
-                          value={selectedFacility}
-                          onChange={(e) => {
-                            setSelectedFacility(e.target.value);
-                            setSelectedDepartment("");
-                            setSelectedArea("");
-                            setStandard("");
-                          }}
-                          className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                          <option value="">Choose Facility</option>
-                          {getUniqueFacilities().map((facility) => (
-                            <option key={facility.id} value={facility.name}>
-                              {facility.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Department Selection */}
-                      {selectedFacility && (
+                  {showStandardDropdown && (
+                    <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                      <div className="p-4 space-y-4">
+                        {/* Facility Selection */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            2. Select Department
+                            1. Select Facility
                           </label>
                           <select
-                            value={selectedDepartment}
+                            value={selectedFacility}
                             onChange={(e) => {
-                              setSelectedDepartment(e.target.value);
+                              setSelectedFacility(e.target.value);
+                              setSelectedDepartment("");
                               setSelectedArea("");
                               setStandard("");
                             }}
                             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
-                            <option value="">Choose Department</option>
-                            {getUniqueDepartments(selectedFacility).map(
-                              (dept) => (
-                                <option key={dept.id} value={dept.name}>
-                                  {dept.name}
+                            <option value="">Choose Facility</option>
+                            {getUniqueFacilities().map((facility) => (
+                              <option key={facility.id} value={facility.name}>
+                                {facility.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Department Selection */}
+                        {selectedFacility && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              2. Select Department
+                            </label>
+                            <select
+                              value={selectedDepartment}
+                              onChange={(e) => {
+                                setSelectedDepartment(e.target.value);
+                                setSelectedArea("");
+                                setStandard("");
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Choose Department</option>
+                              {getUniqueDepartments(selectedFacility).map(
+                                (dept) => (
+                                  <option key={dept.id} value={dept.name}>
+                                    {dept.name}
+                                  </option>
+                                ),
+                              )}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Area Selection */}
+                        {selectedDepartment && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              3. Select Area
+                            </label>
+                            <select
+                              value={selectedArea}
+                              onChange={(e) => {
+                                setSelectedArea(e.target.value);
+                                setStandard("");
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Choose Area</option>
+                              {getUniqueAreas(
+                                selectedFacility,
+                                selectedDepartment,
+                              ).map((area) => (
+                                <option key={area.id} value={area.name}>
+                                  {area.name}
                                 </option>
-                              ),
-                            )}
-                          </select>
-                        </div>
-                      )}
+                              ))}
+                            </select>
+                          </div>
+                        )}
 
-                      {/* Area Selection */}
-                      {selectedDepartment && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            3. Select Area
-                          </label>
-                          <select
-                            value={selectedArea}
-                            onChange={(e) => {
-                              setSelectedArea(e.target.value);
-                              setStandard("");
-                            }}
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        {/* Standard Selection */}
+                        {selectedArea && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              4. Select Standard
+                            </label>
+                            <select
+                              value={standard}
+                              onChange={(e) => {
+                                setStandard(e.target.value);
+                                setShowStandardDropdown(false);
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Choose Standard</option>
+                              {getFilteredStandards().map((std) => (
+                                <option key={std.id} value={std.id}>
+                                  {std.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-between pt-3 border-t border-gray-200">
+                          <button
+                            onClick={resetStandardSelection}
+                            className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
                           >
-                            <option value="">Choose Area</option>
-                            {getUniqueAreas(
-                              selectedFacility,
-                              selectedDepartment,
-                            ).map((area) => (
-                              <option key={area.id} value={area.name}>
-                                {area.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-
-                      {/* Standard Selection */}
-                      {selectedArea && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            4. Select Standard
-                          </label>
-                          <select
-                            value={standard}
-                            onChange={(e) => {
-                              setStandard(e.target.value);
-                              setShowStandardDropdown(false);
-                            }}
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            Clear Selection
+                          </button>
+                          <button
+                            onClick={() => setShowStandardDropdown(false)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
                           >
-                            <option value="">Choose Standard</option>
-                            {getFilteredStandards().map((std) => (
-                              <option key={std.id} value={std.id}>
-                                {std.name}
-                              </option>
-                            ))}
-                          </select>
+                            Close
+                          </button>
                         </div>
-                      )}
-
-                      {/* Action Buttons */}
-                      <div className="flex justify-between pt-3 border-t border-gray-200">
-                        <button
-                          onClick={resetStandardSelection}
-                          className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
-                        >
-                          Clear Selection
-                        </button>
-                        <button
-                          onClick={() => setShowStandardDropdown(false)}
-                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                        >
-                          Close
-                        </button>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+                  )}
+                </div>
                 <select
                   value={employeeId}
                   onChange={(e) => {
@@ -991,8 +1337,192 @@ export default function GazeObservationApp() {
               </div>
             </div>
 
+            {/* PUMP Grade Factor */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">
+                  PUMP Grade Factor (%) Assessment
+                </h3>
+                {isPumpAssessmentActive && (
+                  <button
+                    onClick={submitPumpAssessment}
+                    className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-medium"
+                  >
+                    Submit PUMP
+                  </button>
+                )}
+              </div>
+              <div className="flex items-end justify-between w-full">
+                {/* Pace */}
+                <div className="flex-1 text-center">
+                  <label className="block mb-2 font-medium text-center">
+                    Pace
+                  </label>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) || pace <= 5
+                      }
+                      onClick={() => setPace(Math.max(5, pace - 5))}
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="5"
+                      max="200"
+                      step="5"
+                      value={pace}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 100;
+                        setPace(Math.round(value / 5) * 5);
+                      }}
+                      disabled={!isObserving && !isPumpAssessmentActive}
+                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                      style={{ textAlign: "center", margin: "auto" }}
+                    />
+                    <button
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) || pace >= 200
+                      }
+                      onClick={() => setPace(Math.min(200, pace + 5))}
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Multiplication Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  ×
+                </div>
+
+                {/* Utilization */}
+                <div className="flex-1 text-center">
+                  <label className="block mb-2 font-medium text-center">
+                    Utilization
+                  </label>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        utilization <= 5
+                      }
+                      onClick={() =>
+                        setUtilization(Math.max(5, utilization - 5))
+                      }
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="5"
+                      max="100"
+                      step="5"
+                      value={utilization}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 100;
+                        setUtilization(
+                          Math.min(100, Math.round(value / 5) * 5),
+                        );
+                      }}
+                      disabled={!isObserving && !isPumpAssessmentActive}
+                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                      style={{ textAlign: "center", margin: "auto" }}
+                    />
+                    <button
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        utilization >= 100
+                      }
+                      onClick={() =>
+                        setUtilization(Math.min(100, utilization + 5))
+                      }
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Multiplication Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  ×
+                </div>
+
+                {/* Methods and Procedures */}
+                <div className="flex-1 text-center">
+                  <label className="block mb-2 font-medium text-center">
+                    Methods and Procedures
+                  </label>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        methods <= 5
+                      }
+                      onClick={() => setMethods(Math.max(5, methods - 5))}
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="5"
+                      max="200"
+                      step="5"
+                      value={methods}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 100;
+                        setMethods(Math.round(value / 5) * 5);
+                      }}
+                      disabled={!isObserving && !isPumpAssessmentActive}
+                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50 text-center"
+                      style={{ textAlign: "center", margin: "auto" }}
+                    />
+                    <button
+                      disabled={
+                        (!isObserving && !isPumpAssessmentActive) ||
+                        methods >= 200
+                      }
+                      onClick={() => setMethods(Math.min(200, methods + 5))}
+                      className="p-2 rounded bg-blue-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-blue-600 flex items-center justify-center w-8 h-8"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Equals Symbol */}
+                <div className="text-2xl font-bold text-gray-600 pb-3 px-4">
+                  =
+                </div>
+
+                {/* PUMP Score Display */}
+                <div className="flex-1 text-center">
+                  <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
+                    <div
+                      className="text-3xl font-bold text-orange-600 mb-2"
+                      style={{ fontSize: "31px" }}
+                    >
+                      {pumpScore.toFixed(1)}%
+                    </div>
+                    <div className="text-gray-600 font-medium">
+                      PUMP Score %
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Observation Timer and Controls */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">
+                Observed Performance
+              </h3>
               <div className="grid grid-cols-4 gap-6 mb-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600">
@@ -1002,64 +1532,97 @@ export default function GazeObservationApp() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">
-                    {totalSams.toFixed(2)}
+                    {isObserving || isPumpAssessmentActive
+                      ? "—"
+                      : totalSams.toFixed(2)}
                   </div>
                   <div className="text-gray-600">Total SAMs</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600">
-                    {observedPerformance.toFixed(1)}%
+                    {isObserving || isPumpAssessmentActive
+                      ? "—"
+                      : `${observedPerformance.toFixed(1)}%`}
                   </div>
                   <div className="text-gray-600">Observed Performance</div>
                 </div>
-              </div>
-
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={startObservation}
-                  disabled={isObserving || isFinalized || !selectedStandardData}
-                  className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
-                >
-                  Start Observation
-                </button>
-                <button
-                  onClick={stopObservation}
-                  disabled={!isObserving}
-                  className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70"
-                >
-                  Stop Observation
-                </button>
+                <div className="flex justify-center items-center">
+                  <button
+                    onClick={isObserving ? stopObservation : startObservation}
+                    disabled={
+                      isFinalized ||
+                      isPumpAssessmentActive ||
+                      (!isObserving && !selectedStandardData)
+                    }
+                    className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
+                      isObserving
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-green-500 hover:bg-green-600"
+                    }`}
+                  >
+                    {isObserving ? "Stop Observation" : "Start Observation"}
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Standards Form */}
             {selectedStandardData && (
               <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-                <h3 className="text-lg font-semibold mb-6">Standards Form</h3>
+                <h3 className="text-lg font-semibold mb-6">
+                  Observed Performance
+                </h3>
 
                 {/* UOM Operations Table */}
                 <div className="bg-white rounded-lg p-6 border border-gray-300 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-md font-semibold">Operations</h4>
-                    {isDynamicGroupingActive && (
-                      <div className="text-sm text-green-600 font-medium">
-                        🏷️ Smart grouping active - UOMs with shared tags are
-                        grouped together
-                      </div>
-                    )}
+                    <div className="text-sm font-medium">
+                      {highlightedTagGroup.size > 0 && (
+                        <div className="flex items-center gap-3 text-yellow-600 mb-1">
+                          <span className="flex items-center gap-2">
+                            🏆 Tag group highlighted - Group moved to top with
+                            gold styling
+                          </span>
+                          <button
+                            onClick={() => {
+                              // Clear all visual highlighting states while preserving quantities
+                              setHighlightedTagGroup(new Set());
+                              setIsDynamicGroupingActive(false);
+                              // Force recalculation to ensure UI consistency without affecting quantities
+                              syncActiveRowIds();
+                            }}
+                            className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 border border-yellow-300 rounded hover:bg-yellow-200 transition-colors"
+                          >
+                            Clear Highlighting
+                          </button>
+                        </div>
+                      )}
+                      {isDynamicGroupingActive && (
+                        <div className="flex items-center gap-2 text-green-600">
+                          ⚡️ Smart grouping active - Active tag groups moved to
+                          top
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse bg-white">
                       <thead>
                         <tr className="bg-gray-100 border-b-2 border-gray-300">
-                          <th className="p-3 text-left font-semibold">UOM</th>
                           <th className="p-3 text-left font-semibold">
-                            Description
+                            UOM / Description
                           </th>
                           <th className="p-3 text-left font-semibold">Tags</th>
                           <th className="p-3 text-center font-semibold">
-                            Quantity
+                            Enter Quantity
+                          </th>
+                          <th className="p-3 text-center font-semibold">
+                            Ticker Quantity
+                          </th>
+                          <th className="p-3 text-center font-semibold">
+                            Total Quantity
                           </th>
                           <th className="p-3 text-right font-semibold">
                             SAM Value
@@ -1072,39 +1635,85 @@ export default function GazeObservationApp() {
                       <tbody>
                         {organizedRows.map((row, index) => {
                           const isActive = activeRowIds.has(row.id);
-                          const sharedTaggedRows = getRowsWithSharedTags(
-                            new Set([row.id]),
-                          );
+                          const activeTags = getActiveTagsForRows(activeRowIds);
                           const hasActiveSharedTags =
-                            isDynamicGroupingActive &&
-                            sharedTaggedRows.size > 1 &&
-                            Array.from(sharedTaggedRows).some((id) =>
-                              activeRowIds.has(id),
-                            );
+                            row.tags?.some((tag) => activeTags.has(tag)) ||
+                            false;
+                          const isInActiveTagGroup =
+                            isDynamicGroupingActive && hasActiveSharedTags;
+
+                          // Check if this row is in the highlighted tag group
+                          const isInHighlightedGroup =
+                            row.tags?.some((tag) =>
+                              highlightedTagGroup.has(tag),
+                            ) || false;
+
+                          // Get pastel color for this row's tag group
+                          const tagGroupColor = getTagGroupColor(
+                            row.tags || [],
+                          );
+
+                          // Determine row styling based on activity level
+                          let rowClasses =
+                            "border-b border-gray-300 transition-all duration-200";
+
+                          // Priority 1: Highlighting takes precedence over all other states
+                          if (isInHighlightedGroup) {
+                            rowClasses +=
+                              " bg-yellow-100 border-l-4 border-l-yellow-500 shadow-sm"; // Gold highlighting for highlighted tag group
+                          } else if (highlightedTagGroup.size > 0) {
+                            // When there's a highlighted group but this row isn't in it, use original pastel color with reduced opacity
+                            if (
+                              tagGroupColor &&
+                              row.tags &&
+                              row.tags.length > 0
+                            ) {
+                              rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border} opacity-60`; // Original color with reduced opacity
+                            } else {
+                              rowClasses +=
+                                " bg-gray-50 border-l-2 border-l-gray-200 opacity-60"; // Default subdued appearance
+                            }
+                          } else if (isActive) {
+                            rowClasses +=
+                              " bg-yellow-50 border-l-4 border-l-yellow-400"; // Light gold highlighting for active rows
+                          } else if (isInActiveTagGroup) {
+                            rowClasses += " bg-green-50"; // Green highlighting for rows in active tag group
+                          } else if (
+                            tagGroupColor &&
+                            row.tags &&
+                            row.tags.length > 0
+                          ) {
+                            rowClasses += ` ${tagGroupColor.bg} border-l-2 ${tagGroupColor.border}`; // Original pastel colors for tag groups
+                          } else {
+                            rowClasses += " bg-white"; // Default background
+                          }
 
                           return (
-                            <tr
-                              key={row.id}
-                              className={`border-b border-gray-300 transition-all duration-300 ${
-                                isActive
-                                  ? "bg-green-50"
-                                  : hasActiveSharedTags
-                                    ? "bg-blue-50"
-                                    : ""
-                              }`}
-                            >
-                              <td className="p-3 font-medium">{row.uom}</td>
-                              <td className="p-3">{row.description}</td>
+                            <tr key={row.id} className={rowClasses}>
+                              <td className="p-3">
+                                <div className="font-medium">{row.uom}</div>
+                                <div
+                                  className="text-xs text-gray-600 mt-1"
+                                  style={{
+                                    fontSize: "0.625em",
+                                    lineHeight: "1.2",
+                                  }}
+                                >
+                                  {row.description}
+                                </div>
+                              </td>
                               <td className="p-3">
                                 <div className="flex flex-wrap gap-1">
                                   {(row.tags || []).map((tag, tagIndex) => {
                                     const activeTags =
                                       getActiveTagsForRows(activeRowIds);
                                     const isTagActive = activeTags.has(tag);
+                                    const isCurrentlyInUse =
+                                      activeRowIds.has(row.id) && isTagActive;
                                     return (
                                       <span
                                         key={tagIndex}
-                                        className={`px-2 py-1 rounded-full text-xs border ${getTagColor(tag, isTagActive)}`}
+                                        className={`px-2 py-1 rounded-full text-xs border transition-all duration-200 ${getTagColor(tag, isTagActive, isCurrentlyInUse, row.tags || [])}`}
                                       >
                                         {tag}
                                       </span>
@@ -1115,6 +1724,45 @@ export default function GazeObservationApp() {
                                       No tags
                                     </span>
                                   )}
+                                </div>
+                              </td>
+                              <td className="p-3 text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={tempQuantities[row.id] || 0}
+                                    disabled={!isObserving}
+                                    onChange={(e) =>
+                                      updateTempQuantity(
+                                        row.id,
+                                        parseInt(e.target.value) || 0,
+                                      )
+                                    }
+                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
+                                    placeholder="0"
+                                  />
+                                  <button
+                                    disabled={
+                                      !isObserving || !tempQuantities[row.id]
+                                    }
+                                    onClick={() => submitTempQuantity(row.id)}
+                                    className="p-1 rounded bg-green-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-green-600 flex items-center justify-center w-8 h-8"
+                                    title="Add to total"
+                                  >
+                                    <svg
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <polyline points="20,6 9,17 4,12"></polyline>
+                                    </svg>
+                                  </button>
                                 </div>
                               </td>
                               <td className="p-3 text-center">
@@ -1152,133 +1800,25 @@ export default function GazeObservationApp() {
                                   </button>
                                 </div>
                               </td>
+                              <td className="p-3 text-center font-medium">
+                                {row.quantity +
+                                  (submittedQuantities[row.id] || 0)}
+                              </td>
                               <td className="p-3 text-right">
                                 {row.samValue.toFixed(4)}
                               </td>
                               <td className="p-3 text-right font-medium">
-                                {(row.quantity * row.samValue).toFixed(4)}
+                                {(
+                                  (row.quantity +
+                                    (submittedQuantities[row.id] || 0)) *
+                                  row.samValue
+                                ).toFixed(4)}
                               </td>
                             </tr>
                           );
                         })}
                       </tbody>
                     </table>
-                  </div>
-                </div>
-
-                {/* Delay Tracking */}
-                <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    <input
-                      type="text"
-                      placeholder="Delay reason..."
-                      value={delayReason}
-                      onChange={(e) => setDelayReason(e.target.value)}
-                      disabled={!isObserving || isDelayActive}
-                      className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                    />
-                    <button
-                      onClick={startDelay}
-                      disabled={!isObserving || isDelayActive || !delayReason}
-                      className="px-6 py-3 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
-                    >
-                      Start Delay
-                    </button>
-                    <button
-                      onClick={stopDelay}
-                      disabled={!isDelayActive}
-                      className="px-6 py-3 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50"
-                    >
-                      Stop Delay
-                    </button>
-                  </div>
-
-                  {delays.length > 0 && (
-                    <div className="bg-white rounded-lg p-4">
-                      <h4 className="font-medium mb-3">Recorded Delays</h4>
-                      <div className="space-y-2">
-                        {delays.map((delay, index) => (
-                          <div
-                            key={index}
-                            className="flex justify-between items-center p-2 bg-gray-50 rounded"
-                          >
-                            <span>{delay.reason}</span>
-                            <span className="text-gray-600">
-                              {delay.duration.toFixed(1)}s at {delay.timestamp}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* PUMP Grade Factor */}
-                <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-                  <h3 className="text-lg font-semibold mb-4">
-                    PUMP Grade Factor (%) Assessment
-                  </h3>
-                  <div className="grid grid-cols-3 gap-6 mb-6">
-                    <div>
-                      <label className="block mb-2 font-medium">Pace</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="200"
-                        value={pace}
-                        onChange={(e) =>
-                          setPace(parseInt(e.target.value) || 100)
-                        }
-                        disabled={!isObserving}
-                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium">
-                        Utilization
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="200"
-                        value={utilization}
-                        onChange={(e) =>
-                          setUtilization(parseInt(e.target.value) || 100)
-                        }
-                        disabled={!isObserving}
-                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium">
-                        Methods and Procedures
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="200"
-                        value={methods}
-                        onChange={(e) =>
-                          setMethods(parseInt(e.target.value) || 100)
-                        }
-                        disabled={!isObserving}
-                        className="w-full p-3 rounded-lg border border-gray-300 disabled:opacity-50"
-                      />
-                    </div>
-                  </div>
-
-                  {/* PUMP Score Display */}
-                  <div className="text-center bg-white rounded-lg p-4 border border-gray-300">
-                    <div className="text-4xl font-bold text-orange-600 mb-2">
-                      {pumpScore.toFixed(1)}%
-                    </div>
-                    <div className="text-gray-600 font-medium">
-                      PUMP Score %
-                    </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                      Pace × Utilization × Methods
-                    </div>
                   </div>
                 </div>
 
@@ -1334,6 +1874,68 @@ export default function GazeObservationApp() {
                 </div>
               </div>
             )}
+
+            {/* Delay Tracking */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">Delay Tracking</h3>
+              <div className="flex gap-4 mb-4 items-center">
+                <button
+                  onClick={startDelay}
+                  disabled={!isObserving || isDelayActive}
+                  className="px-4 py-2 bg-red-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50 text-sm font-medium"
+                >
+                  Start Delay
+                </button>
+                <select
+                  value={delayReason}
+                  onChange={(e) => setDelayReason(e.target.value)}
+                  disabled={!isObserving || !isDelayActive}
+                  className="flex-1 p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
+                >
+                  <option value="">Select delay reason...</option>
+                  {delayReasons.map((reason) => (
+                    <option key={reason.id} value={reason.name}>
+                      {reason.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={stopDelay}
+                  disabled={!isDelayActive || !delayReason}
+                  className="px-4 py-2 bg-green-500 text-white border-none rounded-lg cursor-pointer disabled:opacity-50 text-sm font-medium"
+                >
+                  Stop Delay
+                </button>
+              </div>
+
+              {delays.length > 0 && (
+                <div className="bg-white rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-medium">Recorded Delays</h4>
+                    <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                      Total:{" "}
+                      {delays
+                        .reduce((total, delay) => total + delay.duration, 0)
+                        .toFixed(1)}
+                      s
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {delays.map((delay, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                      >
+                        <span>{delay.reason}</span>
+                        <span className="text-gray-600">
+                          {delay.duration.toFixed(1)}s at {delay.timestamp}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Comments Section */}
             <div className="p-5 bg-white rounded-lg border border-gray-300 mb-6">
@@ -1436,67 +2038,67 @@ export default function GazeObservationApp() {
                 {isSubmitting ? "Submitting..." : "Submit Observation"}
               </button>
             </div>
-          </main>
 
-          {/* Performance Trends Section */}
-          <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-            <div className="flex mb-6 items-center justify-between border-b border-gray-300 pb-4">
-              <div className="text-lg font-semibold">Performance Trends</div>
-              <div className="flex gap-3 items-center">
-                <select className="px-3 py-2 rounded border border-gray-300 bg-white">
-                  <option value="7">Last 7 days</option>
-                  <option value="30">Last 30 days</option>
-                  <option value="90">Last 90 days</option>
-                </select>
-                <div className="flex gap-1">
-                  <button
-                    onClick={prevSlide}
-                    className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
-                  >
-                    ←
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
-                  >
-                    →
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative w-full h-96 overflow-hidden">
-              {slides.map((title, index) => (
-                <div
-                  key={index}
-                  className="absolute w-full h-full bg-white rounded-lg p-4 border border-gray-300 transition-transform duration-500 ease-in-out"
-                  style={{
-                    transform: `translateX(${(index - currentSlide) * 100}%)`,
-                  }}
-                >
-                  <h3 className="text-base font-medium mb-4">{title}</h3>
-                  <div className="h-full flex items-center justify-center text-gray-600">
-                    <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                      Chart: {title}
-                    </div>
+            {/* Performance Trends Section */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6 mt-6">
+              <div className="flex mb-6 items-center justify-between border-b border-gray-300 pb-4">
+                <div className="text-lg font-semibold">Performance Trends</div>
+                <div className="flex gap-3 items-center">
+                  <select className="px-3 py-2 rounded border border-gray-300 bg-white">
+                    <option value="7">Last 7 days</option>
+                    <option value="30">Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                  </select>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={prevSlide}
+                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={nextSlide}
+                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white cursor-pointer"
+                    >
+                      →
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="flex justify-center gap-2 mt-4">
-              {slides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className="w-2 h-2 rounded-full border-none p-0 cursor-pointer transition-colors duration-300"
-                  style={{
-                    backgroundColor: currentSlide === i ? "#666" : "#e2e2e2",
-                  }}
-                />
-              ))}
+              <div className="relative w-full h-96 overflow-hidden">
+                {slides.map((title, index) => (
+                  <div
+                    key={index}
+                    className="absolute w-full h-full bg-white rounded-lg p-4 border border-gray-300 transition-transform duration-500 ease-in-out"
+                    style={{
+                      transform: `translateX(${(index - currentSlide) * 100}%)`,
+                    }}
+                  >
+                    <h3 className="text-base font-medium mb-4">{title}</h3>
+                    <div className="h-full flex items-center justify-center text-gray-600">
+                      <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                        Chart: {title}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-center gap-2 mt-4">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentSlide(i)}
+                    className="w-2 h-2 rounded-full border-none p-0 cursor-pointer transition-colors duration-300"
+                    style={{
+                      backgroundColor: currentSlide === i ? "#666" : "#e2e2e2",
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          </main>
         </div>
 
         {/* Previous Observations Popup */}
@@ -1839,6 +2441,27 @@ export default function GazeObservationApp() {
           </div>
         )}
       </div>
+
+      {/* PUMP Finalization Modal */}
+      {showPumpFinalizationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Finalize Your PUMP Grade Factor (%) Assessment
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Please review and finalize your PUMP Grade Factor assessment
+              before completing the observation.
+            </p>
+            <button
+              onClick={() => setShowPumpFinalizationModal(false)}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+            >
+              Continue with PUMP Assessment
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

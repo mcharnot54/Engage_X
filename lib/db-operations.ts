@@ -212,7 +212,7 @@ export async function createStandard(data: {
 
 export async function getStandards() {
   return prisma.standard.findMany({
-    where: { isActive: true },
+    where: { isActive: true, isCurrentVersion: true },
     include: {
       facility: {
         include: {
@@ -222,6 +222,12 @@ export async function getStandards() {
       department: true,
       area: true,
       uomEntries: true,
+      versions: {
+        orderBy: { version: "desc" },
+        include: {
+          uomEntries: true,
+        },
+      },
     },
     orderBy: { name: "asc" },
   });
@@ -288,28 +294,376 @@ export async function updateStandard(
   });
 }
 
+export async function createStandardVersion(
+  originalStandardId: number,
+  data: {
+    name?: string;
+    facilityId?: number;
+    departmentId?: number;
+    areaId?: number;
+    bestPractices?: string[];
+    processOpportunities?: string[];
+    versionNotes?: string;
+    createdBy?: string;
+    uomEntries?: {
+      uom: string;
+      description: string;
+      samValue: number;
+      tags?: string[];
+    }[];
+  },
+) {
+  return prisma.$transaction(async (tx) => {
+    // Get the original standard with all its data
+    const originalStandard = await tx.standard.findUnique({
+      where: { id: originalStandardId },
+      include: {
+        uomEntries: true,
+      },
+    });
+
+    if (!originalStandard) {
+      throw new Error("Original standard not found");
+    }
+
+    // Get the current highest version number for this standard group
+    const baseId = originalStandard.baseStandardId || originalStandardId;
+    const latestVersion = await tx.standard.findFirst({
+      where: {
+        OR: [{ id: baseId }, { baseStandardId: baseId }],
+      },
+      orderBy: { version: "desc" },
+    });
+
+    const newVersion = (latestVersion?.version || 1) + 1;
+
+    // Mark current version as not current
+    await tx.standard.updateMany({
+      where: {
+        OR: [{ id: baseId }, { baseStandardId: baseId }],
+        isCurrentVersion: true,
+      },
+      data: { isCurrentVersion: false },
+    });
+
+    // Create new version with updated data
+    const newStandard = await tx.standard.create({
+      data: {
+        name: data.name || originalStandard.name,
+        facilityId: data.facilityId || originalStandard.facilityId,
+        departmentId: data.departmentId || originalStandard.departmentId,
+        areaId: data.areaId || originalStandard.areaId,
+        bestPractices: data.bestPractices || originalStandard.bestPractices,
+        processOpportunities:
+          data.processOpportunities || originalStandard.processOpportunities,
+        version: newVersion,
+        baseStandardId: baseId,
+        isCurrentVersion: true,
+        isActive: true,
+        versionNotes: data.versionNotes,
+        createdBy: data.createdBy,
+        uomEntries: {
+          create:
+            data.uomEntries ||
+            originalStandard.uomEntries.map((entry) => ({
+              uom: entry.uom,
+              description: entry.description,
+              samValue: entry.samValue,
+              tags: entry.tags,
+            })),
+        },
+      },
+      include: {
+        facility: {
+          include: {
+            organization: true,
+          },
+        },
+        department: true,
+        area: true,
+        uomEntries: true,
+        baseStandard: true,
+        versions: {
+          orderBy: { version: "desc" },
+          include: {
+            uomEntries: true,
+          },
+        },
+      },
+    });
+
+    return newStandard;
+  });
+}
+
+export async function getStandardVersionHistory(standardId: number) {
+  const standard = await prisma.standard.findUnique({
+    where: { id: standardId },
+  });
+
+  if (!standard) {
+    throw new Error("Standard not found");
+  }
+
+  const baseId = standard.baseStandardId || standardId;
+
+  return prisma.standard.findMany({
+    where: {
+      OR: [{ id: baseId }, { baseStandardId: baseId }],
+    },
+    include: {
+      facility: {
+        include: {
+          organization: true,
+        },
+      },
+      department: true,
+      area: true,
+      uomEntries: true,
+    },
+    orderBy: { version: "desc" },
+  });
+}
+
 // User operations
 export async function createUser(data: {
   employeeId: string;
+  employeeNumber?: string;
   name: string;
   email?: string;
   department?: string;
   role?: string;
+  roleId?: string;
+  isActive?: boolean;
+  externalSource?: string;
+  lastSyncAt?: Date;
 }) {
   return prisma.user.create({
     data,
+    include: {
+      userRole: true,
+    },
+  });
+}
+
+export async function updateUser(
+  id: string,
+  data: {
+    employeeId?: string;
+    employeeNumber?: string;
+    name?: string;
+    email?: string;
+    department?: string;
+    role?: string;
+    roleId?: string;
+    isActive?: boolean;
+    externalSource?: string;
+    lastSyncAt?: Date;
+  },
+) {
+  return prisma.user.update({
+    where: { id },
+    data,
+    include: {
+      userRole: true,
+    },
+  });
+}
+
+export async function deleteUser(id: string) {
+  return prisma.user.delete({
+    where: { id },
   });
 }
 
 export async function getUserByEmployeeId(employeeId: string) {
   return prisma.user.findUnique({
     where: { employeeId },
+    include: {
+      userRole: true,
+    },
+  });
+}
+
+export async function getUserById(id: string) {
+  return prisma.user.findUnique({
+    where: { id },
+    include: {
+      userRole: true,
+    },
   });
 }
 
 export async function getUsers() {
   return prisma.user.findMany({
     orderBy: { name: "asc" },
+    include: {
+      userRole: true,
+    },
+  });
+}
+
+export async function syncUserFromExternal(data: {
+  employeeId: string;
+  employeeNumber?: string;
+  name: string;
+  email?: string;
+  department?: string;
+  externalSource: string;
+}) {
+  const existingUser = await getUserByEmployeeId(data.employeeId);
+
+  const userData = {
+    ...data,
+    lastSyncAt: new Date(),
+    isActive: true,
+  };
+
+  if (existingUser) {
+    return updateUser(existingUser.id, userData);
+  } else {
+    return createUser(userData);
+  }
+}
+
+// Role operations
+export async function getRoles() {
+  return prisma.role.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      permissions: {
+        include: {
+          permission: true,
+        },
+      },
+      _count: {
+        select: {
+          users: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getRoleById(id: string) {
+  return prisma.role.findUnique({
+    where: { id },
+    include: {
+      permissions: {
+        include: {
+          permission: true,
+        },
+      },
+      _count: {
+        select: {
+          users: true,
+        },
+      },
+    },
+  });
+}
+
+export async function createRole(data: {
+  name: string;
+  description?: string;
+  permissionIds?: string[];
+}) {
+  const { permissionIds, ...roleData } = data;
+
+  return prisma.role.create({
+    data: {
+      ...roleData,
+      permissions: permissionIds
+        ? {
+            create: permissionIds.map((permissionId) => ({
+              permissionId,
+              granted: true,
+            })),
+          }
+        : undefined,
+    },
+    include: {
+      permissions: {
+        include: {
+          permission: true,
+        },
+      },
+      _count: {
+        select: {
+          users: true,
+        },
+      },
+    },
+  });
+}
+
+export async function updateRole(
+  id: string,
+  data: {
+    name?: string;
+    description?: string;
+    isActive?: boolean;
+    permissionIds?: string[];
+  },
+) {
+  const { permissionIds, ...roleData } = data;
+
+  return prisma.$transaction(async (tx) => {
+    // Update the role
+    const updatedRole = await tx.role.update({
+      where: { id },
+      data: roleData,
+    });
+
+    // If permissionIds are provided, update role permissions
+    if (permissionIds !== undefined) {
+      // Delete existing permissions
+      await tx.rolePermission.deleteMany({
+        where: { roleId: id },
+      });
+
+      // Create new permissions
+      if (permissionIds.length > 0) {
+        await tx.rolePermission.createMany({
+          data: permissionIds.map((permissionId) => ({
+            roleId: id,
+            permissionId,
+            granted: true,
+          })),
+        });
+      }
+    }
+
+    // Return the updated role with permissions
+    return tx.role.findUnique({
+      where: { id },
+      include: {
+        permissions: {
+          include: {
+            permission: true,
+          },
+        },
+        _count: {
+          select: {
+            users: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+export async function deleteRole(id: string) {
+  return prisma.role.delete({
+    where: { id },
+  });
+}
+
+// Permission operations
+export async function getPermissions() {
+  return prisma.permission.findMany({
+    where: { isActive: true },
+    orderBy: [{ module: "asc" }, { action: "asc" }],
   });
 }
 
@@ -374,7 +728,11 @@ export async function getObservationsByUser(userId: string) {
       user: true,
       standard: {
         include: {
-          facility: true,
+          facility: {
+            include: {
+              organization: true,
+            },
+          },
           department: true,
           area: true,
         },
@@ -392,7 +750,11 @@ export async function getObservationsByStandard(standardId: number) {
       user: true,
       standard: {
         include: {
-          facility: true,
+          facility: {
+            include: {
+              organization: true,
+            },
+          },
           department: true,
           area: true,
         },
@@ -410,7 +772,11 @@ export async function getRecentObservations(limit: number = 10) {
       user: true,
       standard: {
         include: {
-          facility: true,
+          facility: {
+            include: {
+              organization: true,
+            },
+          },
           department: true,
           area: true,
         },

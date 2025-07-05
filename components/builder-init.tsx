@@ -1,26 +1,27 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   builder,
+  Builder,
   BuilderComponent,
   useIsPreviewing,
-  type BuilderContent,   // ← add this
-} from "@builder.io/react"
+  type BuilderContent,
+} from "@builder.io/react";
 
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
 
 /* ───────────────────────────────────────────
    1 ▸  Initialise the SDK exactly once
-   ─────────────────────────────────────────── */
+   ─────────────────���───────────────────────── */
 const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
 
 if (apiKey) {
   builder.init(apiKey);
 } else {
   console.warn(
-    'NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will not load.',
+    "NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will not load.",
   );
 }
 
@@ -29,42 +30,42 @@ if (apiKey) {
    ─────────────────────────────────────────── */
 export function registerBuilderComponents(): void {
   Builder.registerComponent(Button, {
-    name: 'Button',
+    name: "Button",
     inputs: [
-      { name: 'text', type: 'string', defaultValue: 'Click me' },
+      { name: "text", type: "string", defaultValue: "Click me" },
       {
-        name: 'variant',
-        type: 'enum',
-        enum: ['default', 'primary', 'secondary', 'ghost', 'link'],
-        defaultValue: 'default',
+        name: "variant",
+        type: "enum",
+        enum: ["default", "primary", "secondary", "ghost", "link"],
+        defaultValue: "default",
       },
       {
-        name: 'size',
-        type: 'enum',
-        enum: ['sm', 'md', 'lg'],
-        defaultValue: 'md',
+        name: "size",
+        type: "enum",
+        enum: ["sm", "md", "lg"],
+        defaultValue: "md",
       },
     ],
   });
 
   Builder.registerComponent(Card, {
-    name: 'Card',
+    name: "Card",
     inputs: [
-      { name: 'title', type: 'string', defaultValue: 'Card Title' },
+      { name: "title", type: "string", defaultValue: "Card Title" },
       {
-        name: 'description',
-        type: 'string',
-        defaultValue: 'Card description goes here',
+        name: "description",
+        type: "string",
+        defaultValue: "Card description goes here",
       },
       {
-        name: 'image',
-        type: 'url',
-        defaultValue: 'https://placehold.co/600x400',
+        name: "image",
+        type: "url",
+        defaultValue: "https://placehold.co/600x400",
       },
-      { name: 'buttonText', type: 'string', defaultValue: 'Learn More' },
-      { name: 'buttonLink', type: 'url', defaultValue: '#' },
-      { name: 'elevation', type: 'number', defaultValue: 1 },
-      { name: 'className', type: 'string', defaultValue: '' },
+      { name: "buttonText", type: "string", defaultValue: "Learn More" },
+      { name: "buttonLink", type: "url", defaultValue: "#" },
+      { name: "elevation", type: "number", defaultValue: 1 },
+      { name: "className", type: "string", defaultValue: "" },
     ],
   });
 }
@@ -76,10 +77,10 @@ export default function BuilderContent(props: {
   model?: string;
   entry?: string;
 }) {
-  const { model = 'page', entry } = props;
+  const { model = "page", entry } = props;
 
   //  ✨  explicit type instead of “any”
-  const [content, setContent] = useState<BuilderContentType | null>(null);
+  const [content, setContent] = useState<BuilderContent | null>(null);
 
   useEffect(() => {
     if (!entry) return;
@@ -88,7 +89,7 @@ export default function BuilderContent(props: {
       .get(model, { entry })
       .toPromise()
       .then(setContent)
-      .catch((err) => console.error('Builder fetch error:', err));
+      .catch((err) => console.error("Builder fetch error:", err));
   }, [model, entry]);
 
   if (!content) return <div>Loading…</div>;
