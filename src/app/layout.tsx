@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins, Montserrat } from "next/font/google";
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackServerApp } from "../../stack";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,19 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} antialiased`}
-      >
-        <div>
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
-            <p className="font-bold">Development Mode</p>
-            <p>
-              Stack Auth is temporarily disabled for debugging. Please set up
-              your environment variables in .env.local
-            </p>
-          </div>
-          {children}
-        </div>
-      </body>
+
     </html>
   );
 }
