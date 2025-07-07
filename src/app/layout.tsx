@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins, Montserrat } from "next/font/google";
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackServerApp } from "@/../stack";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,12 +37,20 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const content = stackServerApp ? (
+    <StackProvider app={stackServerApp}>
+      <StackTheme>{children}</StackTheme>
+    </StackProvider>
+  ) : (
+    children
+  );
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} antialiased`}
       >
-        {children}
+        {content}
       </body>
     </html>
   );
