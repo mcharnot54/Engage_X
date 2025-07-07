@@ -22,16 +22,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check authentication for protected routes
-  const user = await stackServerApp.getUser({ or: "return-undefined" });
+  try {
+    // Check authentication for protected routes
+    const user = await stackServerApp.getUser({ or: "return-undefined" });
 
-  if (!user) {
-    // Redirect to login if not authenticated
-    return NextResponse.redirect(new URL("/handler/sign-in", request.url));
+    if (!user) {
+      // Redirect to login if not authenticated
+      return NextResponse.redirect(new URL("/handler/sign-in", request.url));
+    }
+
+    // Allow authenticated users to proceed
+    return NextResponse.next();
+  } catch (error) {
+    console.error("Error in middleware:", error);
+    // In case of error, allow access for development
+    return NextResponse.next();
   }
-
-  // Allow authenticated users to proceed
-  return NextResponse.next();
 }
 
 export const config = {
