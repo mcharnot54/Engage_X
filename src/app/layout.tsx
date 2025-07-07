@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins, Montserrat } from "next/font/google";
 import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackServerApp } from "@/../stack";
+import { stackServerApp } from "../../stack";
 import "./globals.css";
 
 const geistSans = Geist({
