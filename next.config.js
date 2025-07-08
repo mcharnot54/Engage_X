@@ -10,8 +10,13 @@ const nextConfig = {
     unoptimized: true,
   },
 
-  // Ensure middleware runs properly on Vercel
-  serverExternalPackages: ["@stackframe/stack", "@stackframe/stack-sc"],
+  // Transpile Stack Auth packages to handle ES modules properly
+  transpilePackages: ["@stackframe/stack", "@stackframe/stack-sc"],
+
+  experimental: {
+    // Enable ES modules for server components
+    esmExternals: "loose",
+  },
 };
 
 // If you want the Builder DevTools overlay in dev, wrap once:
