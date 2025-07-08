@@ -2,12 +2,17 @@
 const nextConfig = {
   // Skip type-checking & linting during CI builds
   typescript: { ignoreBuildErrors: true },
-  eslint:     { ignoreDuringBuilds: true },
+  eslint: { ignoreDuringBuilds: true },
 
   // Allow Builder-hosted images
   images: {
-    domains: ['cdn.builder.io'],
+    domains: ["cdn.builder.io"],
     unoptimized: true,
+  },
+
+  // Ensure middleware runs properly on Vercel
+  experimental: {
+    serverComponentsExternalPackages: ["@stackframe/stack"],
   },
 };
 
@@ -15,4 +20,4 @@ const nextConfig = {
 // const withBuilderDevTools = require('@builder.io/dev-tools/next');
 // module.exports = withBuilderDevTools(nextConfig);
 
-module.exports = nextConfig;        // production-safe export
+module.exports = nextConfig; // production-safe export
