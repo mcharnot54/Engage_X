@@ -37,14 +37,20 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const bodyContent = stackServerApp ? (
+    <StackProvider app={stackServerApp}>
+      <StackTheme>{children}</StackTheme>
+    </StackProvider>
+  ) : (
+    children
+  );
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} antialiased`}
       >
-        <StackProvider app={stackServerApp}>
-          <StackTheme>{children}</StackTheme>
-        </StackProvider>
+        {bodyContent}
       </body>
     </html>
   );
