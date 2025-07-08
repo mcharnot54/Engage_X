@@ -7,7 +7,7 @@ const hasRequiredEnvVars =
   process.env.STACK_SECRET_SERVER_KEY &&
   process.env.NEXT_PUBLIC_STACK_PROJECT_ID !== "st_proj_placeholder" &&
   process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY !== "pk_placeholder" &&
-  process.env.STACK_SECRET_SERVER_KEY !== "sk_placeholder";
+  process.env.STACK_SECRET_SERVER_KEY !== "ssk_cjaxpcxsmh8wy4z4d76dj4a4bhrx5tyrcmg4vb9dhmq98";
 
 export const stackServerApp = hasRequiredEnvVars
   ? new StackServerApp({
