@@ -12,11 +12,6 @@ const nextConfig = {
 
   // Transpile Stack Auth packages to handle ES modules properly
   transpilePackages: ["@stackframe/stack", "@stackframe/stack-sc"],
-
-  experimental: {
-    // Enable ES modules for server components
-    esmExternals: "loose",
-  },
 };
 
 // If you want the Builder DevTools overlay in dev, wrap once:
