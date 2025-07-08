@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stackServerApp } from "./stack";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -14,30 +13,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If Stack Auth is not configured, allow access (dev mode)
-  if (!stackServerApp) {
-    console.warn(
-      "Stack Auth not configured - allowing all access for development",
-    );
-    return NextResponse.next();
+  // Check for Stack Auth session cookie
+  const stackSessionCookie = request.cookies.get("stack-session");
+
+  if (!stackSessionCookie?.value) {
+    // No session found, redirect to login
+    return NextResponse.redirect(new URL("/handler/sign-in", request.url));
   }
 
-  try {
-    // Check authentication for protected routes
-    const user = await stackServerApp.getUser({ or: "return-undefined" });
-
-    if (!user) {
-      // Redirect to login if not authenticated
-      return NextResponse.redirect(new URL("/handler/sign-in", request.url));
-    }
-
-    // Allow authenticated users to proceed
-    return NextResponse.next();
-  } catch (error) {
-    console.error("Error in middleware:", error);
-    // In case of error, allow access for development
-    return NextResponse.next();
-  }
+  // Session exists, allow access
+  return NextResponse.next();
 }
 
 export const config = {
