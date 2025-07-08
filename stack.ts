@@ -19,8 +19,8 @@ export const stackServerApp = hasRequiredEnvVars
       urls: {
         signIn: "/handler/sign-in",
         signUp: "/handler/sign-up",
-        afterSignIn: "/observation-form",
-        afterSignUp: "/observation-form",
+        afterSignIn: "/",
+        afterSignUp: "/",
       },
     })
   : null;
