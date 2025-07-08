@@ -42,13 +42,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} antialiased`}
       >
-        {stackServerApp ? (
-          <StackProvider app={stackServerApp}>
-            <StackTheme>{children}</StackTheme>
-          </StackProvider>
-        ) : (
-          children
-        )}
+        <StackProvider app={stackServerApp}>
+          <StackTheme>{children}</StackTheme>
+        </StackProvider>
       </body>
     </html>
   );
