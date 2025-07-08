@@ -4,55 +4,89 @@ export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
 
-    // Allow public routes and static assets
-    const publicRoutes = [
-      "/",
-      "/login",
-      "/handler",
-      "/api/public",
-      "/_next",
-      "/favicon.ico",
-      "/public",
-    ];
+    // Allow all static assets and API routes that should be public
+    if (
+      pathname.startsWith("/_next/") ||
+      pathname.startsWith("/api/public") ||
+      pathname.includes(".") ||
+      pathname === "/favicon.ico"
+    ) {
+      return NextResponse.next();
+    }
 
-    const isPublicRoute = publicRoutes.some((route) =>
-      pathname.startsWith(route),
+    // Allow public routes
+    const publicRoutes = ["/", "/login", "/handler"];
+
+    const isPublicRoute = publicRoutes.some(
+      (route) => pathname === route || pathname.startsWith(route + "/"),
     );
 
     if (isPublicRoute) {
       return NextResponse.next();
     }
 
-    // Check if Stack Auth is properly configured
-    const hasStackConfig =
-      process.env.NEXT_PUBLIC_STACK_PROJECT_ID &&
-      process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY &&
-      process.env.STACK_SECRET_SERVER_KEY;
+    // In development or if Stack Auth is not configured, allow access
+    if (process.env.NODE_ENV === "development") {
+      return NextResponse.next();
+    }
 
-    // If Stack Auth is not configured, allow access for now
+    // Check if Stack Auth is properly configured (more defensive)
+    let hasStackConfig = false;
+    try {
+      hasStackConfig = !!(
+        process.env.NEXT_PUBLIC_STACK_PROJECT_ID &&
+        process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY &&
+        process.env.STACK_SECRET_SERVER_KEY
+      );
+    } catch (envError) {
+      console.warn("Error checking environment variables:", envError);
+      return NextResponse.next();
+    }
+
+    // If Stack Auth is not configured, allow access
     if (!hasStackConfig) {
-      console.warn("Stack Auth not configured - allowing access to all routes");
       return NextResponse.next();
     }
 
     // Check for Stack Auth session cookie
-    const stackSessionCookie = request.cookies.get("stack-session");
+    let stackSessionCookie;
+    try {
+      stackSessionCookie = request.cookies.get("stack-session");
+    } catch (cookieError) {
+      console.warn("Error reading cookies:", cookieError);
+      return NextResponse.next();
+    }
 
     if (!stackSessionCookie?.value) {
       // No session found, redirect to login
-      const signInUrl = new URL("/handler/sign-in", request.url);
-      return NextResponse.redirect(signInUrl);
+      try {
+        const signInUrl = new URL("/handler/sign-in", request.url);
+        return NextResponse.redirect(signInUrl);
+      } catch (redirectError) {
+        console.warn("Error creating redirect URL:", redirectError);
+        return NextResponse.next();
+      }
     }
 
     // Session exists, allow access
     return NextResponse.next();
   } catch (error) {
-    // If middleware fails, log error and allow request to continue
+    // If middleware fails completely, log error and allow request to continue
     console.error("Middleware error:", error);
     return NextResponse.next();
   }
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|public|api/public).*)"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
+  ],
 };
