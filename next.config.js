@@ -11,9 +11,7 @@ const nextConfig = {
   },
 
   // Ensure middleware runs properly on Vercel
-  experimental: {
-    serverComponentsExternalPackages: ["@stackframe/stack"],
-  },
+  serverExternalPackages: ["@stackframe/stack"],
 };
 
 // If you want the Builder DevTools overlay in dev, wrap once:
