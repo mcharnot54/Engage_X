@@ -25,11 +25,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // In development or if Stack Auth is not configured, allow access
-    if (process.env.NODE_ENV === "development") {
-      return NextResponse.next();
-    }
-
     // Check if Stack Auth is properly configured (more defensive)
     let hasStackConfig = false;
     try {
@@ -43,8 +38,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // If Stack Auth is not configured, allow access
-    if (!hasStackConfig) {
+    // If Stack Auth is not configured or in development, allow access
+    if (!hasStackConfig || process.env.NODE_ENV === "development") {
       return NextResponse.next();
     }
 
