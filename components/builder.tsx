@@ -15,11 +15,11 @@ import { Card } from "./ui/Card";
 /* 1 ▸ Initialise the SDK only when the key exists */
 const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
 
-if (apiKey) {
+if (apiKey && apiKey !== "YOUR_BUILDER_API_KEY_HERE") {
   builder.init(apiKey);
 } else {
   console.warn(
-    "NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will not load.",
+    "NEXT_PUBLIC_BUILDER_API_KEY is not properly configured — Builder content will not load.",
   );
 }
 
@@ -82,18 +82,60 @@ export default function BuilderContentComponent(props: {
 
   // explicit, safe type instead of `any`
   const [content, setContent] = useState<BuilderContent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!entry) return;
+    if (!apiKey || apiKey === "YOUR_BUILDER_API_KEY_HERE") {
+      setError("Builder.io API key not configured");
+      setLoading(false);
+      return;
+    }
+
+    if (!entry) {
+      setLoading(false);
+      return;
+    }
 
     builder
       .get(model, { entry })
       .toPromise()
-      .then(setContent)
-      .catch((err) => console.error("Builder fetch error:", err));
+      .then((result) => {
+        setContent(result);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Builder fetch error:", err);
+        setError("Failed to load content");
+        setLoading(false);
+      });
   }, [model, entry]);
 
-  if (!content) return <div>Loading…</div>;
+  if (error) {
+    return (
+      <div className="p-8 text-center bg-yellow-50 border border-yellow-200 rounded-lg">
+        <p className="text-yellow-800 font-medium">
+          Builder.io Configuration Required
+        </p>
+        <p className="text-yellow-700 text-sm mt-2">
+          Please set your NEXT_PUBLIC_BUILDER_API_KEY in .env.local
+        </p>
+        <p className="text-yellow-600 text-xs mt-1">
+          Get your API key from Builder.io dashboard
+        </p>
+      </div>
+    );
+  }
+
+  if (loading) return <div>Loading…</div>;
+
+  if (!content) {
+    return (
+      <div className="p-8 text-center bg-gray-50 border border-gray-200 rounded-lg">
+        <p className="text-gray-600">No content found</p>
+      </div>
+    );
+  }
 
   // Ensure content.data is never null
   const safeContent =
