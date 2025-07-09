@@ -1903,17 +1903,34 @@ export default function GazeObservationApp() {
                                   setHoveredQuantityRowId(null)
                                 }
                               >
-                                <span className="cursor-help">
-                                  {row.quantity +
-                                    (submittedQuantities[row.id] || 0)}
-                                </span>
+                                <div className="flex items-center justify-center gap-2">
+                                  <span className="cursor-help">
+                                    {row.quantity +
+                                      (submittedQuantities[row.id] || 0)}
+                                  </span>
+
+                                  {/* Clear All Button - only show if there are quantities to clear */}
+                                  {(row.quantity > 0 ||
+                                    (submittedQuantities[row.id] || 0) > 0) &&
+                                    (isObserving || isPumpAssessmentActive) && (
+                                      <button
+                                        onClick={() =>
+                                          clearAllQuantities(row.id)
+                                        }
+                                        className="ml-1 p-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors w-5 h-5 flex items-center justify-center text-xs"
+                                        title="Clear all quantities"
+                                      >
+                                        ×
+                                      </button>
+                                    )}
+                                </div>
 
                                 {/* Hover Tooltip */}
                                 {hoveredQuantityRowId === row.id &&
                                   (quantitySubmissionHistory[row.id]?.length >
                                     0 ||
                                     row.quantity > 0) && (
-                                    <div className="absolute z-50 bg-gray-800 text-white text-xs rounded-lg p-3 shadow-lg -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full min-w-48">
+                                    <div className="absolute z-50 bg-gray-800 text-white text-xs rounded-lg p-3 shadow-lg -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full min-w-56">
                                       <div className="font-semibold mb-2 text-center border-b border-gray-600 pb-1">
                                         Quantity Breakdown
                                       </div>
@@ -1943,10 +1960,27 @@ export default function GazeObservationApp() {
                                             ].map((entry, index) => (
                                               <div
                                                 key={index}
-                                                className="pl-2 text-xs"
+                                                className="flex items-center justify-between pl-2 text-xs group"
                                               >
-                                                • {entry.amount} at{" "}
-                                                {entry.timestamp}
+                                                <span>
+                                                  • {entry.amount} at{" "}
+                                                  {entry.timestamp}
+                                                </span>
+                                                {(isObserving ||
+                                                  isPumpAssessmentActive) && (
+                                                  <button
+                                                    onClick={() =>
+                                                      deleteQuantityEntry(
+                                                        row.id,
+                                                        index,
+                                                      )
+                                                    }
+                                                    className="ml-2 p-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100"
+                                                    title="Delete this entry"
+                                                  >
+                                                    ×
+                                                  </button>
+                                                )}
                                               </div>
                                             ))}
                                           </div>
@@ -1956,6 +1990,15 @@ export default function GazeObservationApp() {
                                               {submittedQuantities[row.id] || 0}
                                             </span>
                                           </div>
+                                        </div>
+                                      )}
+
+                                      {/* Instructions */}
+                                      {(isObserving ||
+                                        isPumpAssessmentActive) && (
+                                        <div className="mt-2 pt-1 border-t border-gray-600 text-center text-gray-400 text-xs">
+                                          Hover over entries to delete • Click ×
+                                          to clear all
                                         </div>
                                       )}
 
