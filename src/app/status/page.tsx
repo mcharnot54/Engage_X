@@ -7,7 +7,6 @@ import { Button } from "../../components/ui/Button";
 interface SystemStatus {
   database: "connected" | "error" | "checking";
   builderIO: "configured" | "missing" | "checking";
-  stackAuth: "configured" | "missing" | "checking";
   environment: "development" | "production";
 }
 
@@ -15,7 +14,6 @@ export default function StatusPage() {
   const [status, setStatus] = useState<SystemStatus>({
     database: "checking",
     builderIO: "checking",
-    stackAuth: "checking",
     environment: "development",
   });
 
@@ -35,18 +33,6 @@ export default function StatusPage() {
       builderKey && builderKey !== "YOUR_BUILDER_API_KEY_HERE"
         ? "configured"
         : "missing";
-
-    // Check Stack Auth configuration (client-side only)
-    const stackProjectId =
-      typeof window !== "undefined"
-        ? process.env.NEXT_PUBLIC_STACK_PROJECT_ID
-        : null;
-    const stackClientKey =
-      typeof window !== "undefined"
-        ? process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
-        : null;
-    const stackStatus =
-      stackProjectId && stackClientKey ? "configured" : "missing";
 
     // Check database connection
     let dbStatus: "connected" | "error" = "error";
