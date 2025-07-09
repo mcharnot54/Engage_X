@@ -67,7 +67,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch (error) {
     // If middleware fails completely, log error and allow request to continue
-    console.error("Middleware error:", error);
+    if (process.env.NODE_ENV === "production") {
+      console.error("Middleware error:", error);
+    }
     return NextResponse.next();
   }
 }
