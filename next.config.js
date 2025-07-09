@@ -10,8 +10,12 @@ const nextConfig = {
     unoptimized: true,
   },
 
-  // Transpile Stack Auth packages to handle ES modules properly
-  transpilePackages: ["@stackframe/stack", "@stackframe/stack-sc"],
+  // Transpile Stack Auth packages and lucide-react to handle ES modules properly
+  transpilePackages: [
+    "@stackframe/stack",
+    "@stackframe/stack-sc",
+    "lucide-react",
+  ],
 
   // External packages for server components
   serverExternalPackages: ["@prisma/client", "prisma"],
