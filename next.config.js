@@ -13,10 +13,8 @@ const nextConfig = {
   // Transpile Stack Auth packages to handle ES modules properly
   transpilePackages: ["@stackframe/stack", "@stackframe/stack-sc"],
 
-  // Experimental features for better stability
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "prisma"],
-  },
+  // External packages for server components
+  serverExternalPackages: ["@prisma/client", "prisma"],
 
   // Additional configuration for Vercel
   output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
