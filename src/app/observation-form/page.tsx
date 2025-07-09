@@ -1844,9 +1844,75 @@ export default function GazeObservationApp() {
                                   </button>
                                 </div>
                               </td>
-                              <td className="p-3 text-center font-medium">
-                                {row.quantity +
-                                  (submittedQuantities[row.id] || 0)}
+                              <td
+                                className="p-3 text-center font-medium relative"
+                                onMouseEnter={() =>
+                                  setHoveredQuantityRowId(row.id)
+                                }
+                                onMouseLeave={() =>
+                                  setHoveredQuantityRowId(null)
+                                }
+                              >
+                                <span className="cursor-help">
+                                  {row.quantity +
+                                    (submittedQuantities[row.id] || 0)}
+                                </span>
+
+                                {/* Hover Tooltip */}
+                                {hoveredQuantityRowId === row.id &&
+                                  (quantitySubmissionHistory[row.id]?.length >
+                                    0 ||
+                                    row.quantity > 0) && (
+                                    <div className="absolute z-50 bg-gray-800 text-white text-xs rounded-lg p-3 shadow-lg -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full min-w-48">
+                                      <div className="font-semibold mb-2 text-center border-b border-gray-600 pb-1">
+                                        Quantity Breakdown
+                                      </div>
+
+                                      {/* Ticker Quantity */}
+                                      {row.quantity > 0 && (
+                                        <div className="mb-2">
+                                          <div className="text-blue-300 font-medium">
+                                            Ticker Quantity:
+                                          </div>
+                                          <div className="pl-2">
+                                            • {row.quantity} (live counter)
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Submitted Entries */}
+                                      {quantitySubmissionHistory[row.id]
+                                        ?.length > 0 && (
+                                        <div>
+                                          <div className="text-green-300 font-medium mb-1">
+                                            Submitted Entries:
+                                          </div>
+                                          <div className="space-y-1 max-h-32 overflow-y-auto">
+                                            {quantitySubmissionHistory[
+                                              row.id
+                                            ].map((entry, index) => (
+                                              <div
+                                                key={index}
+                                                className="pl-2 text-xs"
+                                              >
+                                                • {entry.amount} at{" "}
+                                                {entry.timestamp}
+                                              </div>
+                                            ))}
+                                          </div>
+                                          <div className="mt-2 pt-1 border-t border-gray-600 text-center">
+                                            <span className="text-green-300">
+                                              Total Submitted:{" "}
+                                              {submittedQuantities[row.id] || 0}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Arrow pointer */}
+                                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                                    </div>
+                                  )}
                               </td>
                               <td className="p-3 text-right">
                                 {row.samValue.toFixed(4)}
