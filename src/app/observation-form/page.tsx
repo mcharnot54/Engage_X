@@ -59,6 +59,11 @@ export default function GazeObservationApp() {
   const [submittedQuantities, setSubmittedQuantities] = useState<
     Record<number, number>
   >({});
+
+  // Track individual quantity submission history for hover tooltip
+  const [quantitySubmissionHistory, setQuantitySubmissionHistory] = useState<
+    Record<number, Array<{ amount: number; timestamp: string }>>
+  >({});
   const [error, setError] = useState("");
 
   // Observation tracking
