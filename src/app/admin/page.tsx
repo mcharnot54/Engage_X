@@ -22,8 +22,15 @@ export default function AdminPage() {
     adminUsers: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const user = useUser({ or: "redirect" });
+
+  // Only access Stack Auth hooks after component mounts on client
+  const user = mounted ? useUser({ or: "redirect" }) : null;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetchSystemStats();
@@ -48,6 +55,15 @@ export default function AdminPage() {
       setIsLoading(false);
     }
   };
+
+  // Show loading until component is mounted and user is available
+  if (!mounted || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <ProtectedRoute requiredPermission={{ module: "admin", action: "read" }}>
