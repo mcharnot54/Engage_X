@@ -4,6 +4,9 @@ import { Poppins, Montserrat } from "next/font/google";
 import ErrorBoundary from "../components/ErrorBoundary";
 import "./globals.css";
 
+// Force dynamic rendering to avoid SSG issues with Builder.io
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
