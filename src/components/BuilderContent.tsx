@@ -15,7 +15,7 @@ if (typeof window !== 'undefined') {
   if (apiKey) {
     builder.init(apiKey);
   } else {
-    // eslint-disable-next-line no-console
+     
     console.warn(
       'NEXT_PUBLIC_BUILDER_API_KEY is not set — Builder content will be blank.',
     );
