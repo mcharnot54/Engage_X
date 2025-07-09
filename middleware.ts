@@ -4,6 +4,8 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   try {
+    console.log(`[Middleware] Processing: ${pathname}`);
+
     // Allow all static assets and API routes
     if (
       pathname.startsWith("/_next/") ||
@@ -12,6 +14,7 @@ export function middleware(request: NextRequest) {
       pathname === "/favicon.ico" ||
       pathname.startsWith("/public/")
     ) {
+      console.log(`[Middleware] Allowing static/API route: ${pathname}`);
       return NextResponse.next();
     }
 
@@ -22,6 +25,7 @@ export function middleware(request: NextRequest) {
     );
 
     if (isPublicRoute) {
+      console.log(`[Middleware] Allowing public route: ${pathname}`);
       return NextResponse.next();
     }
 
@@ -32,24 +36,32 @@ export function middleware(request: NextRequest) {
       process.env.STACK_SECRET_SERVER_KEY
     );
 
+    console.log(`[Middleware] Stack config available: ${hasStackConfig}`);
+
     // If Stack Auth is not configured, allow access
     if (!hasStackConfig) {
+      console.log(`[Middleware] No Stack config, allowing access: ${pathname}`);
       return NextResponse.next();
     }
 
     // Check for Stack Auth session cookie
     const stackSessionCookie = request.cookies.get("stack-session");
+    console.log(
+      `[Middleware] Session cookie exists: ${!!stackSessionCookie?.value}`,
+    );
 
     if (!stackSessionCookie?.value) {
       // No session found, redirect to login
+      console.log(`[Middleware] Redirecting to sign-in: ${pathname}`);
       const signInUrl = new URL("/handler/sign-in", request.url);
       return NextResponse.redirect(signInUrl);
     }
 
     // Session exists, allow access
+    console.log(`[Middleware] Session found, allowing access: ${pathname}`);
     return NextResponse.next();
   } catch (error) {
-    console.error("Middleware error:", error);
+    console.error(`[Middleware] Error processing ${pathname}:`, error);
     // On error, allow access to prevent blocking the entire app
     return NextResponse.next();
   }
