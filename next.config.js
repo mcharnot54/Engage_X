@@ -20,6 +20,9 @@ const nextConfig = {
   // External packages for server components
   serverExternalPackages: ["@prisma/client", "prisma"],
 
+  // Disable static optimization to prevent Builder.io SSG issues
+  trailingSlash: false,
+
   // Additional configuration for Vercel
   output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
 };
