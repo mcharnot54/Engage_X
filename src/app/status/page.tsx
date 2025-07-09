@@ -51,7 +51,6 @@ export default function StatusPage() {
     setStatus({
       database: dbStatus,
       builderIO: builderStatus,
-      stackAuth: stackStatus,
       environment:
         typeof window !== "undefined" && process.env.NODE_ENV === "production"
           ? "production"
