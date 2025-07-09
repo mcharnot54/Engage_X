@@ -618,6 +618,18 @@ export default function GazeObservationApp() {
         [id]: (prev[id] || 0) + tempValue,
       }));
 
+      // Track submission history for hover tooltip
+      setQuantitySubmissionHistory((prev) => ({
+        ...prev,
+        [id]: [
+          ...(prev[id] || []),
+          {
+            amount: tempValue,
+            timestamp: new Date().toLocaleTimeString(),
+          },
+        ],
+      }));
+
       // Clear the temporary input
       setTempQuantities((prev) => ({
         ...prev,
