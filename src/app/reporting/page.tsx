@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Banner } from "@/components/ui/Banner";
-import { Sidebar } from "@/components/Sidebar";
+import { Banner } from "../components/ui/Banner";
+import { Sidebar } from "../components/Sidebar";
 
 export default function ReportingPage() {
   return (
