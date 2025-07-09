@@ -9,6 +9,18 @@ export default function HomePage() {
   useEffect(() => {
     setIsLoaded(true);
   }, []);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pointer-events-auto text-gray-300 bg-white">
       <div className="bg-white text-gray-300 pointer-events-auto">
