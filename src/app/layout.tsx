@@ -6,6 +6,9 @@ import { stackServerApp } from "../../stack";
 import ErrorBoundary from "../components/ErrorBoundary";
 import "./globals.css";
 
+// Force dynamic rendering to avoid SSG issues
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
