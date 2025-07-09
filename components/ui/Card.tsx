@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import Image from 'next/image';
-import { Button } from './Button';
-import './Card.css'; // keep your existing styles
+import type { ReactNode } from "react";
+import Image from "next/image";
+import { Button } from "./Button";
 
 interface CardProps {
   title: string;
@@ -13,43 +12,55 @@ interface CardProps {
   buttonLink?: string;
   elevation?: number;
   className?: string;
-  children?: ReactNode;           // optional slot if you need extra markup
+  children?: ReactNode;
 }
 
 export const Card = ({
   title,
   description,
-  image = 'https://placehold.co/600x400',
-  buttonText = 'Learn More',
-  buttonLink = '#',
+  image = "https://placehold.co/600x400",
+  buttonText = "Learn More",
+  buttonLink = "#",
   elevation = 1,
-  className = '',
+  className = "",
   children,
 }: CardProps) => {
+  const elevationClasses = {
+    0: "",
+    1: "shadow-sm",
+    2: "shadow-md",
+    3: "shadow-lg",
+    4: "shadow-xl",
+    5: "shadow-2xl",
+  };
+
   return (
-    <article className={`card card--elevation-${elevation} ${className}`}>
+    <article
+      className={`rounded-lg border bg-card text-card-foreground ${elevationClasses[elevation as keyof typeof elevationClasses] || elevationClasses[1]} ${className}`}
+    >
       {image && (
-        <div className="card__image-container">
-          {/* next/image replaces the <img> tag */}
+        <div className="overflow-hidden rounded-t-lg">
           <Image
             src={image}
             alt={title}
             width={600}
             height={400}
-            className="card__image"
+            className="h-48 w-full object-cover transition-transform hover:scale-105"
             priority
           />
         </div>
       )}
 
-      <div className="card__content">
-        <h3 className="card__title">{title}</h3>
-        <p className="card__description">{description}</p>
+      <div className="p-6">
+        <h3 className="text-2xl font-semibold leading-none tracking-tight mb-2">
+          {title}
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">{description}</p>
 
-        {children /* optional extra JSX */}
+        {children}
 
         {buttonText && (
-          <a href={buttonLink} className="card__button-link">
+          <a href={buttonLink} className="inline-block">
             <Button text={buttonText} variant="primary" size="medium" />
           </a>
         )}
