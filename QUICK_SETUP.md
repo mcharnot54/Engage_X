@@ -87,9 +87,7 @@ This is **NOT required for demo** - the app works without it. To enable:
 
 For basic demo, authentication is **optional**. To enable:
 
-1. Set up Stack Auth project
-2. Add credentials to `.env.local`
-3. Configure authentication middleware
+Authentication has been removed from the application.
 
 ## 🎯 Demo Script
 
