@@ -25,9 +25,6 @@ export default function AdminPage() {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  // Only access Stack Auth hooks after component mounts on client
-  const user = mounted ? useUser({ or: "redirect" }) : null;
-
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -56,14 +53,51 @@ export default function AdminPage() {
     }
   };
 
-  // Show loading until component is mounted and user is available
-  if (!mounted || !user) {
+  // Show loading until component is mounted
+  if (!mounted) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
+
+  return <AdminContent />;
+}
+
+function AdminContent() {
+  const [systemStats, setSystemStats] = useState<SystemStats>({
+    totalUsers: 0,
+    activeSessions: 0,
+    adminUsers: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const user = useUser({ or: "redirect" });
+
+  useEffect(() => {
+    fetchSystemStats();
+  }, []);
+
+  const fetchSystemStats = async () => {
+    try {
+      const response = await fetch("/api/users");
+      if (response.ok) {
+        const users = await response.json();
+        setSystemStats({
+          totalUsers: users.length,
+          activeSessions: users.filter((user: any) => user.isActive).length,
+          adminUsers: users.filter((user: any) =>
+            user.userRole?.name?.toLowerCase().includes("admin"),
+          ).length,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching system stats:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <ProtectedRoute requiredPermission={{ module: "admin", action: "read" }}>
