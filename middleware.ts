@@ -1,70 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  try {
-    // Allow all static assets and API routes
-    if (
-      pathname.startsWith("/_next/") ||
-      pathname.startsWith("/api/") ||
-      pathname.includes(".") ||
-      pathname === "/favicon.ico" ||
-      pathname.startsWith("/public/")
-    ) {
-      return NextResponse.next();
-    }
-
-    // Allow public routes
-    const publicRoutes = ["/", "/login", "/handler"];
-    const isPublicRoute = publicRoutes.some(
-      (route) => pathname === route || pathname.startsWith(route + "/"),
-    );
-
-    if (isPublicRoute) {
-      return NextResponse.next();
-    }
-
-    // Simple environment check - if any required env var is missing, allow access
-    const hasStackConfig = !!(
-      process.env.NEXT_PUBLIC_STACK_PROJECT_ID &&
-      process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY &&
-      process.env.STACK_SECRET_SERVER_KEY
-    );
-
-    // If Stack Auth is not configured, allow access
-    if (!hasStackConfig) {
-      return NextResponse.next();
-    }
-
-    // Check for Stack Auth session cookie
-    const stackSessionCookie = request.cookies.get("stack-session");
-
-    if (!stackSessionCookie?.value) {
-      // No session found, redirect to login
-      const signInUrl = new URL("/handler/sign-in", request.url);
-      return NextResponse.redirect(signInUrl);
-    }
-
-    // Session exists, allow access
-    return NextResponse.next();
-  } catch (error) {
-    console.error("Middleware error:", error);
-    // On error, allow access to prevent blocking the entire app
-    return NextResponse.next();
-  }
+  // Temporarily disable all middleware logic to isolate the issue
+  console.log(
+    `[Middleware] DISABLED - Allowing all routes: ${request.nextUrl.pathname}`,
+  );
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
+     * Match all request paths except static files and API routes
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
+    "/((?!api|_next|favicon.ico|public).*)",
   ],
 };
+
