@@ -42,7 +42,7 @@ export default function RootLayout({
       <StackTheme>{children}</StackTheme>
     </StackProvider>
   ) : (
-    <div suppressHydrationWarning>{children}</div>
+    children
   );
 
   return (
