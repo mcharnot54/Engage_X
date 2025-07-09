@@ -59,6 +59,16 @@ export default function GazeObservationApp() {
   const [submittedQuantities, setSubmittedQuantities] = useState<
     Record<number, number>
   >({});
+
+  // Track individual quantity submission history for hover tooltip
+  const [quantitySubmissionHistory, setQuantitySubmissionHistory] = useState<
+    Record<number, Array<{ amount: number; timestamp: string }>>
+  >({});
+
+  // Hover state for quantity tooltip
+  const [hoveredQuantityRowId, setHoveredQuantityRowId] = useState<
+    number | null
+  >(null);
   const [error, setError] = useState("");
 
   // Observation tracking
@@ -613,6 +623,18 @@ export default function GazeObservationApp() {
         [id]: (prev[id] || 0) + tempValue,
       }));
 
+      // Track submission history for hover tooltip
+      setQuantitySubmissionHistory((prev) => ({
+        ...prev,
+        [id]: [
+          ...(prev[id] || []),
+          {
+            amount: tempValue,
+            timestamp: new Date().toLocaleTimeString(),
+          },
+        ],
+      }));
+
       // Clear the temporary input
       setTempQuantities((prev) => ({
         ...prev,
@@ -627,6 +649,56 @@ export default function GazeObservationApp() {
       // Note: Dynamic grouping logic will be handled by the syncActiveRowIds function
       // in the useEffect that triggers when submittedQuantities change
     }
+  };
+
+  // Delete individual submitted quantity entry
+  const deleteQuantityEntry = (rowId: number, entryIndex: number) => {
+    if (!isObserving && !isPumpAssessmentActive) return;
+
+    const history = quantitySubmissionHistory[rowId] || [];
+    if (entryIndex >= 0 && entryIndex < history.length) {
+      const entryToDelete = history[entryIndex];
+
+      // Remove from submission history
+      setQuantitySubmissionHistory((prev) => ({
+        ...prev,
+        [rowId]: prev[rowId].filter((_, index) => index !== entryIndex),
+      }));
+
+      // Subtract from submitted quantities
+      setSubmittedQuantities((prev) => ({
+        ...prev,
+        [rowId]: Math.max(0, (prev[rowId] || 0) - entryToDelete.amount),
+      }));
+    }
+  };
+
+  // Clear all quantities for a row (both ticker and submitted)
+  const clearAllQuantities = (rowId: number) => {
+    if (!isObserving && !isPumpAssessmentActive) return;
+
+    // Clear ticker quantity
+    setRows((prevRows) =>
+      prevRows.map((row) => (row.id === rowId ? { ...row, quantity: 0 } : row)),
+    );
+
+    // Clear submitted quantities
+    setSubmittedQuantities((prev) => ({
+      ...prev,
+      [rowId]: 0,
+    }));
+
+    // Clear submission history
+    setQuantitySubmissionHistory((prev) => ({
+      ...prev,
+      [rowId]: [],
+    }));
+
+    // Clear temp quantity if any
+    setTempQuantities((prev) => ({
+      ...prev,
+      [rowId]: 0,
+    }));
   };
 
   const calculateTotalSams = () => {
@@ -878,6 +950,9 @@ export default function GazeObservationApp() {
     setIsObserving(false);
     setShowPreviousObservations(false);
     setDelays([]);
+    setQuantitySubmissionHistory({});
+    setTempQuantities({});
+    setSubmittedQuantities({});
   };
 
   // Slide navigation for performance trends
@@ -1552,7 +1627,10 @@ export default function GazeObservationApp() {
                     disabled={
                       isFinalized ||
                       isPumpAssessmentActive ||
-                      (!isObserving && !selectedStandardData)
+                      (!isObserving &&
+                        (!selectedStandardData ||
+                          !employeeId ||
+                          !observationReason))
                     }
                     className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
                       isObserving
@@ -1732,13 +1810,23 @@ export default function GazeObservationApp() {
                                     type="number"
                                     min="0"
                                     value={tempQuantities[row.id] || 0}
-                                    disabled={!isObserving}
+                                    disabled={
+                                      !isObserving && !isPumpAssessmentActive
+                                    }
                                     onChange={(e) =>
                                       updateTempQuantity(
                                         row.id,
                                         parseInt(e.target.value) || 0,
                                       )
                                     }
+                                    onKeyDown={(e) => {
+                                      if (
+                                        e.key === "Enter" &&
+                                        tempQuantities[row.id] > 0
+                                      ) {
+                                        submitTempQuantity(row.id);
+                                      }
+                                    }}
                                     className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
                                     placeholder="0"
                                   />
@@ -1768,7 +1856,9 @@ export default function GazeObservationApp() {
                               <td className="p-3 text-center">
                                 <div className="flex items-center justify-center gap-2">
                                   <button
-                                    disabled={!isObserving}
+                                    disabled={
+                                      !isObserving && !isPumpAssessmentActive
+                                    }
                                     onClick={() =>
                                       updateQuantity(row.id, row.quantity - 1)
                                     }
@@ -1780,7 +1870,9 @@ export default function GazeObservationApp() {
                                     type="number"
                                     min="0"
                                     value={row.quantity}
-                                    disabled={!isObserving}
+                                    disabled={
+                                      !isObserving && !isPumpAssessmentActive
+                                    }
                                     onChange={(e) =>
                                       updateQuantity(
                                         row.id,
@@ -1790,7 +1882,9 @@ export default function GazeObservationApp() {
                                     className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
                                   />
                                   <button
-                                    disabled={!isObserving}
+                                    disabled={
+                                      !isObserving && !isPumpAssessmentActive
+                                    }
                                     onClick={() =>
                                       updateQuantity(row.id, row.quantity + 1)
                                     }
@@ -1800,9 +1894,118 @@ export default function GazeObservationApp() {
                                   </button>
                                 </div>
                               </td>
-                              <td className="p-3 text-center font-medium">
-                                {row.quantity +
-                                  (submittedQuantities[row.id] || 0)}
+                              <td
+                                className="p-3 text-center font-medium relative"
+                                onMouseEnter={() =>
+                                  setHoveredQuantityRowId(row.id)
+                                }
+                                onMouseLeave={() =>
+                                  setHoveredQuantityRowId(null)
+                                }
+                              >
+                                <div className="flex items-center justify-center gap-2">
+                                  <span className="cursor-help">
+                                    {row.quantity +
+                                      (submittedQuantities[row.id] || 0)}
+                                  </span>
+
+                                  {/* Clear All Button - only show if there are quantities to clear */}
+                                  {(row.quantity > 0 ||
+                                    (submittedQuantities[row.id] || 0) > 0) &&
+                                    (isObserving || isPumpAssessmentActive) && (
+                                      <button
+                                        onClick={() =>
+                                          clearAllQuantities(row.id)
+                                        }
+                                        className="ml-1 p-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors w-5 h-5 flex items-center justify-center text-xs"
+                                        title="Clear all quantities"
+                                      >
+                                        ×
+                                      </button>
+                                    )}
+                                </div>
+
+                                {/* Hover Tooltip */}
+                                {hoveredQuantityRowId === row.id &&
+                                  (quantitySubmissionHistory[row.id]?.length >
+                                    0 ||
+                                    row.quantity > 0) && (
+                                    <div className="absolute z-50 bg-gray-800 text-white text-xs rounded-lg p-3 shadow-lg -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full min-w-56">
+                                      <div className="font-semibold mb-2 text-center border-b border-gray-600 pb-1">
+                                        Quantity Breakdown
+                                      </div>
+
+                                      {/* Ticker Quantity */}
+                                      {row.quantity > 0 && (
+                                        <div className="mb-2">
+                                          <div className="text-blue-300 font-medium">
+                                            Ticker Quantity:
+                                          </div>
+                                          <div className="pl-2">
+                                            • {row.quantity} (live counter)
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Submitted Entries */}
+                                      {quantitySubmissionHistory[row.id]
+                                        ?.length > 0 && (
+                                        <div>
+                                          <div className="text-green-300 font-medium mb-1">
+                                            Submitted Entries:
+                                          </div>
+                                          <div className="space-y-1 max-h-32 overflow-y-auto">
+                                            {quantitySubmissionHistory[
+                                              row.id
+                                            ].map((entry, index) => (
+                                              <div
+                                                key={index}
+                                                className="flex items-center justify-between pl-2 text-xs group"
+                                              >
+                                                <span>
+                                                  • {entry.amount} at{" "}
+                                                  {entry.timestamp}
+                                                </span>
+                                                {(isObserving ||
+                                                  isPumpAssessmentActive) && (
+                                                  <button
+                                                    onClick={() =>
+                                                      deleteQuantityEntry(
+                                                        row.id,
+                                                        index,
+                                                      )
+                                                    }
+                                                    className="ml-2 p-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100"
+                                                    title="Delete this entry"
+                                                  >
+                                                    ×
+                                                  </button>
+                                                )}
+                                              </div>
+                                            ))}
+                                          </div>
+                                          <div className="mt-2 pt-1 border-t border-gray-600 text-center">
+                                            <span className="text-green-300">
+                                              Total Submitted:{" "}
+                                              {submittedQuantities[row.id] || 0}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Instructions */}
+                                      {(isObserving ||
+                                        isPumpAssessmentActive) && (
+                                        <div className="mt-2 pt-1 border-t border-gray-600 text-center text-gray-400 text-xs">
+                                          Hover over entries to delete • Click ×
+                                          to clear all
+                                        </div>
+                                      )}
+
+                                      {/* Arrow pointer */}
+                                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                                    </div>
+                                  )}
                               </td>
                               <td className="p-3 text-right">
                                 {row.samValue.toFixed(4)}
@@ -1836,7 +2039,7 @@ export default function GazeObservationApp() {
                               type="checkbox"
                               checked={bestPracticesChecked.includes(practice)}
                               onChange={() => toggleBestPractice(practice)}
-                              disabled={!isObserving}
+                              disabled={!isObserving && !isPumpAssessmentActive}
                               className="mt-1 disabled:opacity-50"
                             />
                             <span className="text-sm">{practice}</span>
@@ -1862,7 +2065,7 @@ export default function GazeObservationApp() {
                               onChange={() =>
                                 toggleProcessAdherence(opportunity)
                               }
-                              disabled={!isObserving}
+                              disabled={!isObserving && !isPumpAssessmentActive}
                               className="mt-1 disabled:opacity-50"
                             />
                             <span className="text-sm">{opportunity}</span>
