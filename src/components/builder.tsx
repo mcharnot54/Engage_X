@@ -9,8 +9,8 @@ import {
 } from "@builder.io/react";
 import { useEffect, useState } from "react";
 
-// Temporarily disable Builder initialization for debugging
-if (false && typeof window !== "undefined" && !builder.apiKey) {
+// Initialize Builder only on client-side to avoid SSG issues
+if (typeof window !== "undefined" && !builder.apiKey) {
   const key = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
   if (key) {
     builder.init(key);
