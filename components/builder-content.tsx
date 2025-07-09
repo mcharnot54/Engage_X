@@ -6,7 +6,7 @@ import {
   useIsPreviewing,
   type BuilderContent, // ← add this
 } from "@builder.io/react";
-import { notFound } from "next/navigation";
+// Remove notFound import since it's for server components
 
 interface BuilderContentProps {
   content?: BuilderContent | null; // explicit type instead of `any`
