@@ -25,9 +25,6 @@ export default function AdminPage() {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  // Only access Stack Auth hooks after component mounts on client
-  const user = mounted ? useUser({ or: "redirect" }) : null;
-
   useEffect(() => {
     setMounted(true);
   }, []);
