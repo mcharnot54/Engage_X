@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Builder, builder } from "@builder.io/react";
 
 export function initializeBuilder() {
@@ -6,6 +6,13 @@ export function initializeBuilder() {
   Builder.set({
     canTrack: false,
     env: process.env.NODE_ENV === "production" ? "production" : "development",
+    // Hide default blocks that don't support accessibility
+    hideDefaultBuilderBlocks: ["Image"],
+    customBreakpoints: {
+      mobile: 480,
+      tablet: 768,
+      desktop: 1024,
+    },
   });
 
   // 2️⃣ Targeting attributes —- use the **instance**

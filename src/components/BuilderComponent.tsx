@@ -13,7 +13,7 @@ const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
 if (apiKey) {
   builder.init(apiKey);
 } else {
-  // eslint-disable-next-line no-console
+   
   console.warn(
     'NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will be blank.',
   );
