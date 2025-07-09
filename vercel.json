@@ -5,13 +5,5 @@
       "SKIP_ENV_VALIDATION": "1"
     }
   },
-  "functions": {
-    "app/**/*.js": {
-      "runtime": "nodejs20.x"
-    },
-    "src/app/**/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "installCommand": "npm install && npx prisma generate"
 }
