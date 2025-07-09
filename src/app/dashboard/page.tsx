@@ -1,27 +1,40 @@
 import { Suspense } from "react";
 import DashboardContent from "../../components/DashboardContent";
+import { Banner } from "../../components/ui/Banner";
+import { Sidebar } from "../../components/Sidebar";
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              PhoenixPGS Dashboard
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Performance guidance and observation management system
-            </p>
-          </div>
+    <div className="font-poppins text-black bg-gray-100 min-h-screen overflow-x-hidden">
+      <Banner
+        title="Dashboard"
+        subtitle="Performance guidance and observation management system"
+      />
+      <div className="flex flex-col max-w-7xl mx-auto bg-gray-100 min-h-[calc(100vh-80px)] rounded-xl border border-gray-300 mt-5 p-5 overflow-y-auto">
+        <div className="flex flex-row h-full">
+          <Sidebar
+            showLogo={true}
+            applications={[
+              "Labor.X",
+              "Clock.X",
+              "Engage.X",
+              "Staff.X",
+              "Dash.X",
+              "Report.X",
+              "Incent.X",
+              "Perform.X",
+              "Plan.X",
+            ]}
+            showUserProfile={true}
+          />
+
+          <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
+            <Suspense fallback={<DashboardSkeleton />}>
+              <DashboardContent />
+            </Suspense>
+          </main>
         </div>
       </div>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Suspense fallback={<DashboardSkeleton />}>
-          <DashboardContent />
-        </Suspense>
-      </main>
     </div>
   );
 }
