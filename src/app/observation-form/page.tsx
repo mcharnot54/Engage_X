@@ -651,6 +651,56 @@ export default function GazeObservationApp() {
     }
   };
 
+  // Delete individual submitted quantity entry
+  const deleteQuantityEntry = (rowId: number, entryIndex: number) => {
+    if (!isObserving && !isPumpAssessmentActive) return;
+
+    const history = quantitySubmissionHistory[rowId] || [];
+    if (entryIndex >= 0 && entryIndex < history.length) {
+      const entryToDelete = history[entryIndex];
+
+      // Remove from submission history
+      setQuantitySubmissionHistory((prev) => ({
+        ...prev,
+        [rowId]: prev[rowId].filter((_, index) => index !== entryIndex),
+      }));
+
+      // Subtract from submitted quantities
+      setSubmittedQuantities((prev) => ({
+        ...prev,
+        [rowId]: Math.max(0, (prev[rowId] || 0) - entryToDelete.amount),
+      }));
+    }
+  };
+
+  // Clear all quantities for a row (both ticker and submitted)
+  const clearAllQuantities = (rowId: number) => {
+    if (!isObserving && !isPumpAssessmentActive) return;
+
+    // Clear ticker quantity
+    setRows((prevRows) =>
+      prevRows.map((row) => (row.id === rowId ? { ...row, quantity: 0 } : row)),
+    );
+
+    // Clear submitted quantities
+    setSubmittedQuantities((prev) => ({
+      ...prev,
+      [rowId]: 0,
+    }));
+
+    // Clear submission history
+    setQuantitySubmissionHistory((prev) => ({
+      ...prev,
+      [rowId]: [],
+    }));
+
+    // Clear temp quantity if any
+    setTempQuantities((prev) => ({
+      ...prev,
+      [rowId]: 0,
+    }));
+  };
+
   const calculateTotalSams = () => {
     const total = rows.reduce(
       (sum, row) =>
