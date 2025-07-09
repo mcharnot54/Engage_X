@@ -895,6 +895,9 @@ export default function GazeObservationApp() {
     setIsObserving(false);
     setShowPreviousObservations(false);
     setDelays([]);
+    setQuantitySubmissionHistory({});
+    setTempQuantities({});
+    setSubmittedQuantities({});
   };
 
   // Slide navigation for performance trends
