@@ -7,7 +7,6 @@ import { Button } from "../../components/ui/Button";
 interface SystemStatus {
   database: "connected" | "error" | "checking";
   builderIO: "configured" | "missing" | "checking";
-  stackAuth: "configured" | "missing" | "checking";
   environment: "development" | "production";
 }
 
@@ -15,7 +14,6 @@ export default function StatusPage() {
   const [status, setStatus] = useState<SystemStatus>({
     database: "checking",
     builderIO: "checking",
-    stackAuth: "checking",
     environment: "development",
   });
 
@@ -36,18 +34,6 @@ export default function StatusPage() {
         ? "configured"
         : "missing";
 
-    // Check Stack Auth configuration (client-side only)
-    const stackProjectId =
-      typeof window !== "undefined"
-        ? process.env.NEXT_PUBLIC_STACK_PROJECT_ID
-        : null;
-    const stackClientKey =
-      typeof window !== "undefined"
-        ? process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
-        : null;
-    const stackStatus =
-      stackProjectId && stackClientKey ? "configured" : "missing";
-
     // Check database connection
     let dbStatus: "connected" | "error" = "error";
     let stats = null;
@@ -65,7 +51,6 @@ export default function StatusPage() {
     setStatus({
       database: dbStatus,
       builderIO: builderStatus,
-      stackAuth: stackStatus,
       environment:
         typeof window !== "undefined" && process.env.NODE_ENV === "production"
           ? "production"
@@ -170,36 +155,6 @@ export default function StatusPage() {
             {status.builderIO === "configured" && (
               <p className="text-green-600 text-sm">
                 Ready to load Builder.io content
-              </p>
-            )}
-          </Card>
-
-          {/* Stack Auth Status */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Stack Auth</h3>
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(status.stackAuth)}`}
-              >
-                {getStatusIcon(status.stackAuth)} {status.stackAuth}
-              </span>
-            </div>
-            {status.stackAuth === "missing" && (
-              <div className="text-sm text-gray-600">
-                <p className="text-red-600 mb-2">
-                  Authentication not configured
-                </p>
-                <p>Add Stack Auth keys to .env.local:</p>
-                <ul className="list-disc list-inside text-xs mt-1 space-y-1">
-                  <li>NEXT_PUBLIC_STACK_PROJECT_ID</li>
-                  <li>NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY</li>
-                  <li>STACK_SECRET_SERVER_KEY</li>
-                </ul>
-              </div>
-            )}
-            {status.stackAuth === "configured" && (
-              <p className="text-green-600 text-sm">
-                Authentication system ready
               </p>
             )}
           </Card>
