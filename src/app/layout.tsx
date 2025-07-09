@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins, Montserrat } from "next/font/google";
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackServerApp } from "../../stack";
 import ErrorBoundary from "../components/ErrorBoundary";
 import "./globals.css";
 
@@ -38,22 +36,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const bodyContent = stackServerApp ? (
-    <ErrorBoundary>
-      <StackProvider app={stackServerApp}>
-        <StackTheme>{children}</StackTheme>
-      </StackProvider>
-    </ErrorBoundary>
-  ) : (
-    <ErrorBoundary>{children}</ErrorBoundary>
-  );
-
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} antialiased`}
       >
-        {bodyContent}
+        <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
   );
