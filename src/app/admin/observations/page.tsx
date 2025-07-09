@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Banner } from "../../components/ui/Banner";
-import { Sidebar } from "../../components/Sidebar";
+import { Banner } from "@/components/ui/Banner";
+import { Sidebar } from "@/components/Sidebar";
 
 interface Observation {
   id: string;
