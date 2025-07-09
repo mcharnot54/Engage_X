@@ -1735,7 +1735,9 @@ export default function GazeObservationApp() {
                                     type="number"
                                     min="0"
                                     value={tempQuantities[row.id] || 0}
-                                    disabled={!isObserving}
+                                    disabled={
+                                      !isObserving && !isPumpAssessmentActive
+                                    }
                                     onChange={(e) =>
                                       updateTempQuantity(
                                         row.id,
@@ -1771,7 +1773,9 @@ export default function GazeObservationApp() {
                               <td className="p-3 text-center">
                                 <div className="flex items-center justify-center gap-2">
                                   <button
-                                    disabled={!isObserving}
+                                    disabled={
+                                      !isObserving && !isPumpAssessmentActive
+                                    }
                                     onClick={() =>
                                       updateQuantity(row.id, row.quantity - 1)
                                     }
@@ -1783,7 +1787,9 @@ export default function GazeObservationApp() {
                                     type="number"
                                     min="0"
                                     value={row.quantity}
-                                    disabled={!isObserving}
+                                    disabled={
+                                      !isObserving && !isPumpAssessmentActive
+                                    }
                                     onChange={(e) =>
                                       updateQuantity(
                                         row.id,
@@ -1793,7 +1799,9 @@ export default function GazeObservationApp() {
                                     className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
                                   />
                                   <button
-                                    disabled={!isObserving}
+                                    disabled={
+                                      !isObserving && !isPumpAssessmentActive
+                                    }
                                     onClick={() =>
                                       updateQuantity(row.id, row.quantity + 1)
                                     }
@@ -1839,7 +1847,7 @@ export default function GazeObservationApp() {
                               type="checkbox"
                               checked={bestPracticesChecked.includes(practice)}
                               onChange={() => toggleBestPractice(practice)}
-                              disabled={!isObserving}
+                              disabled={!isObserving && !isPumpAssessmentActive}
                               className="mt-1 disabled:opacity-50"
                             />
                             <span className="text-sm">{practice}</span>
@@ -1865,7 +1873,7 @@ export default function GazeObservationApp() {
                               onChange={() =>
                                 toggleProcessAdherence(opportunity)
                               }
-                              disabled={!isObserving}
+                              disabled={!isObserving && !isPumpAssessmentActive}
                               className="mt-1 disabled:opacity-50"
                             />
                             <span className="text-sm">{opportunity}</span>
