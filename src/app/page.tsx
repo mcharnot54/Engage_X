@@ -1,6 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
   return (
     <div className="pointer-events-auto text-gray-300 bg-white">
       <div className="bg-white text-gray-300 pointer-events-auto">
