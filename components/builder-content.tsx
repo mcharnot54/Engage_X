@@ -15,9 +15,9 @@ interface BuilderContentProps {
 export function RenderBuilderContent({ content }: BuilderContentProps) {
   const isPreviewing = useIsPreviewing();
 
-  // If there's no content and not in preview mode, show a 404 error
+  // If there's no content and not in preview mode, trigger 404
   if (!content && !isPreviewing) {
-    return <DefaultErrorPage statusCode={404} />;
+    notFound();
   }
 
   // If there's no content but we're in preview mode, show a helpful message
