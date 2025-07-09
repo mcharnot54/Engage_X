@@ -1,31 +1,9 @@
-"use client";
-
-import { Suspense, useEffect, useState } from "react";
-import { useUser } from "@stackframe/stack";
+import { Suspense } from "react";
 import DashboardContent from "../../components/DashboardContent";
 import { Banner } from "../../components/ui/Banner";
 import { Sidebar } from "../../components/Sidebar";
 
 export default function DashboardPage() {
-  const user = useUser();
-  const [showDashboard, setShowDashboard] = useState(false);
-
-  useEffect(() => {
-    // Allow dashboard to show regardless of auth status for demo purposes
-    setShowDashboard(true);
-  }, []);
-
-  if (!showDashboard) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="font-poppins text-black bg-gray-100 min-h-screen overflow-x-hidden">
       <Banner

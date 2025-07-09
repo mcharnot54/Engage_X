@@ -26,16 +26,25 @@ export default function StatusPage() {
   }, []);
 
   const checkSystemStatus = async () => {
-    // Check Builder.io configuration
-    const builderKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
+    // Check Builder.io configuration (client-side only)
+    const builderKey =
+      typeof window !== "undefined"
+        ? process.env.NEXT_PUBLIC_BUILDER_API_KEY
+        : null;
     const builderStatus =
       builderKey && builderKey !== "YOUR_BUILDER_API_KEY_HERE"
         ? "configured"
         : "missing";
 
-    // Check Stack Auth configuration
-    const stackProjectId = process.env.NEXT_PUBLIC_STACK_PROJECT_ID;
-    const stackClientKey = process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
+    // Check Stack Auth configuration (client-side only)
+    const stackProjectId =
+      typeof window !== "undefined"
+        ? process.env.NEXT_PUBLIC_STACK_PROJECT_ID
+        : null;
+    const stackClientKey =
+      typeof window !== "undefined"
+        ? process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
+        : null;
     const stackStatus =
       stackProjectId && stackClientKey ? "configured" : "missing";
 
@@ -58,7 +67,9 @@ export default function StatusPage() {
       builderIO: builderStatus,
       stackAuth: stackStatus,
       environment:
-        process.env.NODE_ENV === "production" ? "production" : "development",
+        typeof window !== "undefined" && process.env.NODE_ENV === "production"
+          ? "production"
+          : "development",
     });
 
     setDbStats(stats);
