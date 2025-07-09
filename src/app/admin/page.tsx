@@ -56,6 +56,15 @@ export default function AdminPage() {
     }
   };
 
+  // Show loading until component is mounted and user is available
+  if (!mounted || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <ProtectedRoute requiredPermission={{ module: "admin", action: "read" }}>
       <div className="min-h-screen bg-gray-50">
