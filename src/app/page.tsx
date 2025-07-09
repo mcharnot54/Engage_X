@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import ErrorBoundary from "../components/ErrorBoundary";
 
+// Force dynamic rendering to avoid SSG issues with Builder.io
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
 
