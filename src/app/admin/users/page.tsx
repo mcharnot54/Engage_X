@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Banner } from "@/components/ui/Banner";
-import { Sidebar } from "@/components/Sidebar";
-import { UserManagementModal } from "@/components/UserManagementModal";
-import { ExternalSyncModal } from "@/components/ExternalSyncModal";
+import { Banner } from "../../components/ui/Banner";
+import { Sidebar } from "../../components/Sidebar";
+import { UserManagementModal } from "../../components/UserManagementModal";
+import { ExternalSyncModal } from "../../components/ExternalSyncModal";
 
 interface User {
   id: string;
