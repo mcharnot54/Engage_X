@@ -19,9 +19,6 @@ const nextConfig = {
   // Disable static optimization to prevent Builder.io SSG issues
   trailingSlash: false,
 
-  // Disable static page generation for now
-  generateStaticParams: false,
-
   // Additional configuration for Vercel
   output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
 
