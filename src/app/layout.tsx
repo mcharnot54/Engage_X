@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins, Montserrat } from "next/font/google";
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "../../stack";
+import ErrorBoundary from "../components/ErrorBoundary";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,11 +39,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const bodyContent = stackServerApp ? (
-    <StackProvider app={stackServerApp}>
-      <StackTheme>{children}</StackTheme>
-    </StackProvider>
+    <ErrorBoundary>
+      <StackProvider app={stackServerApp}>
+        <StackTheme>{children}</StackTheme>
+      </StackProvider>
+    </ErrorBoundary>
   ) : (
-    children
+    <ErrorBoundary>{children}</ErrorBoundary>
   );
 
   return (
