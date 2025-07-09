@@ -1764,6 +1764,14 @@ export default function GazeObservationApp() {
                                         parseInt(e.target.value) || 0,
                                       )
                                     }
+                                    onKeyDown={(e) => {
+                                      if (
+                                        e.key === "Enter" &&
+                                        tempQuantities[row.id] > 0
+                                      ) {
+                                        submitTempQuantity(row.id);
+                                      }
+                                    }}
                                     className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
                                     placeholder="0"
                                   />
