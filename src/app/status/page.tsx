@@ -159,36 +159,6 @@ export default function StatusPage() {
             )}
           </Card>
 
-          {/* Stack Auth Status */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Stack Auth</h3>
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(status.stackAuth)}`}
-              >
-                {getStatusIcon(status.stackAuth)} {status.stackAuth}
-              </span>
-            </div>
-            {status.stackAuth === "missing" && (
-              <div className="text-sm text-gray-600">
-                <p className="text-red-600 mb-2">
-                  Authentication not configured
-                </p>
-                <p>Add Stack Auth keys to .env.local:</p>
-                <ul className="list-disc list-inside text-xs mt-1 space-y-1">
-                  <li>NEXT_PUBLIC_STACK_PROJECT_ID</li>
-                  <li>NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY</li>
-                  <li>STACK_SECRET_SERVER_KEY</li>
-                </ul>
-              </div>
-            )}
-            {status.stackAuth === "configured" && (
-              <p className="text-green-600 text-sm">
-                Authentication system ready
-              </p>
-            )}
-          </Card>
-
           {/* Environment Info */}
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
