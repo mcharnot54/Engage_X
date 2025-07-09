@@ -38,23 +38,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Safely render content with fallback
-  const bodyContent = (() => {
-    try {
-      return stackServerApp ? (
-        <ErrorBoundary>
-          <StackProvider app={stackServerApp}>
-            <StackTheme>{children}</StackTheme>
-          </StackProvider>
-        </ErrorBoundary>
-      ) : (
-        <ErrorBoundary>{children}</ErrorBoundary>
-      );
-    } catch (error) {
-      console.error("Layout rendering error:", error);
-      return <ErrorBoundary>{children}</ErrorBoundary>;
-    }
-  })();
+  const bodyContent = stackServerApp ? (
+    <ErrorBoundary>
+      <StackProvider app={stackServerApp}>
+        <StackTheme>{children}</StackTheme>
+      </StackProvider>
+    </ErrorBoundary>
+  ) : (
+    <ErrorBoundary>{children}</ErrorBoundary>
+  );
 
   return (
     <html lang="en">
