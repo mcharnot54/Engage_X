@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -22,7 +23,8 @@ export default function HomePage() {
   }
 
   return (
-    <div className="pointer-events-auto text-gray-300 bg-white">
+    <ErrorBoundary>
+      <div className="pointer-events-auto text-gray-300 bg-white">
       <div className="bg-white text-gray-300 pointer-events-auto">
         <div className="mb-[200px] bg-white">
           <div className="flex gap-5 max-md:flex-col max-md:gap-0 -mb-[3px]">
