@@ -18,7 +18,7 @@ export default function HomePage() {
                     loading="lazy"
                     src="https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F9540c05b913c42ac9eca0746ebb9464b?width=2000"
                     className="block aspect-[2.98] object-cover w-full mt-5 min-h-[20px] min-w-[20px] overflow-hidden pointer-events-auto"
-                    alt="PhoenixPGS"
+                    alt="PhoenixPGS Performance Guidance Platform banner"
                   />
                 </section>
                 {/* Welcome Content Section */}
