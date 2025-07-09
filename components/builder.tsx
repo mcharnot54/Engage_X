@@ -12,15 +12,14 @@ import {
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 
-/* 1 ▸ Initialise the SDK only when the key exists */
+/* 1 ▸ Temporarily disable Builder initialization for debugging */
 const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
 
-if (apiKey && apiKey !== "YOUR_BUILDER_API_KEY_HERE") {
+// Temporarily disable Builder initialization to debug build issues
+if (false && apiKey && apiKey !== "YOUR_BUILDER_API_KEY_HERE") {
   builder.init(apiKey);
 } else {
-  console.warn(
-    "NEXT_PUBLIC_BUILDER_API_KEY is not properly configured — Builder content will not load.",
-  );
+  console.warn("Builder initialization temporarily disabled for debugging");
 }
 
 /* 2 ▸ Register custom components once */
