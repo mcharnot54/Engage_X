@@ -9,7 +9,7 @@ import {
 } from "@builder.io/react";
 import { useEffect, useState } from "react";
 
-// Initialise Builder on the client (once)
+// Initialize Builder only on client-side to avoid SSG issues
 if (typeof window !== "undefined" && !builder.apiKey) {
   const key = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
   if (key) {

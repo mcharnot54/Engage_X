@@ -12,11 +12,18 @@ import {
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 
-/* 1 ▸ Initialise the SDK only when the key exists */
+/* 1 ▸ Initialise the SDK only on client-side to avoid SSG issues */
 const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
 
-if (apiKey && apiKey !== "YOUR_BUILDER_API_KEY_HERE") {
+// Only initialize on client-side to prevent SSG issues
+if (
+  typeof window !== "undefined" &&
+  apiKey &&
+  apiKey !== "YOUR_BUILDER_API_KEY_HERE"
+) {
   builder.init(apiKey);
+} else if (typeof window === "undefined") {
+  console.log("Builder.io initialization skipped during SSG");
 } else {
   console.warn(
     "NEXT_PUBLIC_BUILDER_API_KEY is not properly configured — Builder content will not load.",

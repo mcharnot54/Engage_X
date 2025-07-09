@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
-  // For now, allow all requests to pass through
-  // In the future, you can add authentication logic here
+  // Minimal middleware to allow all requests
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except static files and API routes
+     * Match all request paths except for api, _next/static, _next/image, favicon.ico
      */
-    "/((?!api|_next|favicon.ico|public).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
