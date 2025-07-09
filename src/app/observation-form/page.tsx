@@ -1552,7 +1552,10 @@ export default function GazeObservationApp() {
                     disabled={
                       isFinalized ||
                       isPumpAssessmentActive ||
-                      (!isObserving && !selectedStandardData)
+                      (!isObserving &&
+                        (!selectedStandardData ||
+                          !employeeId ||
+                          !observationReason))
                     }
                     className={`px-6 py-3 text-white border-none rounded-lg cursor-pointer font-medium disabled:opacity-70 ${
                       isObserving
