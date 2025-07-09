@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+// Force dynamic rendering to avoid SSG issues
+export const dynamic = "force-dynamic";
 import {
   searchBuilderContent,
   testBuilderConnection,
