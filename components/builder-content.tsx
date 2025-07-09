@@ -6,7 +6,7 @@ import {
   useIsPreviewing,
   type BuilderContent, // ← add this
 } from "@builder.io/react";
-import DefaultErrorPage from "next/error";
+import { notFound } from "next/navigation";
 
 interface BuilderContentProps {
   content?: BuilderContent | null; // explicit type instead of `any`
