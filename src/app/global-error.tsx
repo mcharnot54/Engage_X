@@ -8,29 +8,72 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html>
-      <body>
-        <div className="min-h-screen flex items-center justify-center bg-white">
-          <div className="text-center p-8">
-            <h1 className="text-4xl font-bold text-red-600 mb-4">
+    <html lang="en">
+      <body style={{ margin: 0, fontFamily: "system-ui, sans-serif" }}>
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "white",
+          }}
+        >
+          <div style={{ textAlign: "center", padding: "32px" }}>
+            <h1
+              style={{
+                fontSize: "36px",
+                fontWeight: "bold",
+                color: "#dc2626",
+                marginBottom: "16px",
+              }}
+            >
               Something went wrong
             </h1>
-            <h2 className="text-2xl font-semibold text-gray-600 mb-4">
+            <h2
+              style={{
+                fontSize: "24px",
+                fontWeight: "600",
+                color: "#4b5563",
+                marginBottom: "16px",
+              }}
+            >
               A global error occurred
             </h2>
-            <p className="text-gray-500 mb-8">
+            <p
+              style={{
+                color: "#6b7280",
+                marginBottom: "32px",
+              }}
+            >
               Please refresh the page or contact support.
             </p>
-            <div className="space-x-4">
+            <div
+              style={{ display: "flex", gap: "16px", justifyContent: "center" }}
+            >
               <button
                 onClick={reset}
-                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                style={{
+                  backgroundColor: "#dc2626",
+                  color: "white",
+                  padding: "8px 24px",
+                  borderRadius: "8px",
+                  border: "none",
+                  cursor: "pointer",
+                }}
               >
                 Try Again
               </button>
               <button
                 onClick={() => (window.location.href = "/")}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                style={{
+                  backgroundColor: "#2563eb",
+                  color: "white",
+                  padding: "8px 24px",
+                  borderRadius: "8px",
+                  border: "none",
+                  cursor: "pointer",
+                }}
               >
                 Go Home
               </button>
