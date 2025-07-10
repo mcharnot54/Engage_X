@@ -181,6 +181,7 @@ export async function createStandard(data: {
   areaId: number;
   bestPractices: string[];
   processOpportunities: string[];
+  notes: string;
   uomEntries: {
     uom: string;
     description: string;
