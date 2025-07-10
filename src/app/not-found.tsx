@@ -1,5 +1,4 @@
-// Force dynamic rendering
-export const dynamic = "force-dynamic";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -12,12 +11,12 @@ export default function NotFound() {
         <p className="text-gray-500 mb-8">
           The page you're looking for doesn't exist.
         </p>
-        <a
+        <Link
           href="/"
           className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Go Home
-        </a>
+        </Link>
       </div>
     </div>
   );
