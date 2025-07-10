@@ -24,7 +24,7 @@ const nextConfig = {
 
   // Skip static optimization entirely
   experimental: {
-    runtime: "nodejs",
+    // Removed invalid runtime option
   },
 
   // Fix cross-origin requests in development
