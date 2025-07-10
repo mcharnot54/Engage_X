@@ -14,12 +14,12 @@ model User {
   email          String?
   department     String?
   role           String?
-  organizationId Int?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  organizationId Int?
   observations   Observation[]
   userRoles      UserRole[]
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organization   Organization? @relation(fields: [organizationId], references: [id])
 
   @@map("users")
 }
@@ -32,9 +32,9 @@ model Organization {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   facilities Facility[]
-  users      User[]
   roles      Role[]
   userRoles  UserRole[]
+  users      User[]
 
   @@map("organizations")
 }
@@ -99,10 +99,10 @@ model Standard {
   notes                String
   observations         Observation[]
   area                 Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  baseStandard         Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id])
+  versions             Standard[]    @relation("StandardVersions")
   department           Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   facility             Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
-  baseStandard         Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id], onDelete: SetNull)
-  versions             Standard[]    @relation("StandardVersions")
   uomEntries           UomEntry[]
 
   @@map("standards")
@@ -164,7 +164,7 @@ model ObservationData {
   createdAt     DateTime    @default(now())
   observation   Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
 
-    @@map("observation_data")
+  @@map("observation_data")
 }
 
 model Role {
@@ -175,8 +175,8 @@ model Role {
   isSystemRole    Boolean          @default(false)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  organization    Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   rolePermissions RolePermission[]
+  organization    Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   userRoles       UserRole[]
 
   @@unique([name, organizationId])
@@ -202,8 +202,8 @@ model RolePermission {
   roleId       Int
   permissionId Int
   createdAt    DateTime   @default(now())
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
   @@map("role_permissions")
@@ -215,34 +215,10 @@ model UserRole {
   roleId         Int
   organizationId Int?
   createdAt      DateTime      @default(now())
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([userId, roleId, organizationId])
+  @@unique([userId, roleId, organizationId])
   @@map("user_roles")
-}
-
-model DelayReason {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("delay_reasons")
-}
-
-model ObservationReason {
-  id               String   @id @default(cuid())
-  name             String   @unique
-  description      String?
-  isActive         Boolean  @default(true)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  apiConfiguration Json?
-  externalApiUrl   String?
-
-  @@map("observation_reasons")
 }
