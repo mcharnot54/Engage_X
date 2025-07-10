@@ -1418,6 +1418,20 @@ export default function GazeObservationApp() {
                   <option value="routine">Routine Check</option>
                 </select>
               </div>
+
+              {/* Standard Notes Button */}
+              {selectedStandardData && selectedStandardData.notes && (
+                <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={() => setShowStandardNotes(true)}
+                    disabled={isObserving}
+                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium disabled:opacity-70 flex items-center gap-2"
+                  >
+                    <span>📝</span>
+                    View Standard Notes
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* PUMP Grade Factor */}
