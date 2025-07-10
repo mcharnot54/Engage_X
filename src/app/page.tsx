@@ -25,8 +25,8 @@ export default function HomePage() {
     );
   }
 
-  return (
-    <ErrorBoundary>
+    return (
+    <div>
       <div className="pointer-events-auto text-gray-300 bg-white">
         <div className="bg-white text-gray-300 pointer-events-auto">
           <div className="mb-[200px] bg-white">
