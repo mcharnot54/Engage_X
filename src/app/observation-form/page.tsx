@@ -29,6 +29,13 @@ type Standard = {
   }[];
   bestPractices: string[];
   processOpportunities: string[];
+  notes: string;
+  versions?: {
+    id: number;
+    version: number;
+    versionNotes?: string;
+    createdAt: string;
+  }[];
 };
 
 type Delay = {
