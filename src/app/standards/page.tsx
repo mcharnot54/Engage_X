@@ -132,6 +132,7 @@ export default function Standards() {
   const [processOpportunities, setProcessOpportunities] = useState<string[]>([
     "",
   ]);
+  const [standardNotes, setStandardNotes] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   // CSV Upload state
