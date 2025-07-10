@@ -67,6 +67,8 @@ async function createRequiredDependencies() {
       version: 1,
       isCurrentVersion: true,
       isActive: true,
+      notes:
+        "This is the default standard with basic UOM entries for testing purposes. This standard includes common workplace metrics and best practices.",
     },
   });
   console.log("✓ Standard created");
