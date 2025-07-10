@@ -19,8 +19,8 @@ const nextConfig = {
   // Disable static optimization to prevent Builder.io SSG issues
   trailingSlash: false,
 
-  // Additional configuration for Vercel
-  output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+  // Remove output mode for Vercel deployment
+  // output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
 
   // Skip static optimization entirely
   experimental: {
