@@ -90,6 +90,7 @@ model Standard {
   isCurrentVersion     Boolean       @default(true)
   versionNotes         String?
   createdBy            String?
+  notes                String
   observations         Observation[]
   area                 Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
   department           Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
