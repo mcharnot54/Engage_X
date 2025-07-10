@@ -222,6 +222,7 @@ async function createStandardFromData(data: ParsedStandardData) {
         facilityId: facility.id,
         departmentId: department.id,
         areaId: area.id,
+        notes: data.notes,
         bestPractices: data.bestPractices,
         processOpportunities: data.processOpportunities,
         uomEntries: {

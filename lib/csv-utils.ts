@@ -7,6 +7,7 @@ export interface StandardCsvRow {
   departmentName: string;
   areaName: string;
   standardName: string;
+  notes: string;
   // UOM entries (up to 75)
   [key: `uom${number}_name`]: string;
   [key: `uom${number}_description`]: string;
@@ -33,6 +34,7 @@ export interface ParsedStandardData {
   departmentName: string;
   areaName: string;
   standardName: string;
+  notes: string;
   uomEntries: Array<{
     uom: string;
     description: string;
@@ -60,6 +62,7 @@ export function generateCsvTemplate(): string {
     "departmentName",
     "areaName",
     "standardName",
+    "notes",
   ];
 
   // Add UOM headers (up to 75)
@@ -90,6 +93,7 @@ export function generateCsvTemplate(): string {
     "Production",
     "Assembly Line A",
     "Widget Assembly Standard",
+    "Additional notes about this standard",
   ];
 
   // Add sample UOM data for first few entries
@@ -168,6 +172,7 @@ export function validateStandardRow(
     "departmentName",
     "areaName",
     "standardName",
+    "notes",
   ];
 
   requiredFields.forEach((field) => {
@@ -314,6 +319,7 @@ export function transformRowToStandardData(
     departmentName: row.departmentName.trim(),
     areaName: row.areaName.trim(),
     standardName: row.standardName.trim(),
+    notes: row.notes?.trim() || "",
     uomEntries,
     bestPractices,
     processOpportunities,
