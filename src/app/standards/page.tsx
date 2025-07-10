@@ -256,33 +256,39 @@ export default function Standards() {
     try {
       const response = await fetch("/api/standards");
       if (!response.ok) {
-        throw new Error("Failed to fetch standards");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to fetch standards`,
+        );
       }
       const data = await response.json();
       setSavedStandards(data);
+      setError(""); // Clear any previous errors
     } catch (error: any) {
       console.error("Error loading standards:", error);
 
-      // Try to get more specific error information from the API response
-      if (error instanceof Error && error.message.includes("Failed to fetch")) {
-        try {
-          const response = await fetch("/api/standards");
-          const errorData = await response.json();
-          if (errorData.details?.includes("DATABASE_URL")) {
-            setError(
-              "Database connection error: Please configure DATABASE_URL in .env.local file",
-            );
-          } else {
-            setError(
-              `Failed to load standards: ${errorData.details || error.message}`,
-            );
-          }
-        } catch {
-          setError("Failed to load standards - Check database connection");
+      let errorMessage = "Failed to load standards";
+
+      if (error instanceof Error) {
+        if (error.message.includes("does not exist")) {
+          errorMessage =
+            "Database schema issue detected. Please check if migrations have been applied properly.";
+        } else if (error.message.includes("DATABASE_URL")) {
+          errorMessage =
+            "Database connection error: Please configure DATABASE_URL in .env.local file";
+        } else if (
+          error.message.includes("network") ||
+          error.message.includes("fetch")
+        ) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message;
         }
-      } else {
-        setError("Failed to load standards");
       }
+
+      setError(errorMessage);
     }
   };
 

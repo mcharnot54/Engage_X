@@ -101,9 +101,9 @@ export function generateCsvTemplate(): string {
     "Units",
     "Number of units produced",
     "0.5",
-    "Production,Quality",
+    "Production;Quality",
   );
-  sampleRow.push("Minutes", "Time spent on task", "1.2", "Time,Efficiency");
+  sampleRow.push("Minutes", "Time spent on task", "1.2", "Time;Efficiency");
   sampleRow.push("Pieces", "Components assembled", "0.8", "Assembly");
 
   // Fill remaining UOM slots with empty values
@@ -131,7 +131,25 @@ export function generateCsvTemplate(): string {
     sampleRow.push("");
   }
 
-  return [headers.join(","), sampleRow.join(",")].join("\n");
+  return [formatCsvLine(headers), formatCsvLine(sampleRow)].join("\n");
+}
+
+// Helper function to properly format CSV lines with proper escaping
+function formatCsvLine(values: string[]): string {
+  return values
+    .map((value) => {
+      const stringValue = String(value);
+      // If value contains comma, quote, or newline, wrap in quotes and escape existing quotes
+      if (
+        stringValue.includes(",") ||
+        stringValue.includes('"') ||
+        stringValue.includes("\n")
+      ) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    })
+    .join(",");
 }
 
 export function parseCsvContent(csvContent: string): StandardCsvRow[] {
@@ -140,21 +158,52 @@ export function parseCsvContent(csvContent: string): StandardCsvRow[] {
     throw new Error("CSV must contain at least a header row and one data row");
   }
 
-  const headers = lines[0].split(",").map((h) => h.trim());
+  const headers = parseCsvLine(lines[0]);
   const rows: StandardCsvRow[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(",").map((v) => v.trim());
+    const values = parseCsvLine(lines[i]);
     const row: any = {};
 
     headers.forEach((header, index) => {
-      row[header] = values[index] || "";
+      row[header.trim()] = values[index] || "";
     });
 
     rows.push(row as StandardCsvRow);
   }
 
   return rows;
+}
+
+// Helper function to properly parse CSV lines with quoted fields
+function parseCsvLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      // Handle escaped quotes
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++; // Skip next quote
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+
+  // Add the last field
+  result.push(current.trim());
+
+  return result;
 }
 
 export function validateStandardRow(
@@ -282,7 +331,7 @@ export function transformRowToStandardData(
         samValue: parseFloat(uomSam),
         tags: uomTags
           ? uomTags
-              .split(";")
+              .split(/[;,]/) // Split on both semicolon and comma
               .map((tag) => tag.trim())
               .filter((tag) => tag)
           : [],

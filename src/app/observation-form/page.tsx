@@ -494,7 +494,16 @@ export default function GazeObservationApp() {
       let errorMessage = "Failed to load standards";
 
       if (error instanceof Error) {
-        if (error.message.includes("fetch")) {
+        if (error.message.includes("does not exist")) {
+          errorMessage =
+            "Database schema issue detected. Please check if migrations have been applied properly.";
+        } else if (error.message.includes("DATABASE_URL")) {
+          errorMessage =
+            "Database connection error: Please configure DATABASE_URL in .env.local file";
+        } else if (
+          error.message.includes("fetch") ||
+          error.message.includes("network")
+        ) {
           errorMessage =
             "Network error. Please check your connection and try again.";
         } else {

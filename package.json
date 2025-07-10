@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint --max-warnings 0 --fix \"src/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\"",
     "postinstall": "prisma generate",
-    "restore-data": "node scripts/restore-data.js"
+    "restore-data": "node scripts/restore-data.js",
+    "seed": "node scripts/seed-sample-data.js"
   },
   "dependencies": {
     "@builder.io/dev-tools": "^1.6.150",
