@@ -18,10 +18,11 @@ const nextConfig = {
 
   // Disable static optimization to prevent Builder.io SSG issues
   trailingSlash: false,
+  skipTrailingSlashRedirect: true,
 
   // Skip problematic static generation
   experimental: {
-    skipTrailingSlashRedirect: true,
+    // Add any experimental features here
   },
 
   // Force dynamic for all pages
