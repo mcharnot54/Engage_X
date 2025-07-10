@@ -935,6 +935,24 @@ export default function Standards() {
               </div>
             )}
 
+            {/* CSV Export/Import Section */}
+            <CsvExportImport
+              onExportSuccess={(message) => {
+                setSuccessMessage(message);
+                setShowSaveSuccess(true);
+                setTimeout(() => setShowSaveSuccess(false), 3000);
+              }}
+              onImportSuccess={(message) => {
+                setSuccessMessage(message);
+                setShowSaveSuccess(true);
+                setTimeout(() => setShowSaveSuccess(false), 5000);
+              }}
+              onError={(error) => {
+                setError(error);
+                setTimeout(() => setError(""), 5000);
+              }}
+            />
+
             {/* CSV Upload Section */}
             <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-md mb-6">
               <h2 className="text-xl font-semibold mb-4 text-blue-800">
