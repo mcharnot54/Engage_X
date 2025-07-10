@@ -27,6 +27,17 @@ const nextConfig = {
     "446e49d2fb5c4fe1b3830aa578d409fe-3c6932f6df3a4e8d995d8b1e6.fly.dev",
     "*.fly.dev",
   ],
+
+  // Experimental features for debugging
+  experimental: {
+    // Force dynamic rendering
+    dynamicIO: true,
+  },
+
+  // Disable static generation completely for error pages
+  generateBuildId: () => {
+    return "build-" + Date.now();
+  },
 };
 
 // If you want the Builder DevTools overlay in dev, wrap once:
