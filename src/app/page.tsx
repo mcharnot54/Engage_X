@@ -14,7 +14,7 @@ export default function HomePage() {
           <img
             src="https://cdn.builder.io/api/v1/image/assets%2F9ce0f418d64249b18f0cb96e0afc51db%2F9540c05b913c42ac9eca0746ebb9464b?width=2000"
             alt="PhoenixPGS Performance Guidance Platform"
-            className="w-[90%] max-w-[711px] mx-auto rounded-lg"
+            className="w-[90%] max-w-[711px] mx-auto rounded-lg mt-[113px]"
           />
         </div>
 
