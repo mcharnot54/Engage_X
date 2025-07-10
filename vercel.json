@@ -5,10 +5,10 @@
   "framework": "nextjs",
   "functions": {
     "src/app/**/*.tsx": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs20.x"
     },
     "src/app/**/*.ts": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs20.x"
     }
   },
   "build": {
