@@ -809,6 +809,7 @@ export default function Standards() {
       ]);
       setBestPractices([""]);
       setProcessOpportunities([""]);
+      setStandardNotes("");
       setEditVersionNotes("");
     } catch (error) {
       console.error("Error creating new version:", error);
