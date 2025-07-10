@@ -1222,6 +1222,21 @@ export default function Standards() {
                 />
               )}
 
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Standard Notes <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  placeholder="Enter notes and comments for this standard..."
+                  value={standardNotes}
+                  onChange={(e) => setStandardNotes(e.target.value)}
+                  disabled={isLoading}
+                  rows={4}
+                  className="w-full p-3 rounded-md border border-gray-300 bg-white disabled:opacity-50 resize-vertical"
+                  required
+                />
+              </div>
+
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-base font-semibold">UOM Details</h3>
