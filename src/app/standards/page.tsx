@@ -80,6 +80,7 @@ interface Standard {
   isCurrentVersion?: boolean;
   versionNotes?: string;
   createdBy?: string;
+  notes: string;
 }
 
 export default function Standards() {
@@ -131,6 +132,7 @@ export default function Standards() {
   const [processOpportunities, setProcessOpportunities] = useState<string[]>([
     "",
   ]);
+  const [standardNotes, setStandardNotes] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   // CSV Upload state
@@ -480,6 +482,11 @@ export default function Standards() {
         return;
       }
 
+      if (!standardNotes.trim()) {
+        setError("Please enter standard notes");
+        return;
+      }
+
       setIsLoading(true);
 
       const uomData = uomEntries
@@ -511,6 +518,7 @@ export default function Standards() {
           bestPractices: validBestPractices,
           processOpportunities: validProcessOpportunities,
           uomEntries: uomData,
+          notes: standardNotes.trim(),
         }),
       });
 
@@ -530,6 +538,7 @@ export default function Standards() {
       ]);
       setBestPractices([""]);
       setProcessOpportunities([""]);
+      setStandardNotes("");
     } catch (error) {
       console.error("Error saving standard:", error);
       setError("Failed to save standard");
@@ -712,6 +721,7 @@ export default function Standards() {
     setSelectedDepartment(standard.departmentId.toString());
     setSelectedArea(standard.areaId.toString());
     setStandardName(standard.name);
+    setStandardNotes(standard.notes || "");
     setBestPractices(
       standard.bestPractices.length > 0 ? standard.bestPractices : [""],
     );
@@ -800,6 +810,7 @@ export default function Standards() {
       ]);
       setBestPractices([""]);
       setProcessOpportunities([""]);
+      setStandardNotes("");
       setEditVersionNotes("");
     } catch (error) {
       console.error("Error creating new version:", error);
@@ -1211,6 +1222,21 @@ export default function Standards() {
                   className="w-full p-2 rounded-md border border-gray-300 bg-white mt-4 disabled:opacity-50"
                 />
               )}
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Standard Notes <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  placeholder="Enter notes and comments for this standard..."
+                  value={standardNotes}
+                  onChange={(e) => setStandardNotes(e.target.value)}
+                  disabled={isLoading}
+                  rows={4}
+                  className="w-full p-3 rounded-md border border-gray-300 bg-white disabled:opacity-50 resize-vertical"
+                  required
+                />
+              </div>
 
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-4">

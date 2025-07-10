@@ -67,6 +67,8 @@ async function createRequiredDependencies() {
       version: 1,
       isCurrentVersion: true,
       isActive: true,
+      notes:
+        "This is the default standard with basic UOM entries for testing purposes. This standard includes common workplace metrics and best practices.",
     },
   });
   console.log("✓ Standard created");
@@ -207,6 +209,8 @@ async function insertStandards() {
       processOpportunities: ["Leaving C"],
       version: 1,
       isCurrentVersion: true,
+      notes:
+        "Gray Shelf assembly standard with specific UOM requirements. Focus on proper positioning and alignment during assembly process. Ensure all safety protocols are followed.",
     },
   ];
 

@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     // Import using Neon connection
     const { Client } = await import("pg");
 
-    let connectionString = neonDatabaseUrl;
+    const connectionString = neonDatabaseUrl;
     if (!connectionString && neonProjectId) {
       // This would need to be implemented to get connection string from project ID
       return NextResponse.json(

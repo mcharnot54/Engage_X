@@ -85,10 +85,18 @@ model Standard {
   bestPractices        String[]      @default([])
   isActive             Boolean       @default(true)
   processOpportunities String[]      @default([])
+  version              Int           @default(1)
+  baseStandardId       Int?
+  isCurrentVersion     Boolean       @default(true)
+  versionNotes         String?
+  createdBy            String?
+  notes                String
   observations         Observation[]
   area                 Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
   department           Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   facility             Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  baseStandard         Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id], onDelete: SetNull)
+  versions             Standard[]    @relation("StandardVersions")
   uomEntries           UomEntry[]
 
   @@map("standards")
