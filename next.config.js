@@ -4,10 +4,12 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
 
-  // Allow Builder-hosted images
+  // Allow Builder-hosted images - unoptimized for export
   images: {
     domains: ["cdn.builder.io"],
     unoptimized: true,
+    loader: "custom",
+    loaderFile: "./image-loader.js",
   },
 
   // Transpile lucide-react to handle ES modules properly
