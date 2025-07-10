@@ -16,12 +16,12 @@ export default function Custom500() {
         <p className="text-gray-500 mb-8">
           Something went wrong on the server.
         </p>
-        <a
+        <Link
           href="/"
           className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Go Home
-        </a>
+        </Link>
       </div>
     </div>
   );
