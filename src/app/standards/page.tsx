@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Banner } from "@/components/ui/Banner";
+import CsvExportImport from "@/components/CsvExportImport";
 
 interface Organization {
   id: number;
@@ -933,6 +934,24 @@ export default function Standards() {
                 {error}
               </div>
             )}
+
+            {/* CSV Export/Import Section */}
+            <CsvExportImport
+              onExportSuccess={(message) => {
+                setSuccessMessage(message);
+                setShowSaveSuccess(true);
+                setTimeout(() => setShowSaveSuccess(false), 3000);
+              }}
+              onImportSuccess={(message) => {
+                setSuccessMessage(message);
+                setShowSaveSuccess(true);
+                setTimeout(() => setShowSaveSuccess(false), 5000);
+              }}
+              onError={(error) => {
+                setError(error);
+                setTimeout(() => setError(""), 5000);
+              }}
+            />
 
             {/* CSV Upload Section */}
             <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-md mb-6">
