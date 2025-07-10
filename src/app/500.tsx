@@ -4,6 +4,7 @@ import Link from "next/link";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export default function Custom500() {
   return (
