@@ -2509,7 +2509,7 @@ export default function GazeObservationApp() {
                 } else {
                   return (
                     <div className="p-12 text-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300">
-                      <div className="text-4xl text-gray-400 mb-4">📊</div>
+                      <div className="text-4xl text-gray-400 mb-4">��</div>
                       <h3 className="text-lg font-semibold text-gray-600 mb-2">
                         No Previous Observations
                       </h3>
@@ -2684,6 +2684,101 @@ export default function GazeObservationApp() {
             >
               Continue with PUMP Assessment
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Standard Notes Modal */}
+      {showStandardNotes && selectedStandardData && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-8 w-11/12 max-w-4xl max-h-[80vh] overflow-y-auto relative">
+            <button
+              onClick={() => setShowStandardNotes(false)}
+              className="absolute right-6 top-6 bg-transparent border-none text-2xl cursor-pointer"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl mb-6 text-red-600">
+              Standard Notes - {selectedStandardData.name}
+            </h2>
+
+            <div className="flex flex-col gap-6">
+              {/* Standard Information */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-2">Standard Details</h3>
+                <p className="text-sm text-gray-600">
+                  <strong>Facility:</strong>{" "}
+                  {selectedStandardData.facility.name} |
+                  <strong> Department:</strong>{" "}
+                  {selectedStandardData.department.name} |
+                  <strong> Area:</strong> {selectedStandardData.area.name}
+                </p>
+              </div>
+
+              {/* Main Notes */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Standard Notes</h3>
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+                    {selectedStandardData.notes}
+                  </div>
+                </div>
+              </div>
+
+              {/* Version History (if available) */}
+              {selectedStandardData.versions &&
+                selectedStandardData.versions.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Recent Version Changes
+                    </h3>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      {(() => {
+                        const latestVersion = selectedStandardData.versions![0];
+                        const previousVersion =
+                          selectedStandardData.versions![1];
+
+                        return (
+                          <div>
+                            <h4 className="font-medium text-yellow-800 mb-2">
+                              Latest Change (Version {latestVersion.version})
+                            </h4>
+                            <p className="text-sm text-yellow-700 mb-2">
+                              <strong>Date:</strong>{" "}
+                              {new Date(
+                                latestVersion.createdAt,
+                              ).toLocaleDateString()}
+                            </p>
+                            {latestVersion.versionNotes && (
+                              <div className="text-sm text-yellow-800">
+                                <strong>Change Notes:</strong>
+                                <div className="mt-1 whitespace-pre-wrap">
+                                  {latestVersion.versionNotes}
+                                </div>
+                              </div>
+                            )}
+                            {!latestVersion.versionNotes && (
+                              <p className="text-sm text-yellow-600 italic">
+                                No change notes available for this version.
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+              {/* Close Button */}
+              <div className="flex justify-end pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => setShowStandardNotes(false)}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
