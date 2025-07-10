@@ -28,22 +28,17 @@ const nextConfig = {
     "*.fly.dev",
   ],
 
-  // Force dynamic rendering for all pages
-  experimental: {
-    staleTimes: {
-      dynamic: 0,
-      static: 0,
-    },
-  },
-
-  // Disable static generation completely
-  generateBuildId: () => {
-    return "build-" + Date.now();
-  },
-
-  // Skip the build errors by disabling static optimization
-  exportPathMap: function () {
-    return {};
+  // Webpack configuration for fetch polyfill
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
   },
 };
 
