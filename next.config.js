@@ -22,6 +22,11 @@ const nextConfig = {
   // Additional configuration for Vercel
   output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
 
+  // Skip static optimization entirely
+  experimental: {
+    runtime: "nodejs",
+  },
+
   // Fix cross-origin requests in development
   allowedDevOrigins: [
     "446e49d2fb5c4fe1b3830aa578d409fe-3c6932f6df3a4e8d995d8b1e6.fly.dev",
