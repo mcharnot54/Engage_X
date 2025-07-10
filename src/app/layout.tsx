@@ -6,6 +6,8 @@ import "./globals.css";
 
 // Force dynamic rendering to avoid SSG issues with Builder.io
 export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = false;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
