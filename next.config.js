@@ -16,22 +16,16 @@ const nextConfig = {
   // External packages for server components
   serverExternalPackages: ["@prisma/client", "prisma"],
 
-  // Disable static optimization to prevent Builder.io SSG issues
+  // Disable static optimization completely
   trailingSlash: false,
 
-  // Additional configuration for Vercel
-  output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+  // Use standalone output mode to avoid SSG issues
+  output: "standalone",
 
-  // Skip static optimization entirely
+  // Disable all static page generation
   experimental: {
-    runtime: "nodejs",
+    isrMemoryCacheSize: 0,
   },
-
-  // Fix cross-origin requests in development
-  allowedDevOrigins: [
-    "446e49d2fb5c4fe1b3830aa578d409fe-3c6932f6df3a4e8d995d8b1e6.fly.dev",
-    "*.fly.dev",
-  ],
 
   // Webpack configuration for fetch polyfill
   webpack: (config, { isServer }) => {
@@ -47,8 +41,4 @@ const nextConfig = {
   },
 };
 
-// If you want the Builder DevTools overlay in dev, wrap once:
-// const withBuilderDevTools = require('@builder.io/dev-tools/next');
-// module.exports = withBuilderDevTools(nextConfig);
-
-module.exports = nextConfig; // production-safe export
+module.exports = nextConfig;
