@@ -22,6 +22,11 @@ const nextConfig = {
   // Use standalone output mode to avoid SSG issues
   output: "standalone",
 
+  // Disable all static page generation
+  experimental: {
+    isrMemoryCacheSize: 0,
+  },
+
   // Webpack configuration for fetch polyfill
   webpack: (config, { isServer }) => {
     if (!isServer) {
