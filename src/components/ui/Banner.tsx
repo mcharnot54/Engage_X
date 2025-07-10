@@ -11,6 +11,7 @@ export function Banner({ title, subtitle, className = "" }: BannerProps) {
     { name: "Gaze", href: "/observation-form" },
     { name: "Transform", href: "/standards" },
     { name: "Insight", href: "/reporting" },
+    { name: "Data", href: "/data-management" },
     { name: "Guardian", href: "/admin" },
   ];
 
