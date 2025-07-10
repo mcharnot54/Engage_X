@@ -263,7 +263,7 @@ export default function Standards() {
         );
       }
       const data = await response.json();
-      setSavedStandards(data);
+      setSavedStandards(data.data || data);
       setError(""); // Clear any previous errors
     } catch (error: any) {
       console.error("Error loading standards:", error);

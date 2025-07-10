@@ -19,8 +19,8 @@ export interface User {
 // Placeholder for session management - integrate with your auth provider
 export async function getCurrentUserId(): Promise<string | null> {
   // TODO: Integrate with your authentication provider (NextAuth, Auth0, etc.)
-  // For now, return null since authentication is disabled
-  return null;
+  // For now, return a default user ID for development
+  return "dev-user-id";
 }
 
 export async function getCurrentUser(): Promise<User | null> {

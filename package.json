@@ -16,6 +16,7 @@
     "@builder.io/dev-tools": "^1.6.150",
     "@builder.io/react": "^8.2.5",
     "@builder.io/sdk": "^6.1.1",
+    "@neondatabase/serverless": "^0.10.4",
     "@prisma/client": "^6.11.1",
     "@types/pg": "^8.15.4",
     "glob": "^10.4.5",
