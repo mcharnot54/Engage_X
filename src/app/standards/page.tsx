@@ -518,6 +518,7 @@ export default function Standards() {
           bestPractices: validBestPractices,
           processOpportunities: validProcessOpportunities,
           uomEntries: uomData,
+          notes: standardNotes.trim(),
         }),
       });
 
