@@ -131,7 +131,25 @@ export function generateCsvTemplate(): string {
     sampleRow.push("");
   }
 
-  return [headers.join(","), sampleRow.join(",")].join("\n");
+  return [formatCsvLine(headers), formatCsvLine(sampleRow)].join("\n");
+}
+
+// Helper function to properly format CSV lines with proper escaping
+function formatCsvLine(values: string[]): string {
+  return values
+    .map((value) => {
+      const stringValue = String(value);
+      // If value contains comma, quote, or newline, wrap in quotes and escape existing quotes
+      if (
+        stringValue.includes(",") ||
+        stringValue.includes('"') ||
+        stringValue.includes("\n")
+      ) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    })
+    .join(",");
 }
 
 export function parseCsvContent(csvContent: string): StandardCsvRow[] {
