@@ -24,6 +24,11 @@ const nextConfig = {
     skipTrailingSlashRedirect: true,
   },
 
+  // Force dynamic for all pages
+  async generateBuildId() {
+    return "dynamic-build";
+  },
+
   // Webpack configuration for fetch polyfill
   webpack: (config, { isServer }) => {
     if (!isServer) {
