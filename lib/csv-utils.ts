@@ -331,7 +331,7 @@ export function transformRowToStandardData(
         samValue: parseFloat(uomSam),
         tags: uomTags
           ? uomTags
-              .split(";")
+              .split(/[;,]/) // Split on both semicolon and comma
               .map((tag) => tag.trim())
               .filter((tag) => tag)
           : [],
