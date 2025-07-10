@@ -140,21 +140,52 @@ export function parseCsvContent(csvContent: string): StandardCsvRow[] {
     throw new Error("CSV must contain at least a header row and one data row");
   }
 
-  const headers = lines[0].split(",").map((h) => h.trim());
+  const headers = parseCsvLine(lines[0]);
   const rows: StandardCsvRow[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(",").map((v) => v.trim());
+    const values = parseCsvLine(lines[i]);
     const row: any = {};
 
     headers.forEach((header, index) => {
-      row[header] = values[index] || "";
+      row[header.trim()] = values[index] || "";
     });
 
     rows.push(row as StandardCsvRow);
   }
 
   return rows;
+}
+
+// Helper function to properly parse CSV lines with quoted fields
+function parseCsvLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      // Handle escaped quotes
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++; // Skip next quote
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+
+  // Add the last field
+  result.push(current.trim());
+
+  return result;
 }
 
 export function validateStandardRow(
