@@ -16,19 +16,11 @@ const nextConfig = {
   // External packages for server components
   serverExternalPackages: ["@prisma/client", "prisma"],
 
-  // Disable static optimization to prevent Builder.io SSG issues
+  // Disable static optimization completely
   trailingSlash: false,
-  skipTrailingSlashRedirect: true,
 
-  // Skip problematic static generation
-  experimental: {
-    // Add any experimental features here
-  },
-
-  // Force dynamic for all pages
-  async generateBuildId() {
-    return "dynamic-build";
-  },
+  // Use standalone output mode to avoid SSG issues
+  output: "standalone",
 
   // Webpack configuration for fetch polyfill
   webpack: (config, { isServer }) => {
