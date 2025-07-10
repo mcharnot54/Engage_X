@@ -538,6 +538,7 @@ export default function Standards() {
       ]);
       setBestPractices([""]);
       setProcessOpportunities([""]);
+      setStandardNotes("");
     } catch (error) {
       console.error("Error saving standard:", error);
       setError("Failed to save standard");
