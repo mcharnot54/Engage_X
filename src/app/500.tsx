@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
 
