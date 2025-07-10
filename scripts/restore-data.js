@@ -209,6 +209,8 @@ async function insertStandards() {
       processOpportunities: ["Leaving C"],
       version: 1,
       isCurrentVersion: true,
+      notes:
+        "Gray Shelf assembly standard with specific UOM requirements. Focus on proper positioning and alignment during assembly process. Ensure all safety protocols are followed.",
     },
   ];
 
