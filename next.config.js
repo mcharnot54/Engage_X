@@ -24,11 +24,6 @@ const nextConfig = {
     skipTrailingSlashRedirect: true,
   },
 
-  // Force all pages to be dynamic
-  async generateStaticParams() {
-    return [];
-  },
-
   // Webpack configuration for fetch polyfill
   webpack: (config, { isServer }) => {
     if (!isServer) {
