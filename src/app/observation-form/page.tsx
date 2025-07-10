@@ -97,6 +97,7 @@ export default function GazeObservationApp() {
   const [isPumpAssessmentActive, setIsPumpAssessmentActive] = useState(false);
   const [showPumpFinalizationModal, setShowPumpFinalizationModal] =
     useState(false);
+  const [showStandardNotes, setShowStandardNotes] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
