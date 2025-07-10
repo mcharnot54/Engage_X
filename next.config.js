@@ -4,12 +4,10 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
 
-  // Allow Builder-hosted images - unoptimized for export
+  // Allow Builder-hosted images
   images: {
     domains: ["cdn.builder.io"],
     unoptimized: true,
-    loader: "custom",
-    loaderFile: "./image-loader.js",
   },
 
   // Transpile lucide-react to handle ES modules properly
@@ -20,23 +18,6 @@ const nextConfig = {
 
   // Disable static optimization to prevent Builder.io SSG issues
   trailingSlash: false,
-
-  // Try export output for static deployment
-  output: "export",
-
-  // Remove output mode for Vercel deployment
-  // output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
-
-  // Skip static optimization entirely
-  experimental: {
-    // Removed invalid runtime option
-  },
-
-  // Fix cross-origin requests in development
-  allowedDevOrigins: [
-    "446e49d2fb5c4fe1b3830aa578d409fe-3c6932f6df3a4e8d995d8b1e6.fly.dev",
-    "*.fly.dev",
-  ],
 
   // Webpack configuration for fetch polyfill
   webpack: (config, { isServer }) => {
@@ -52,8 +33,4 @@ const nextConfig = {
   },
 };
 
-// If you want the Builder DevTools overlay in dev, wrap once:
-// const withBuilderDevTools = require('@builder.io/dev-tools/next');
-// module.exports = withBuilderDevTools(nextConfig);
-
-module.exports = nextConfig; // production-safe export
+module.exports = nextConfig;
