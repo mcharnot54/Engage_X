@@ -19,6 +19,11 @@ const nextConfig = {
   // Disable static optimization to prevent Builder.io SSG issues
   trailingSlash: false,
 
+  // Skip problematic static generation
+  experimental: {
+    skipTrailingSlashRedirect: true,
+  },
+
   // Webpack configuration for fetch polyfill
   webpack: (config, { isServer }) => {
     if (!isServer) {
