@@ -25,7 +25,7 @@ export default function HomePage() {
     );
   }
 
-    return (
+  return (
     <div>
       <div className="pointer-events-auto text-gray-300 bg-white">
         <div className="bg-white text-gray-300 pointer-events-auto">
@@ -82,6 +82,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-    </ErrorBoundary>
+    </div>
   );
 }
