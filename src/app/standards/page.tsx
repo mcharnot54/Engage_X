@@ -721,6 +721,7 @@ export default function Standards() {
     setSelectedDepartment(standard.departmentId.toString());
     setSelectedArea(standard.areaId.toString());
     setStandardName(standard.name);
+    setStandardNotes(standard.notes || "");
     setBestPractices(
       standard.bestPractices.length > 0 ? standard.bestPractices : [""],
     );
