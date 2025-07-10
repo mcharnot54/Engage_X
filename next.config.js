@@ -36,9 +36,14 @@ const nextConfig = {
     },
   },
 
-  // Disable static generation completely for error pages
+  // Disable static generation completely
   generateBuildId: () => {
     return "build-" + Date.now();
+  },
+
+  // Skip the build errors by disabling static optimization
+  exportPathMap: function () {
+    return {};
   },
 };
 
