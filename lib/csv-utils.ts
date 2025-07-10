@@ -101,9 +101,9 @@ export function generateCsvTemplate(): string {
     "Units",
     "Number of units produced",
     "0.5",
-    "Production,Quality",
+    "Production;Quality",
   );
-  sampleRow.push("Minutes", "Time spent on task", "1.2", "Time,Efficiency");
+  sampleRow.push("Minutes", "Time spent on task", "1.2", "Time;Efficiency");
   sampleRow.push("Pieces", "Components assembled", "0.8", "Assembly");
 
   // Fill remaining UOM slots with empty values
