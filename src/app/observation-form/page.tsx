@@ -479,7 +479,9 @@ export default function GazeObservationApp() {
         );
       }
       const data = await response.json();
-      setStandards(data);
+      // Handle both direct array and nested {data: [...]} response formats
+      const standards = Array.isArray(data) ? data : data.data || [];
+      setStandards(standards);
       setError(""); // Clear any previous errors
     } catch (error) {
       // Don't show errors for aborted requests during component unmount
