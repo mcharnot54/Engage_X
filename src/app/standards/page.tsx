@@ -482,6 +482,11 @@ export default function Standards() {
         return;
       }
 
+      if (!standardNotes.trim()) {
+        setError("Please enter standard notes");
+        return;
+      }
+
       setIsLoading(true);
 
       const uomData = uomEntries
