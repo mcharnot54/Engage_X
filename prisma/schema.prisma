@@ -219,6 +219,30 @@ model UserRole {
   role           Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, roleId, organizationId])
+    @@unique([userId, roleId, organizationId])
   @@map("user_roles")
+}
+
+model DelayReason {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("delay_reasons")
+}
+
+model ObservationReason {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  description      String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  apiConfiguration Json?
+  externalApiUrl   String?
+
+  @@map("observation_reasons")
 }
