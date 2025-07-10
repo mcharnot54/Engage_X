@@ -1,10 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStandards, createStandard } from "@/lib/db-operations";
+import { getStandards, createStandard } from "@/lib/db-operations-tenant";
+import { getCurrentUserTenantContext } from "@/lib/auth-utils";
 
 export async function GET() {
   try {
-    const standards = await getStandards();
-    return NextResponse.json(standards);
+    // Get tenant context for current user
+    const tenantContext = await getCurrentUserTenantContext();
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
+    // Get standards with tenant filtering
+    const standards = await getStandards(tenantContext);
+
+    return NextResponse.json({
+      data: standards,
+      meta: {
+        organizationId: tenantContext.organizationId,
+        isSystemSuperuser: tenantContext.isSystemSuperuser,
+        count: standards.length,
+      },
+    });
   } catch (error: any) {
     console.error("Error fetching standards:", error);
 
@@ -24,6 +44,11 @@ export async function GET() {
       );
     }
 
+    // Check for tenant access errors
+    if (error.message?.includes("Access denied")) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+
     return NextResponse.json(
       {
         error: "Failed to fetch standards",
@@ -36,13 +61,38 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Get tenant context for current user
+    const tenantContext = await getCurrentUserTenantContext();
+
+    if (!tenantContext) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
     const body = await request.json();
-    const standard = await createStandard(body);
-    return NextResponse.json(standard);
-  } catch (error) {
+
+    // Create standard with tenant validation
+    const standard = await createStandard(body, tenantContext);
+
+    return NextResponse.json({
+      data: standard,
+      message: "Standard created successfully",
+    });
+  } catch (error: any) {
     console.error("Error creating standard:", error);
+
+    // Check for tenant access errors
+    if (error.message?.includes("Access denied")) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+
     return NextResponse.json(
-      { error: "Failed to create standard" },
+      {
+        error: "Failed to create standard",
+        details: error.message || "Unknown error",
+      },
       { status: 500 },
     );
   }
