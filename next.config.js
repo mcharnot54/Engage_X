@@ -28,10 +28,12 @@ const nextConfig = {
     "*.fly.dev",
   ],
 
-  // Experimental features for debugging
+  // Force dynamic rendering for all pages
   experimental: {
-    // Force dynamic rendering
-    dynamicIO: true,
+    staleTimes: {
+      dynamic: 0,
+      static: 0,
+    },
   },
 
   // Disable static generation completely for error pages
