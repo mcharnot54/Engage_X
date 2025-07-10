@@ -80,6 +80,7 @@ interface Standard {
   isCurrentVersion?: boolean;
   versionNotes?: string;
   createdBy?: string;
+  notes: string;
 }
 
 export default function Standards() {
