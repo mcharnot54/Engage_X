@@ -11,8 +11,10 @@ async function assignUserRoles() {
         organizationId: { not: null },
       },
     });
+    console.log(`Found ${users.length} users with organization`);
 
     const organization = await prisma.organization.findFirst();
+    console.log(`Found organization: ${organization?.name}`);
     const adminRole = await prisma.role.findFirst({
       where: { name: "Organization Admin", organizationId: organization.id },
     });
