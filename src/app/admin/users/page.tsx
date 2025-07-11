@@ -23,11 +23,14 @@ interface User {
   lastSyncAt?: string;
   createdAt: string;
   updatedAt: string;
-  userRole?: {
-    id: string;
-    name: string;
-    description?: string;
-  };
+  userRoles?: {
+    id: number;
+    role: {
+      id: number;
+      name: string;
+      description?: string;
+    };
+  }[];
 }
 
 export default function UsersAdminPage() {
@@ -365,7 +368,9 @@ export default function UsersAdminPage() {
                             {user.department || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {user.userRole?.name || user.role || "—"}
+                            {user.userRoles?.[0]?.role?.name ||
+                              user.role ||
+                              "—"}
                           </td>
                           <td className="px-4 py-3 text-sm">
                             <span
