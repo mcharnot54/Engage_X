@@ -52,6 +52,42 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  try {
+    const body = await request.json();
+    const { isActive } = body;
+
+    const delayReason = await prisma.delayReason.update({
+      where: {
+        id: params.id,
+      },
+      data: {
+        isActive: isActive !== undefined ? isActive : true,
+      },
+    });
+
+    return NextResponse.json(delayReason);
+  } catch (error) {
+    console.error("Error updating delay reason:", error);
+    if (
+      error instanceof Error &&
+      error.message.includes("Record to update not found")
+    ) {
+      return NextResponse.json(
+        { error: "Delay reason not found" },
+        { status: 404 },
+      );
+    }
+    return NextResponse.json(
+      { error: "Failed to update delay reason" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } },
