@@ -191,13 +191,13 @@ export default function RolesAdminPage() {
     );
   };
 
-  const groupPermissionsByModule = (permissions: Permission[]) => {
+  const groupPermissionsByResource = (permissions: Permission[]) => {
     return permissions.reduce(
       (acc, permission) => {
-        if (!acc[permission.module]) {
-          acc[permission.module] = [];
+        if (!acc[permission.resource]) {
+          acc[permission.resource] = [];
         }
-        acc[permission.module].push(permission);
+        acc[permission.resource].push(permission);
         return acc;
       },
       {} as Record<string, Permission[]>,
