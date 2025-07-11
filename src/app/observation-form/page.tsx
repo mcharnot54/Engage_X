@@ -1435,19 +1435,21 @@ export default function GazeObservationApp() {
                 <div className="mt-4">
                   <div
                     onClick={() => !isObserving && setShowStandardNotes(true)}
-                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white text-left flex justify-between items-center transition-colors ${
+                    className={`w-full p-3 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 text-left flex justify-between items-center transition-all duration-200 ${
                       isObserving
                         ? "opacity-70 cursor-not-allowed"
-                        : "hover:bg-gray-50 cursor-pointer"
+                        : "hover:bg-blue-100 hover:border-blue-400 hover:shadow-md cursor-pointer"
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      <span>📝</span>
-                      <span className="text-gray-700">
-                        {selectedStandardData.name} - Standard Notes
+                      <span className="text-blue-600">📝</span>
+                      <span className="text-blue-800 font-medium">
+                        {selectedStandardData.name} - Standard Notes Available
                       </span>
                     </span>
-                    <span className="text-gray-400">Click to view</span>
+                    <span className="text-blue-600 text-sm hover:text-blue-800 transition-colors">
+                      Click to view notes ↗
+                    </span>
                   </div>
                 </div>
               )}
@@ -1972,11 +1974,12 @@ export default function GazeObservationApp() {
                                     0 ||
                                     row.quantity > 0) && (
                                     <div
-                                      className="fixed z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-none"
+                                      className="absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto"
                                       style={{
-                                        top: "10px",
+                                        top: "100%",
                                         left: "50%",
                                         transform: "translateX(-50%)",
+                                        marginTop: "5px",
                                         boxShadow:
                                           "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
                                       }}
@@ -2053,7 +2056,7 @@ export default function GazeObservationApp() {
                                       )}
 
                                       {/* Arrow pointer */}
-                                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
                                     </div>
                                   )}
                               </td>
