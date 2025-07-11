@@ -18,7 +18,7 @@ export async function PUT(
 
     const delayReason = await prisma.delayReason.update({
       where: {
-        id: params.id,
+        id: parseInt(params.id, 10),
       },
       data: {
         name: name.trim(),
