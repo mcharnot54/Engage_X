@@ -566,7 +566,7 @@ export async function getRoles() {
   });
 }
 
-export async function getRoleById(id: string) {
+export async function getRoleById(id: number) {
   return prisma.role.findUnique({
     where: { id },
     include: {
@@ -587,7 +587,7 @@ export async function getRoleById(id: string) {
 export async function createRole(data: {
   name: string;
   description?: string;
-  permissionIds?: string[];
+  permissionIds?: number[];
 }) {
   const { permissionIds, ...roleData } = data;
 
@@ -618,12 +618,12 @@ export async function createRole(data: {
 }
 
 export async function updateRole(
-  id: string,
+  id: number,
   data: {
     name?: string;
     description?: string;
     isActive?: boolean;
-    permissionIds?: string[];
+    permissionIds?: number[];
   },
 ) {
   const { permissionIds, ...roleData } = data;
@@ -648,7 +648,6 @@ export async function updateRole(
           data: permissionIds.map((permissionId) => ({
             roleId: id,
             permissionId,
-            granted: true,
           })),
         });
       }
@@ -673,7 +672,7 @@ export async function updateRole(
   });
 }
 
-export async function deleteRole(id: string) {
+export async function deleteRole(id: number) {
   return prisma.role.delete({
     where: { id },
   });
@@ -803,5 +802,47 @@ export async function getRecentObservations(limit: number = 10) {
       observationData: true,
     },
     orderBy: { createdAt: "desc" },
+  });
+}
+
+// User Role operations
+export async function getUserRoles(filters?: {
+  userId?: string;
+  roleId?: number;
+  organizationId?: number;
+}) {
+  return prisma.userRole.findMany({
+    where: {
+      userId: filters?.userId,
+      roleId: filters?.roleId,
+      organizationId: filters?.organizationId,
+    },
+    include: {
+      user: true,
+      role: true,
+      organization: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function createUserRole(data: {
+  userId: string;
+  roleId: number;
+  organizationId?: number;
+}) {
+  return prisma.userRole.create({
+    data,
+    include: {
+      user: true,
+      role: true,
+      organization: true,
+    },
+  });
+}
+
+export async function deleteUserRole(id: number) {
+  return prisma.userRole.delete({
+    where: { id },
   });
 }

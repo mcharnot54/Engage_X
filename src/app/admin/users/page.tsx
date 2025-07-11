@@ -54,29 +54,6 @@ export default function UsersAdminPage() {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    filterUsers();
-  }, [users, searchTerm, filterActive]);
-
-  const fetchUsers = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/users");
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-      } else {
-        setError("Failed to fetch users");
-      }
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      setError("Failed to fetch users");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const filterUsers = () => {
     let filtered = users;
 
@@ -101,6 +78,29 @@ export default function UsersAdminPage() {
     setFilteredUsers(filtered);
   };
 
+  useEffect(() => {
+    filterUsers();
+  }, [users, searchTerm, filterActive]);
+
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/users");
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      } else {
+        setError("Failed to fetch users");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setError("Failed to fetch users");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCreateUser = () => {
     setSelectedUser(null);
     setModalMode("create");
@@ -113,7 +113,7 @@ export default function UsersAdminPage() {
     setIsModalOpen(true);
   };
 
-  const handleSaveUser = async (userData: any) => {
+  const handleSaveUser = async (userData: Partial<User>) => {
     try {
       let response;
 
@@ -165,17 +165,8 @@ export default function UsersAdminPage() {
     }
   };
 
-  const handleExternalSync = async (source: string) => {
+  const handleExternalSync = async () => {
     await fetchUsers();
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return "—";
-    return new Date(dateString).toLocaleString();
   };
 
   return (
@@ -191,6 +182,7 @@ export default function UsersAdminPage() {
               items: [
                 { label: "Users", href: "/admin/users" },
                 { label: "Roles & Permissions", href: "/admin/roles" },
+                { label: "User Role Assignments", href: "/admin/user-roles" },
                 { label: "Observations", href: "/admin/observations" },
               ],
             },
