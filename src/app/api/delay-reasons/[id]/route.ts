@@ -62,7 +62,7 @@ export async function PATCH(
 
     const delayReason = await prisma.delayReason.update({
       where: {
-        id: params.id,
+        id: parseInt(params.id, 10),
       },
       data: {
         isActive: isActive !== undefined ? isActive : true,
