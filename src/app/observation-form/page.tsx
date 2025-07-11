@@ -1430,17 +1430,25 @@ export default function GazeObservationApp() {
                 </select>
               </div>
 
-              {/* Standard Notes Button */}
+              {/* Standard Notes Section */}
               {selectedStandardData && selectedStandardData.notes && (
-                <div className="mt-4 flex justify-center">
-                  <button
-                    onClick={() => setShowStandardNotes(true)}
-                    disabled={isObserving}
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium disabled:opacity-70 flex items-center gap-2"
+                <div className="mt-4">
+                  <div
+                    onClick={() => !isObserving && setShowStandardNotes(true)}
+                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white text-left flex justify-between items-center transition-colors ${
+                      isObserving
+                        ? "opacity-70 cursor-not-allowed"
+                        : "hover:bg-gray-50 cursor-pointer"
+                    }`}
                   >
-                    <span>📝</span>
-                    View Standard Notes
-                  </button>
+                    <span className="flex items-center gap-2">
+                      <span>📝</span>
+                      <span className="text-gray-700">
+                        {selectedStandardData.name} - Standard Notes
+                      </span>
+                    </span>
+                    <span className="text-gray-400">Click to view</span>
+                  </div>
                 </div>
               )}
             </div>
