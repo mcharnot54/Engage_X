@@ -70,6 +70,7 @@ export default function UserRolesAdminPage() {
 
   useEffect(() => {
     filterUserRoles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userRoles, searchTerm, filterRole, filterOrganization]);
 
   const fetchUserRoles = async () => {
