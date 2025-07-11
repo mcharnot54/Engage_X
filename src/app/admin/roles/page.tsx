@@ -13,9 +13,8 @@ interface Permission {
 }
 
 interface RolePermission {
-  id: string;
-  permissionId: string;
-  granted: boolean;
+  id: number;
+  permissionId: number;
   permission: Permission;
 }
 
