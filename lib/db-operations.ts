@@ -805,3 +805,45 @@ export async function getRecentObservations(limit: number = 10) {
     orderBy: { createdAt: "desc" },
   });
 }
+
+// User Role operations
+export async function getUserRoles(filters?: {
+  userId?: string;
+  roleId?: number;
+  organizationId?: number;
+}) {
+  return prisma.userRole.findMany({
+    where: {
+      userId: filters?.userId,
+      roleId: filters?.roleId,
+      organizationId: filters?.organizationId,
+    },
+    include: {
+      user: true,
+      role: true,
+      organization: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function createUserRole(data: {
+  userId: string;
+  roleId: number;
+  organizationId?: number;
+}) {
+  return prisma.userRole.create({
+    data,
+    include: {
+      user: true,
+      role: true,
+      organization: true,
+    },
+  });
+}
+
+export async function deleteUserRole(id: number) {
+  return prisma.userRole.delete({
+    where: { id },
+  });
+}
