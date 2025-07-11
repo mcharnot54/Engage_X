@@ -54,6 +54,30 @@ export default function UsersAdminPage() {
     fetchUsers();
   }, []);
 
+  const filterUsers = () => {
+    let filtered = users;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.department?.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    }
+
+    // Active/Inactive filter
+    if (filterActive !== "all") {
+      filtered = filtered.filter((user) =>
+        filterActive === "active" ? user.isActive : !user.isActive,
+      );
+    }
+
+    setFilteredUsers(filtered);
+  };
+
   useEffect(() => {
     filterUsers();
   }, [users, searchTerm, filterActive]);
