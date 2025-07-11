@@ -113,7 +113,7 @@ export default function UsersAdminPage() {
     setIsModalOpen(true);
   };
 
-  const handleSaveUser = async (userData: any) => {
+  const handleSaveUser = async (userData: Partial<User>) => {
     try {
       let response;
 
