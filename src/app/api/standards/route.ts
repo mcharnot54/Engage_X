@@ -10,14 +10,7 @@ export async function GET() {
     );
     const standards = await getStandardsDirect();
 
-    return NextResponse.json({
-      data: standards,
-      meta: {
-        organizationId: null,
-        isSystemSuperuser: false,
-        count: standards.length,
-      },
-    });
+    return NextResponse.json(standards);
   } catch (error: any) {
     console.error("Error fetching standards:", error);
 
@@ -69,10 +62,7 @@ export async function POST(request: NextRequest) {
     // Create standard with tenant validation
     const standard = await createStandard(body, tenantContext);
 
-    return NextResponse.json({
-      data: standard,
-      message: "Standard created successfully",
-    });
+    return NextResponse.json(standard);
   } catch (error: any) {
     console.error("Error creating standard:", error);
 
