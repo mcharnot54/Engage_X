@@ -14,7 +14,8 @@
     "check-db": "node scripts/check-database.js",
     "fix-permissions": "node scripts/fix-permissions.js",
     "assign-role-permissions": "node scripts/assign-role-permissions.js",
-    "assign-user-roles": "node scripts/assign-user-roles.js"
+    "assign-user-roles": "node scripts/assign-user-roles.js",
+    "update-users-org": "node scripts/update-users-org.js"
   },
   "dependencies": {
     "@builder.io/dev-tools": "^1.6.150",
