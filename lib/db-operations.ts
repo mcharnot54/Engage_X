@@ -566,9 +566,9 @@ export async function getRoles() {
   });
 }
 
-export async function getRoleById(id: number) {
+export async function getRoleById(id: string | number) {
   return prisma.role.findUnique({
-    where: { id },
+    where: { id: typeof id === "string" ? parseInt(id) : id },
     include: {
       rolePermissions: {
         include: {
