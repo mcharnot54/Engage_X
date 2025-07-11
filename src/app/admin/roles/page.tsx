@@ -329,16 +329,16 @@ export default function RolesAdminPage() {
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {Object.entries(groupedPermissions).map(
-                    ([module, modulePermissions]) => (
+                    ([resource, resourcePermissions]) => (
                       <div
-                        key={module}
+                        key={resource}
                         className="border border-gray-200 rounded-lg p-3"
                       >
                         <h4 className="font-medium text-gray-800 mb-2 capitalize">
-                          {module}
+                          {resource}
                         </h4>
                         <div className="space-y-2">
-                          {modulePermissions.map((permission) => (
+                          {resourcePermissions.map((permission) => (
                             <label
                               key={permission.id}
                               className="flex items-center"
@@ -346,7 +346,7 @@ export default function RolesAdminPage() {
                               <input
                                 type="checkbox"
                                 checked={selectedPermissions.includes(
-                                  permission.id,
+                                  permission.id.toString(),
                                 )}
                                 onChange={() => togglePermission(permission.id)}
                                 className="mr-2"
