@@ -62,10 +62,7 @@ export async function POST(request: NextRequest) {
     // Create standard with tenant validation
     const standard = await createStandard(body, tenantContext);
 
-    return NextResponse.json({
-      data: standard,
-      message: "Standard created successfully",
-    });
+    return NextResponse.json(standard);
   } catch (error: any) {
     console.error("Error creating standard:", error);
 
