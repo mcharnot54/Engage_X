@@ -1719,7 +1719,7 @@ export default function GazeObservationApp() {
                       )}
                       {isDynamicGroupingActive && (
                         <div className="flex items-center gap-2 text-green-600">
-                          ⚡️ Smart grouping active - Active tag groups moved to
+                          ��️ Smart grouping active - Active tag groups moved to
                           top
                         </div>
                       )}
@@ -1972,11 +1972,12 @@ export default function GazeObservationApp() {
                                     0 ||
                                     row.quantity > 0) && (
                                     <div
-                                      className="fixed z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-none"
+                                      className="absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto"
                                       style={{
-                                        top: "10px",
+                                        top: "100%",
                                         left: "50%",
                                         transform: "translateX(-50%)",
+                                        marginTop: "5px",
                                         boxShadow:
                                           "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
                                       }}
