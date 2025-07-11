@@ -204,9 +204,9 @@ export default function RolesAdminPage() {
     );
   };
 
-  const activeRoles = roles.filter((role) => role.isActive);
-  const inactiveRoles = roles.filter((role) => !role.isActive);
-  const groupedPermissions = groupPermissionsByModule(permissions);
+  const activeRoles = roles.filter((role) => role.isActive !== false);
+  const inactiveRoles = roles.filter((role) => role.isActive === false);
+  const groupedPermissions = groupPermissionsByResource(permissions);
 
   return (
     <div className="min-h-screen bg-gray-50">
