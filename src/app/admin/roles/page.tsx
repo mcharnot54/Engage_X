@@ -538,11 +538,10 @@ export default function RolesAdminPage() {
                             {role.description || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {role.permissions.filter((rp) => rp.granted).length}{" "}
-                            permissions
+                            {role.rolePermissions.length} permissions
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {role._count?.users || 0} users
+                            {role._count?.userRoles || 0} users
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {new Date(role.createdAt).toLocaleDateString()}
