@@ -1963,7 +1963,16 @@ export default function GazeObservationApp() {
                                   (quantitySubmissionHistory[row.id]?.length >
                                     0 ||
                                     row.quantity > 0) && (
-                                    <div className="absolute z-50 bg-gray-800 text-white text-xs rounded-lg p-3 shadow-lg -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full min-w-56">
+                                    <div
+                                      className="fixed z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-none"
+                                      style={{
+                                        top: "10px",
+                                        left: "50%",
+                                        transform: "translateX(-50%)",
+                                        boxShadow:
+                                          "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
+                                      }}
+                                    >
                                       <div className="font-semibold mb-2 text-center border-b border-gray-600 pb-1">
                                         Quantity Breakdown
                                       </div>
