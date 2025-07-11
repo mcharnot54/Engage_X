@@ -13,45 +13,22 @@ interface SystemStats {
   adminUsers: number;
 }
 
+interface User {
+  id: number;
+  isActive: boolean;
+  userRoles?: Array<{
+    role?: {
+      name?: string;
+    };
+  }>;
+}
+
 export default function AdminPage() {
-  const [systemStats, setSystemStats] = useState<SystemStats>({
-    totalUsers: 0,
-    activeSessions: 0,
-    adminUsers: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    fetchSystemStats();
-  }, []);
-
-  const fetchSystemStats = async () => {
-    try {
-      const response = await fetch("/api/users");
-      if (response.ok) {
-        const users = await response.json();
-        setSystemStats({
-          totalUsers: users.length,
-          activeSessions: users.filter((user: any) => user.isActive).length,
-          adminUsers: users.filter((user: any) =>
-            user.userRoles?.some((userRole: any) =>
-              userRole.role?.name?.toLowerCase().includes("admin"),
-            ),
-          ).length,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching system stats:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Show loading until component is mounted
   if (!mounted) {
@@ -82,12 +59,12 @@ function AdminContent() {
     try {
       const response = await fetch("/api/users");
       if (response.ok) {
-        const users = await response.json();
+        const users: User[] = await response.json();
         setSystemStats({
           totalUsers: users.length,
-          activeSessions: users.filter((user: any) => user.isActive).length,
-          adminUsers: users.filter((user: any) =>
-            user.userRoles?.some((userRole: any) =>
+          activeSessions: users.filter((user) => user.isActive).length,
+          adminUsers: users.filter((user) =>
+            user.userRoles?.some((userRole) =>
               userRole.role?.name?.toLowerCase().includes("admin"),
             ),
           ).length,
