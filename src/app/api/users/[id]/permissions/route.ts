@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserPermissions } from "../../../../../../lib/auth-utils";
+import { getUserPermissions } from "../../../../../../lib/tenant-utils";
 
 export async function GET(
   request: NextRequest,
