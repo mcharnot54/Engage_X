@@ -442,7 +442,11 @@ export async function createUser(data: {
   return prisma.user.create({
     data,
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -466,7 +470,11 @@ export async function updateUser(
     where: { id },
     data,
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -481,7 +489,11 @@ export async function getUserByEmployeeId(employeeId: string) {
   return prisma.user.findUnique({
     where: { employeeId },
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -490,7 +502,11 @@ export async function getUserById(id: string) {
   return prisma.user.findUnique({
     where: { id },
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -499,7 +515,11 @@ export async function getUsers() {
   return prisma.user.findMany({
     orderBy: { name: "asc" },
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
