@@ -183,11 +183,12 @@ export default function RolesAdminPage() {
     );
   };
 
-  const togglePermission = (permissionId: string) => {
+  const togglePermission = (permissionId: number) => {
+    const permissionIdStr = permissionId.toString();
     setSelectedPermissions((prev) =>
-      prev.includes(permissionId)
-        ? prev.filter((id) => id !== permissionId)
-        : [...prev, permissionId],
+      prev.includes(permissionIdStr)
+        ? prev.filter((id) => id !== permissionIdStr)
+        : [...prev, permissionIdStr],
     );
   };
 
