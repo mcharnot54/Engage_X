@@ -4,9 +4,6 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const delayReasons = await prisma.delayReason.findMany({
-      where: {
-        isActive: true,
-      },
       orderBy: {
         name: "asc",
       },

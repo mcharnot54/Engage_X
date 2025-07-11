@@ -1430,17 +1430,25 @@ export default function GazeObservationApp() {
                 </select>
               </div>
 
-              {/* Standard Notes Button */}
+              {/* Standard Notes Section */}
               {selectedStandardData && selectedStandardData.notes && (
-                <div className="mt-4 flex justify-center">
-                  <button
-                    onClick={() => setShowStandardNotes(true)}
-                    disabled={isObserving}
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium disabled:opacity-70 flex items-center gap-2"
+                <div className="mt-4">
+                  <div
+                    onClick={() => !isObserving && setShowStandardNotes(true)}
+                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white text-left flex justify-between items-center transition-colors ${
+                      isObserving
+                        ? "opacity-70 cursor-not-allowed"
+                        : "hover:bg-gray-50 cursor-pointer"
+                    }`}
                   >
-                    <span>📝</span>
-                    View Standard Notes
-                  </button>
+                    <span className="flex items-center gap-2">
+                      <span>📝</span>
+                      <span className="text-gray-700">
+                        {selectedStandardData.name} - Standard Notes
+                      </span>
+                    </span>
+                    <span className="text-gray-400">Click to view</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -1963,7 +1971,16 @@ export default function GazeObservationApp() {
                                   (quantitySubmissionHistory[row.id]?.length >
                                     0 ||
                                     row.quantity > 0) && (
-                                    <div className="absolute z-50 bg-gray-800 text-white text-xs rounded-lg p-3 shadow-lg -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full min-w-56">
+                                    <div
+                                      className="fixed z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-none"
+                                      style={{
+                                        top: "10px",
+                                        left: "50%",
+                                        transform: "translateX(-50%)",
+                                        boxShadow:
+                                          "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
+                                      }}
+                                    >
                                       <div className="font-semibold mb-2 text-center border-b border-gray-600 pb-1">
                                         Quantity Breakdown
                                       </div>

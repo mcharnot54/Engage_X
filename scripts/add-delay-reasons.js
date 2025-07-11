@@ -5,6 +5,10 @@ const prisma = new PrismaClient();
 async function addDelayReasons() {
   const defaultDelayReasons = [
     {
+      name: "Waiting for Work",
+      description: "Waiting for work or tasks to be assigned",
+    },
+    {
       name: "Equipment Breakdown",
       description: "Machine or equipment malfunction",
     },

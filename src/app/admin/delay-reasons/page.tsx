@@ -5,7 +5,7 @@ import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 
 interface DelayReason {
-  id: string;
+  id: number;
   name: string;
   description?: string;
   isActive: boolean;
@@ -115,7 +115,7 @@ export default function DelayReasonsAdminPage() {
     }
   };
 
-  const handleDeleteDelayReason = async (id: string) => {
+  const handleDeleteDelayReason = async (id: number) => {
     if (!confirm("Are you sure you want to deactivate this delay reason?"))
       return;
 
@@ -135,7 +135,7 @@ export default function DelayReasonsAdminPage() {
     }
   };
 
-  const handleReactivateDelayReason = async (id: string) => {
+  const handleReactivateDelayReason = async (id: number) => {
     if (!confirm("Are you sure you want to reactivate this delay reason?"))
       return;
 
