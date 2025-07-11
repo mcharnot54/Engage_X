@@ -19,15 +19,15 @@ interface RolePermission {
 }
 
 interface Role {
-  id: string;
+  id: number;
   name: string;
   description?: string;
-  isActive: boolean;
+  isActive?: boolean;
   createdAt: string;
   updatedAt: string;
-  permissions: RolePermission[];
+  rolePermissions: RolePermission[];
   _count?: {
-    users: number;
+    userRoles: number;
   };
 }
 
