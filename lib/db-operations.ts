@@ -442,7 +442,11 @@ export async function createUser(data: {
   return prisma.user.create({
     data,
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -466,7 +470,11 @@ export async function updateUser(
     where: { id },
     data,
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -481,7 +489,11 @@ export async function getUserByEmployeeId(employeeId: string) {
   return prisma.user.findUnique({
     where: { employeeId },
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -490,7 +502,11 @@ export async function getUserById(id: string) {
   return prisma.user.findUnique({
     where: { id },
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -499,7 +515,11 @@ export async function getUsers() {
   return prisma.user.findMany({
     orderBy: { name: "asc" },
     include: {
-      userRole: true,
+      userRoles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
 }
@@ -532,14 +552,14 @@ export async function getRoles() {
   return prisma.role.findMany({
     orderBy: { name: "asc" },
     include: {
-      permissions: {
+      rolePermissions: {
         include: {
           permission: true,
         },
       },
       _count: {
         select: {
-          users: true,
+          userRoles: true,
         },
       },
     },
@@ -550,14 +570,14 @@ export async function getRoleById(id: string) {
   return prisma.role.findUnique({
     where: { id },
     include: {
-      permissions: {
+      rolePermissions: {
         include: {
           permission: true,
         },
       },
       _count: {
         select: {
-          users: true,
+          userRoles: true,
         },
       },
     },
@@ -574,24 +594,23 @@ export async function createRole(data: {
   return prisma.role.create({
     data: {
       ...roleData,
-      permissions: permissionIds
+      rolePermissions: permissionIds
         ? {
             create: permissionIds.map((permissionId) => ({
               permissionId,
-              granted: true,
             })),
           }
         : undefined,
     },
     include: {
-      permissions: {
+      rolePermissions: {
         include: {
           permission: true,
         },
       },
       _count: {
         select: {
-          users: true,
+          userRoles: true,
         },
       },
     },
@@ -639,14 +658,14 @@ export async function updateRole(
     return tx.role.findUnique({
       where: { id },
       include: {
-        permissions: {
+        rolePermissions: {
           include: {
             permission: true,
           },
         },
         _count: {
           select: {
-            users: true,
+            userRoles: true,
           },
         },
       },
@@ -663,8 +682,7 @@ export async function deleteRole(id: string) {
 // Permission operations
 export async function getPermissions() {
   return prisma.permission.findMany({
-    where: { isActive: true },
-    orderBy: [{ module: "asc" }, { action: "asc" }],
+    orderBy: [{ resource: "asc" }, { action: "asc" }],
   });
 }
 
