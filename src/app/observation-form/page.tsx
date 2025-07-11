@@ -1435,19 +1435,21 @@ export default function GazeObservationApp() {
                 <div className="mt-4">
                   <div
                     onClick={() => !isObserving && setShowStandardNotes(true)}
-                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white text-left flex justify-between items-center transition-colors ${
+                    className={`w-full p-3 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 text-left flex justify-between items-center transition-all duration-200 ${
                       isObserving
                         ? "opacity-70 cursor-not-allowed"
-                        : "hover:bg-gray-50 cursor-pointer"
+                        : "hover:bg-blue-100 hover:border-blue-400 hover:shadow-md cursor-pointer"
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      <span>📝</span>
-                      <span className="text-gray-700">
-                        {selectedStandardData.name} - Standard Notes
+                      <span className="text-blue-600">📝</span>
+                      <span className="text-blue-800 font-medium">
+                        {selectedStandardData.name} - Standard Notes Available
                       </span>
                     </span>
-                    <span className="text-gray-400">Click to view</span>
+                    <span className="text-blue-600 text-sm hover:text-blue-800 transition-colors">
+                      Click to view notes ↗
+                    </span>
                   </div>
                 </div>
               )}
