@@ -40,7 +40,9 @@ export default function AdminPage() {
           totalUsers: users.length,
           activeSessions: users.filter((user: any) => user.isActive).length,
           adminUsers: users.filter((user: any) =>
-            user.userRole?.name?.toLowerCase().includes("admin"),
+            user.userRoles?.some((userRole: any) =>
+              userRole.role?.name?.toLowerCase().includes("admin"),
+            ),
           ).length,
         });
       }
@@ -85,7 +87,9 @@ function AdminContent() {
           totalUsers: users.length,
           activeSessions: users.filter((user: any) => user.isActive).length,
           adminUsers: users.filter((user: any) =>
-            user.userRole?.name?.toLowerCase().includes("admin"),
+            user.userRoles?.some((userRole: any) =>
+              userRole.role?.name?.toLowerCase().includes("admin"),
+            ),
           ).length,
         });
       }
