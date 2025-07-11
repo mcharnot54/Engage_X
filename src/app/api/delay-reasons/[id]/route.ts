@@ -95,7 +95,7 @@ export async function DELETE(
   try {
     await prisma.delayReason.update({
       where: {
-        id: params.id,
+        id: parseInt(params.id, 10),
       },
       data: {
         isActive: false,
