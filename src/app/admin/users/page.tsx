@@ -165,17 +165,8 @@ export default function UsersAdminPage() {
     }
   };
 
-  const handleExternalSync = async (source: string) => {
+  const handleExternalSync = async () => {
     await fetchUsers();
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return "—";
-    return new Date(dateString).toLocaleString();
   };
 
   return (
