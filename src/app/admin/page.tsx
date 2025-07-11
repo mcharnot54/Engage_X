@@ -59,12 +59,12 @@ function AdminContent() {
     try {
       const response = await fetch("/api/users");
       if (response.ok) {
-        const users = await response.json();
+        const users: User[] = await response.json();
         setSystemStats({
           totalUsers: users.length,
-          activeSessions: users.filter((user: any) => user.isActive).length,
-          adminUsers: users.filter((user: any) =>
-            user.userRoles?.some((userRole: any) =>
+          activeSessions: users.filter((user) => user.isActive).length,
+          adminUsers: users.filter((user) =>
+            user.userRoles?.some((userRole) =>
               userRole.role?.name?.toLowerCase().includes("admin"),
             ),
           ).length,
