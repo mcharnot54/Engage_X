@@ -566,7 +566,7 @@ export async function getRoles() {
   });
 }
 
-export async function getRoleById(id: string) {
+export async function getRoleById(id: number) {
   return prisma.role.findUnique({
     where: { id },
     include: {
@@ -587,7 +587,7 @@ export async function getRoleById(id: string) {
 export async function createRole(data: {
   name: string;
   description?: string;
-  permissionIds?: string[];
+  permissionIds?: number[];
 }) {
   const { permissionIds, ...roleData } = data;
 
@@ -618,12 +618,12 @@ export async function createRole(data: {
 }
 
 export async function updateRole(
-  id: string,
+  id: number,
   data: {
     name?: string;
     description?: string;
     isActive?: boolean;
-    permissionIds?: string[];
+    permissionIds?: number[];
   },
 ) {
   const { permissionIds, ...roleData } = data;
@@ -648,7 +648,6 @@ export async function updateRole(
           data: permissionIds.map((permissionId) => ({
             roleId: id,
             permissionId,
-            granted: true,
           })),
         });
       }
@@ -673,7 +672,7 @@ export async function updateRole(
   });
 }
 
-export async function deleteRole(id: string) {
+export async function deleteRole(id: number) {
   return prisma.role.delete({
     where: { id },
   });
