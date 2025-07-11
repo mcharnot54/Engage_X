@@ -566,9 +566,9 @@ export async function getRoles() {
   });
 }
 
-export async function getRoleById(id: number) {
+export async function getRoleById(id: string | number) {
   return prisma.role.findUnique({
-    where: { id },
+    where: { id: typeof id === "string" ? parseInt(id) : id },
     include: {
       rolePermissions: {
         include: {
@@ -618,7 +618,7 @@ export async function createRole(data: {
 }
 
 export async function updateRole(
-  id: number,
+  id: string | number,
   data: {
     name?: string;
     description?: string;
@@ -627,11 +627,12 @@ export async function updateRole(
   },
 ) {
   const { permissionIds, ...roleData } = data;
+  const roleId = typeof id === "string" ? parseInt(id) : id;
 
   return prisma.$transaction(async (tx) => {
     // Update the role
     const updatedRole = await tx.role.update({
-      where: { id },
+      where: { id: roleId },
       data: roleData,
     });
 
@@ -639,14 +640,14 @@ export async function updateRole(
     if (permissionIds !== undefined) {
       // Delete existing permissions
       await tx.rolePermission.deleteMany({
-        where: { roleId: id },
+        where: { roleId },
       });
 
       // Create new permissions
       if (permissionIds.length > 0) {
         await tx.rolePermission.createMany({
           data: permissionIds.map((permissionId) => ({
-            roleId: id,
+            roleId,
             permissionId,
           })),
         });
@@ -655,7 +656,7 @@ export async function updateRole(
 
     // Return the updated role with permissions
     return tx.role.findUnique({
-      where: { id },
+      where: { id: roleId },
       include: {
         rolePermissions: {
           include: {
@@ -672,9 +673,10 @@ export async function updateRole(
   });
 }
 
-export async function deleteRole(id: number) {
+export async function deleteRole(id: string | number) {
+  const roleId = typeof id === "string" ? parseInt(id) : id;
   return prisma.role.delete({
-    where: { id },
+    where: { id: roleId },
   });
 }
 

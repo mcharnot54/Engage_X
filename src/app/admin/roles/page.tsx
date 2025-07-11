@@ -5,31 +5,29 @@ import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 
 interface Permission {
-  id: string;
+  id: number;
   name: string;
   description?: string;
-  module: string;
+  resource: string;
   action: string;
-  isActive: boolean;
 }
 
 interface RolePermission {
-  id: string;
-  permissionId: string;
-  granted: boolean;
+  id: number;
+  permissionId: number;
   permission: Permission;
 }
 
 interface Role {
-  id: string;
+  id: number;
   name: string;
   description?: string;
-  isActive: boolean;
+  isActive?: boolean;
   createdAt: string;
   updatedAt: string;
-  permissions: RolePermission[];
+  rolePermissions: RolePermission[];
   _count?: {
-    users: number;
+    userRoles: number;
   };
 }
 
@@ -181,34 +179,35 @@ export default function RolesAdminPage() {
   const openEditModal = (role: Role) => {
     setEditingRole(role);
     setSelectedPermissions(
-      role.permissions.filter((rp) => rp.granted).map((rp) => rp.permissionId),
+      role.rolePermissions.map((rp) => rp.permissionId.toString()),
     );
   };
 
-  const togglePermission = (permissionId: string) => {
+  const togglePermission = (permissionId: number) => {
+    const permissionIdStr = permissionId.toString();
     setSelectedPermissions((prev) =>
-      prev.includes(permissionId)
-        ? prev.filter((id) => id !== permissionId)
-        : [...prev, permissionId],
+      prev.includes(permissionIdStr)
+        ? prev.filter((id) => id !== permissionIdStr)
+        : [...prev, permissionIdStr],
     );
   };
 
-  const groupPermissionsByModule = (permissions: Permission[]) => {
+  const groupPermissionsByResource = (permissions: Permission[]) => {
     return permissions.reduce(
       (acc, permission) => {
-        if (!acc[permission.module]) {
-          acc[permission.module] = [];
+        if (!acc[permission.resource]) {
+          acc[permission.resource] = [];
         }
-        acc[permission.module].push(permission);
+        acc[permission.resource].push(permission);
         return acc;
       },
       {} as Record<string, Permission[]>,
     );
   };
 
-  const activeRoles = roles.filter((role) => role.isActive);
-  const inactiveRoles = roles.filter((role) => !role.isActive);
-  const groupedPermissions = groupPermissionsByModule(permissions);
+  const activeRoles = roles.filter((role) => role.isActive !== false);
+  const inactiveRoles = roles.filter((role) => role.isActive === false);
+  const groupedPermissions = groupPermissionsByResource(permissions);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -330,16 +329,16 @@ export default function RolesAdminPage() {
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {Object.entries(groupedPermissions).map(
-                    ([module, modulePermissions]) => (
+                    ([resource, resourcePermissions]) => (
                       <div
-                        key={module}
+                        key={resource}
                         className="border border-gray-200 rounded-lg p-3"
                       >
                         <h4 className="font-medium text-gray-800 mb-2 capitalize">
-                          {module}
+                          {resource}
                         </h4>
                         <div className="space-y-2">
-                          {modulePermissions.map((permission) => (
+                          {resourcePermissions.map((permission) => (
                             <label
                               key={permission.id}
                               className="flex items-center"
@@ -347,7 +346,7 @@ export default function RolesAdminPage() {
                               <input
                                 type="checkbox"
                                 checked={selectedPermissions.includes(
-                                  permission.id,
+                                  permission.id.toString(),
                                 )}
                                 onChange={() => togglePermission(permission.id)}
                                 className="mr-2"
@@ -425,16 +424,16 @@ export default function RolesAdminPage() {
                     </label>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {Object.entries(groupedPermissions).map(
-                        ([module, modulePermissions]) => (
+                        ([resource, resourcePermissions]) => (
                           <div
-                            key={module}
+                            key={resource}
                             className="border border-gray-200 rounded-lg p-3"
                           >
                             <h4 className="font-medium text-gray-800 mb-2 capitalize">
-                              {module}
+                              {resource}
                             </h4>
                             <div className="space-y-2">
-                              {modulePermissions.map((permission) => (
+                              {resourcePermissions.map((permission) => (
                                 <label
                                   key={permission.id}
                                   className="flex items-center"
@@ -442,7 +441,7 @@ export default function RolesAdminPage() {
                                   <input
                                     type="checkbox"
                                     checked={selectedPermissions.includes(
-                                      permission.id,
+                                      permission.id.toString(),
                                     )}
                                     onChange={() =>
                                       togglePermission(permission.id)
@@ -540,11 +539,10 @@ export default function RolesAdminPage() {
                             {role.description || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {role.permissions.filter((rp) => rp.granted).length}{" "}
-                            permissions
+                            {role.rolePermissions.length} permissions
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {role._count?.users || 0} users
+                            {role._count?.userRoles || 0} users
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {new Date(role.createdAt).toLocaleDateString()}
