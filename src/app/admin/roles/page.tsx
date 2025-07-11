@@ -179,7 +179,7 @@ export default function RolesAdminPage() {
   const openEditModal = (role: Role) => {
     setEditingRole(role);
     setSelectedPermissions(
-      role.permissions.filter((rp) => rp.granted).map((rp) => rp.permissionId),
+      role.rolePermissions.map((rp) => rp.permissionId.toString()),
     );
   };
 
