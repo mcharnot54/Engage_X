@@ -15,7 +15,8 @@
     "fix-permissions": "node scripts/fix-permissions.js",
     "assign-role-permissions": "node scripts/assign-role-permissions.js",
     "assign-user-roles": "node scripts/assign-user-roles.js",
-    "update-users-org": "node scripts/update-users-org.js"
+    "update-users-org": "node scripts/update-users-org.js",
+    "fix-organizations": "node scripts/fix-organizations.js"
   },
   "dependencies": {
     "@builder.io/dev-tools": "^1.6.150",
