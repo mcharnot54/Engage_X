@@ -10,14 +10,7 @@ export async function GET() {
     );
     const standards = await getStandardsDirect();
 
-    return NextResponse.json({
-      data: standards,
-      meta: {
-        organizationId: null,
-        isSystemSuperuser: false,
-        count: standards.length,
-      },
-    });
+    return NextResponse.json(standards);
   } catch (error: any) {
     console.error("Error fetching standards:", error);
 
