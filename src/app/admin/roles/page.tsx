@@ -5,12 +5,11 @@ import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 
 interface Permission {
-  id: string;
+  id: number;
   name: string;
   description?: string;
-  module: string;
+  resource: string;
   action: string;
-  isActive: boolean;
 }
 
 interface RolePermission {
