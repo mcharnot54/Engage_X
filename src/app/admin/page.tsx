@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
+import { useAdminContext } from "@/hooks/useAdminContext";
 
 export const dynamic = "force-dynamic";
 
