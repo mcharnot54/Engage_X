@@ -20,7 +20,13 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, externalApiUrl } = body;
+    const {
+      name,
+      description,
+      purpose,
+      leaderActionGuidelines,
+      externalApiUrl,
+    } = body;
 
     if (!name || !name.trim()) {
       return NextResponse.json(
@@ -32,6 +38,8 @@ export async function POST(request: NextRequest) {
     const observationReason = await createObservationReason({
       name: name.trim(),
       description: description?.trim() || undefined,
+      purpose: purpose?.trim() || undefined,
+      leaderActionGuidelines: leaderActionGuidelines?.trim() || undefined,
       externalApiUrl: externalApiUrl?.trim() || undefined,
     });
 
