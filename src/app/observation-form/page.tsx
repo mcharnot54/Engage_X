@@ -1033,38 +1033,42 @@ export default function GazeObservationApp() {
       });
 
       // Create observation
+      const observationPayload = {
+        userId: user.id,
+        standardId: selectedStandardData.id,
+        timeObserved,
+        totalSams,
+        observedPerformance,
+        pumpScore,
+        pace,
+        utilization,
+        methods,
+        comments,
+        aiNotes,
+        supervisorSignature,
+        teamMemberSignature,
+        bestPracticesChecked,
+        processAdherenceChecked,
+        delays,
+        observationReason,
+        observationStartTime: observationStartTime
+          ? new Date(observationStartTime)
+          : undefined,
+        observationEndTime: observationEndTime
+          ? new Date(observationEndTime)
+          : undefined,
+        isFinalized,
+        observationData,
+      };
+
+      console.log("Submitting observation with payload:", observationPayload);
+
       const observationResponse = await fetch("/api/observations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userId: user.id,
-          standardId: selectedStandardData.id,
-          timeObserved,
-          totalSams,
-          observedPerformance,
-          pumpScore,
-          pace,
-          utilization,
-          methods,
-          comments,
-          aiNotes,
-          supervisorSignature,
-          teamMemberSignature,
-          bestPracticesChecked,
-          processAdherenceChecked,
-          delays,
-          observationReason,
-          observationStartTime: observationStartTime
-            ? new Date(observationStartTime)
-            : undefined,
-          observationEndTime: observationEndTime
-            ? new Date(observationEndTime)
-            : undefined,
-          isFinalized,
-          observationData,
-        }),
+        body: JSON.stringify(observationPayload),
       });
 
       if (!observationResponse.ok) {
