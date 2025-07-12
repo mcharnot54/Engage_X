@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { updateDelayReason, deleteDelayReason } from "@/lib/db-operations";
 
 export async function PUT(
   request: NextRequest,
@@ -7,7 +7,8 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { name, description, isActive } = body;
+    const { name, description } = body;
+    const id = parseInt(params.id);
 
     if (!name || !name.trim()) {
       return NextResponse.json(
@@ -16,71 +17,14 @@ export async function PUT(
       );
     }
 
-    const delayReason = await prisma.delayReason.update({
-      where: {
-        id: parseInt(params.id, 10),
-      },
-      data: {
-        name: name.trim(),
-        description: description?.trim() || null,
-        isActive: isActive !== undefined ? isActive : true,
-      },
+    const delayReason = await updateDelayReason(id, {
+      name: name.trim(),
+      description: description?.trim() || null,
     });
 
     return NextResponse.json(delayReason);
   } catch (error) {
     console.error("Error updating delay reason:", error);
-    if (
-      error instanceof Error &&
-      error.message.includes("Record to update not found")
-    ) {
-      return NextResponse.json(
-        { error: "Delay reason not found" },
-        { status: 404 },
-      );
-    }
-    if (error instanceof Error && error.message.includes("Unique constraint")) {
-      return NextResponse.json(
-        { error: "A delay reason with this name already exists" },
-        { status: 409 },
-      );
-    }
-    return NextResponse.json(
-      { error: "Failed to update delay reason" },
-      { status: 500 },
-    );
-  }
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  try {
-    const body = await request.json();
-    const { isActive } = body;
-
-    const delayReason = await prisma.delayReason.update({
-      where: {
-        id: parseInt(params.id, 10),
-      },
-      data: {
-        isActive: isActive !== undefined ? isActive : true,
-      },
-    });
-
-    return NextResponse.json(delayReason);
-  } catch (error) {
-    console.error("Error updating delay reason:", error);
-    if (
-      error instanceof Error &&
-      error.message.includes("Record to update not found")
-    ) {
-      return NextResponse.json(
-        { error: "Delay reason not found" },
-        { status: 404 },
-      );
-    }
     return NextResponse.json(
       { error: "Failed to update delay reason" },
       { status: 500 },
@@ -93,29 +37,33 @@ export async function DELETE(
   { params }: { params: { id: string } },
 ) {
   try {
-    await prisma.delayReason.update({
-      where: {
-        id: parseInt(params.id, 10),
-      },
-      data: {
-        isActive: false,
-      },
-    });
-
+    const id = parseInt(params.id);
+    await deleteDelayReason(id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deactivating delay reason:", error);
-    if (
-      error instanceof Error &&
-      error.message.includes("Record to update not found")
-    ) {
-      return NextResponse.json(
-        { error: "Delay reason not found" },
-        { status: 404 },
-      );
-    }
+    console.error("Error deleting delay reason:", error);
     return NextResponse.json(
-      { error: "Failed to deactivate delay reason" },
+      { error: "Failed to delete delay reason" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  try {
+    const body = await request.json();
+    const { isActive } = body;
+    const id = parseInt(params.id);
+
+    const delayReason = await updateDelayReason(id, { isActive });
+    return NextResponse.json(delayReason);
+  } catch (error) {
+    console.error("Error updating delay reason status:", error);
+    return NextResponse.json(
+      { error: "Failed to update delay reason status" },
       { status: 500 },
     );
   }
