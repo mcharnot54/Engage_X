@@ -199,17 +199,20 @@ export default function GazeObservationApp() {
   ];
 
   // Helper function to get tag group color
-  const getTagGroupColor = useCallback((tags: string[]) => {
-    if (!tags || tags.length === 0) return null;
-    // Use the first tag to determine group identity, create a simple hash
-    const firstTag = tags[0];
-    const hash = firstTag.split("").reduce((a, b) => {
-      a = (a << 5) - a + b.charCodeAt(0);
-      return a & a;
-    }, 0);
-    const colorIndex = Math.abs(hash) % pastelColors.length;
-    return pastelColors[colorIndex];
-  }, []);
+  const getTagGroupColor = useCallback(
+    (tags: string[]) => {
+      if (!tags || tags.length === 0) return null;
+      // Use the first tag to determine group identity, create a simple hash
+      const firstTag = tags[0];
+      const hash = firstTag.split("").reduce((a, b) => {
+        a = (a << 5) - a + b.charCodeAt(0);
+        return a & a;
+      }, 0);
+      const colorIndex = Math.abs(hash) % pastelColors.length;
+      return pastelColors[colorIndex];
+    },
+    [pastelColors],
+  );
 
   // UI state
   const [showPreviousObservations, setShowPreviousObservations] =
@@ -2298,8 +2301,8 @@ export default function GazeObservationApp() {
                                       {(isObserving ||
                                         isPumpAssessmentActive) && (
                                         <div className="mt-2 pt-1 border-t border-gray-600 text-center text-gray-400 text-xs">
-                                          Hover over entries to delete �� Click
-                                          × to clear all
+                                          Hover over entries to delete • Click ×
+                                          to clear all
                                         </div>
                                       )}
 
