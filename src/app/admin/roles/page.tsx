@@ -364,6 +364,12 @@ export default function RolesAdminPage() {
                   <p className="text-gray-600 mb-4">
                     Select the permissions this role should have access to
                   </p>
+                  {permissions.length === 0 && (
+                    <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-4">
+                      No permissions available. Please ensure permissions are
+                      configured in the system.
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {Object.entries(groupedPermissions).map(
