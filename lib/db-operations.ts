@@ -572,7 +572,7 @@ export async function getRoleById(id: string | number) {
     include: {
       rolePermissions: {
         include: {
-          permissions: true,
+          permission: true,
         },
       },
       _count: {
