@@ -306,6 +306,38 @@ export default function ObservationReasonsAdminPage() {
                     placeholder="Optional description"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Purpose
+                  </label>
+                  <textarea
+                    value={newObservationReason.purpose}
+                    onChange={(e) =>
+                      setNewObservationReason({
+                        ...newObservationReason,
+                        purpose: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                    placeholder="Purpose of this observation type"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Leader Action Guidelines
+                  </label>
+                  <textarea
+                    value={newObservationReason.leaderActionGuidelines}
+                    onChange={(e) =>
+                      setNewObservationReason({
+                        ...newObservationReason,
+                        leaderActionGuidelines: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                    placeholder="Guidelines for leaders when conducting this type of observation"
+                  />
+                </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     External API URL
