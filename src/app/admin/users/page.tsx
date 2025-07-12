@@ -76,7 +76,7 @@ export default function UsersAdminPage() {
     fetchUsers();
   }, [refreshKey]);
 
-  const filterUsers = () => {
+  const filterUsers = useCallback(() => {
     let filtered = users;
 
     // Search filter
@@ -98,11 +98,11 @@ export default function UsersAdminPage() {
     }
 
     setFilteredUsers(filtered);
-  };
+  }, [users, searchTerm, filterActive]);
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchTerm, filterActive, filterUsers]);
+  }, [filterUsers]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
