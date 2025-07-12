@@ -597,7 +597,7 @@ export async function createRole(data: {
       rolePermissions: permissionIds
         ? {
             create: permissionIds.map((permissionId) => ({
-              permissionid: permissionId,
+              permissionId: permissionId,
             })),
           }
         : undefined,
