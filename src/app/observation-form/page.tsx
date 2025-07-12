@@ -1789,30 +1789,6 @@ export default function GazeObservationApp() {
                   ))}
                 </select>
               </div>
-
-              {/* Standard Notes Section */}
-              {selectedStandardData && selectedStandardData.notes && (
-                <div className="mt-4">
-                  <div
-                    onClick={() => !isObserving && setShowStandardNotes(true)}
-                    className={`w-full p-3 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 text-left flex justify-between items-center transition-all duration-200 ${
-                      isObserving
-                        ? "opacity-70 cursor-not-allowed"
-                        : "hover:bg-blue-100 hover:border-blue-400 hover:shadow-md cursor-pointer"
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-blue-600">📝</span>
-                      <span className="text-blue-800 font-medium">
-                        {selectedStandardData.name} - Standard Notes Available
-                      </span>
-                    </span>
-                    <span className="text-blue-600 text-sm hover:text-blue-800 transition-colors">
-                      Click to view notes ↗
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* PUMP Grade Factor */}
