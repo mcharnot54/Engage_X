@@ -554,7 +554,7 @@ export async function getRoles() {
     include: {
       rolePermissions: {
         include: {
-          permissions: true,
+          permission: true,
         },
       },
       _count: {
