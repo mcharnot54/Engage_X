@@ -8,6 +8,8 @@ interface ObservationReason {
   id: string;
   name: string;
   description?: string;
+  purpose?: string;
+  leaderActionGuidelines?: string;
   externalApiUrl?: string;
   apiConfiguration?: unknown;
   isActive: boolean;
@@ -22,6 +24,8 @@ export default function ObservationReasonsAdminPage() {
   const [newObservationReason, setNewObservationReason] = useState({
     name: "",
     description: "",
+    purpose: "",
+    leaderActionGuidelines: "",
     externalApiUrl: "",
   });
   const [editingReason, setEditingReason] = useState<ObservationReason | null>(
@@ -70,6 +74,9 @@ export default function ObservationReasonsAdminPage() {
         body: JSON.stringify({
           name: newObservationReason.name.trim(),
           description: newObservationReason.description.trim() || undefined,
+          purpose: newObservationReason.purpose.trim() || undefined,
+          leaderActionGuidelines:
+            newObservationReason.leaderActionGuidelines.trim() || undefined,
           externalApiUrl:
             newObservationReason.externalApiUrl.trim() || undefined,
         }),
@@ -79,6 +86,8 @@ export default function ObservationReasonsAdminPage() {
         setNewObservationReason({
           name: "",
           description: "",
+          purpose: "",
+          leaderActionGuidelines: "",
           externalApiUrl: "",
         });
         fetchObservationReasons();
@@ -112,6 +121,9 @@ export default function ObservationReasonsAdminPage() {
           body: JSON.stringify({
             name: editingReason.name.trim(),
             description: editingReason.description?.trim() || undefined,
+            purpose: editingReason.purpose?.trim() || undefined,
+            leaderActionGuidelines:
+              editingReason.leaderActionGuidelines?.trim() || undefined,
             externalApiUrl: editingReason.externalApiUrl?.trim() || undefined,
           }),
         },
