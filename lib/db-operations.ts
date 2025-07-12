@@ -512,7 +512,7 @@ export async function getUserById(id: string) {
 }
 
 export async function getUsers() {
-  return prisma.user.findMany({
+  const users = await prisma.user.findMany({
     orderBy: { name: "asc" },
     include: {
       user_roles: {
@@ -521,9 +521,24 @@ export async function getUsers() {
         },
       },
       roles: true, // Direct role relationship
-      organization: true, // Include organization details
     },
   });
+
+  // Manually fetch organization data for each user
+  const usersWithOrganizations = await Promise.all(
+    users.map(async (user) => {
+      if (user.organizationid) {
+        const organization = await prisma.organization.findUnique({
+          where: { id: user.organizationid },
+          select: { id: true, name: true, code: true },
+        });
+        return { ...user, organization };
+      }
+      return { ...user, organization: null };
+    }),
+  );
+
+  return usersWithOrganizations;
 }
 
 export async function syncUserFromExternal(data: {
