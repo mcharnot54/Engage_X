@@ -515,9 +515,9 @@ export async function getUsers() {
   return prisma.user.findMany({
     orderBy: { name: "asc" },
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
     },
