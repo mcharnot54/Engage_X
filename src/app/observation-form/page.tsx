@@ -123,6 +123,17 @@ export default function GazeObservationApp() {
   const [teamMemberSignature, setTeamMemberSignature] = useState("");
   const [aiNotes, setAiNotes] = useState("");
 
+  // Dynamic employee loading
+  const [employees, setEmployees] = useState<
+    Array<{
+      id: string;
+      name: string;
+      employeeId: string;
+    }>
+  >([]);
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
+
   // Delay tracking with timer functionality
   const [isDelayActive, setIsDelayActive] = useState(false);
   const [delayStartTime, setDelayStartTime] = useState<number | null>(null);
@@ -846,13 +857,11 @@ export default function GazeObservationApp() {
       }
 
       if (!user) {
-        // Get employee name from the select option
-        const employeeName =
-          employeeId === "emp001"
-            ? "John Smith"
-            : employeeId === "emp002"
-              ? "Sarah Johnson"
-              : "Michael Brown";
+        // Get employee name from the selected employee
+        const selectedEmployee = employees.find(
+          (emp) => emp.employeeId === employeeId,
+        );
+        const employeeName = selectedEmployee?.name || "Unknown Employee";
 
         const createUserResponse = await fetch("/api/users", {
           method: "POST",
@@ -944,6 +953,8 @@ export default function GazeObservationApp() {
 
   const resetForm = () => {
     setEmployeeId("");
+    setEmployeeSearch("");
+    setShowEmployeeDropdown(false);
     setObservationReason("");
     setStandard("");
     resetStandardSelection();
@@ -989,6 +1000,7 @@ export default function GazeObservationApp() {
 
     loadStandards(controller.signal);
     loadDelayReasons(controller.signal);
+    loadTeamMembers(controller.signal);
 
     return () => {
       controller.abort();
@@ -1049,6 +1061,79 @@ export default function GazeObservationApp() {
     }
   };
 
+  const loadTeamMembers = async (signal?: AbortSignal) => {
+    try {
+      const timeoutId = setTimeout(() => {
+        if (!signal?.aborted) {
+          console.warn("Team members request timed out after 10 seconds");
+        }
+      }, 10000);
+
+      const response = await fetch("/api/users-tenant?role=Team Member", {
+        signal: signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        const teamMembers = data.users.map((user: any) => ({
+          id: user.id,
+          name: user.name,
+          employeeId: user.employeeId || user.id,
+        }));
+
+        // If no team members found, add some fallback demo employees
+        if (teamMembers.length === 0) {
+          const fallbackEmployees = [
+            { id: "emp001", name: "John Smith", employeeId: "emp001" },
+            { id: "emp002", name: "Sarah Johnson", employeeId: "emp002" },
+            { id: "emp003", name: "Michael Brown", employeeId: "emp003" },
+            { id: "emp004", name: "Lisa Davis", employeeId: "emp004" },
+            { id: "emp005", name: "Robert Wilson", employeeId: "emp005" },
+          ];
+          setEmployees(fallbackEmployees);
+        } else {
+          setEmployees(teamMembers);
+        }
+      } else {
+        // Fallback to demo employees if API fails
+        const fallbackEmployees = [
+          { id: "emp001", name: "John Smith", employeeId: "emp001" },
+          { id: "emp002", name: "Sarah Johnson", employeeId: "emp002" },
+          { id: "emp003", name: "Michael Brown", employeeId: "emp003" },
+          { id: "emp004", name: "Lisa Davis", employeeId: "emp004" },
+          { id: "emp005", name: "Robert Wilson", employeeId: "emp005" },
+        ];
+        setEmployees(fallbackEmployees);
+      }
+    } catch (error) {
+      // Don't show errors for aborted requests during component unmount
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!signal?.aborted) {
+          console.warn("Team members request was aborted");
+        }
+        return; // Silently return for component unmount
+      }
+
+      console.error("Error loading team members:", error);
+
+      // Set fallback employees on error
+      const fallbackEmployees = [
+        { id: "emp001", name: "John Smith", employeeId: "emp001" },
+        { id: "emp002", name: "Sarah Johnson", employeeId: "emp002" },
+        { id: "emp003", name: "Michael Brown", employeeId: "emp003" },
+        { id: "emp004", name: "Lisa Davis", employeeId: "emp004" },
+        { id: "emp005", name: "Robert Wilson", employeeId: "emp005" },
+      ];
+      setEmployees(fallbackEmployees);
+      console.warn("Using fallback employees due to error:", error.message);
+    }
+  };
+
   useEffect(() => {
     if (standard && standards.length > 0) {
       const selectedStd = standards.find((s) => s.id === Number(standard));
@@ -1090,13 +1175,16 @@ export default function GazeObservationApp() {
       if (showStandardDropdown && !target.closest(".standard-dropdown")) {
         setShowStandardDropdown(false);
       }
+      if (showEmployeeDropdown && !target.closest(".employee-dropdown")) {
+        setShowEmployeeDropdown(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showStandardDropdown]);
+  }, [showStandardDropdown, showEmployeeDropdown]);
 
   // Helper function to get tag color with gold highlighting for active use
   const getTagColor = (
@@ -1394,22 +1482,93 @@ export default function GazeObservationApp() {
                     </div>
                   )}
                 </div>
-                <select
-                  value={employeeId}
-                  onChange={(e) => {
-                    setEmployeeId(e.target.value);
-                    if (e.target.value) {
-                      setShowPreviousObservations(true);
+                {/* Dynamic Employee Dropdown with Search */}
+                <div className="relative employee-dropdown">
+                  <div
+                    onClick={() =>
+                      !isObserving &&
+                      setShowEmployeeDropdown(!showEmployeeDropdown)
                     }
-                  }}
-                  disabled={isObserving}
-                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
-                >
-                  <option value="">Select Employee</option>
-                  <option value="emp001">John Smith (emp001)</option>
-                  <option value="emp002">Sarah Johnson (emp002)</option>
-                  <option value="emp003">Michael Brown (emp003)</option>
-                </select>
+                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 cursor-pointer flex justify-between items-center ${
+                      isObserving
+                        ? "opacity-70 cursor-not-allowed"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <span
+                      className={employeeId ? "text-black" : "text-gray-500"}
+                    >
+                      {employeeId
+                        ? employees.find((emp) => emp.employeeId === employeeId)
+                            ?.name +
+                          ` (${employees.find((emp) => emp.employeeId === employeeId)?.employeeId})`
+                        : "Select Employee"}
+                    </span>
+                    <span
+                      className={`transform transition-transform ${showEmployeeDropdown ? "rotate-180" : ""}`}
+                    >
+                      ▼
+                    </span>
+                  </div>
+
+                  {showEmployeeDropdown && (
+                    <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                      <div className="p-3">
+                        <input
+                          type="text"
+                          placeholder="Search by name or employee ID..."
+                          value={employeeSearch}
+                          onChange={(e) => setEmployeeSearch(e.target.value)}
+                          className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {employees
+                          .filter(
+                            (employee) =>
+                              employeeSearch === "" ||
+                              employee.name
+                                .toLowerCase()
+                                .includes(employeeSearch.toLowerCase()) ||
+                              employee.employeeId
+                                .toLowerCase()
+                                .includes(employeeSearch.toLowerCase()),
+                          )
+                          .map((employee) => (
+                            <div
+                              key={employee.id}
+                              onClick={() => {
+                                setEmployeeId(employee.employeeId);
+                                setShowEmployeeDropdown(false);
+                                setEmployeeSearch("");
+                                setShowPreviousObservations(true);
+                              }}
+                              className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="font-medium">{employee.name}</div>
+                              <div className="text-sm text-gray-600">
+                                {employee.employeeId}
+                              </div>
+                            </div>
+                          ))}
+                        {employees.filter(
+                          (employee) =>
+                            employeeSearch === "" ||
+                            employee.name
+                              .toLowerCase()
+                              .includes(employeeSearch.toLowerCase()) ||
+                            employee.employeeId
+                              .toLowerCase()
+                              .includes(employeeSearch.toLowerCase()),
+                        ).length === 0 && (
+                          <div className="p-3 text-gray-500 text-center">
+                            No employees found
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <select
                   value={observationReason}
