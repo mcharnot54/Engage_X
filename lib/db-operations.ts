@@ -834,7 +834,7 @@ export async function createObservation(data: {
   });
 }
 
-export async function getObservationsByUser(userId: string) {
+export async function getObservationsByUser(userId: string, limit?: number) {
   return prisma.observation.findMany({
     where: { userId },
     include: {
@@ -853,6 +853,7 @@ export async function getObservationsByUser(userId: string) {
       observationData: true,
     },
     orderBy: { createdAt: "desc" },
+    take: limit,
   });
 }
 

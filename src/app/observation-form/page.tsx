@@ -88,7 +88,7 @@ export default function GazeObservationApp() {
 
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
-  const [selectedOrganization, setSelectedOrganization] = useState("");
+  // const [selectedOrganization, setSelectedOrganization] = useState("");
   const [selectedFacility, setSelectedFacility] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
@@ -142,6 +142,12 @@ export default function GazeObservationApp() {
   const [delayReasons, setDelayReasons] = useState<
     { id: string; name: string; description?: string }[]
   >([]);
+  const [observationReasons, setObservationReasons] = useState<
+    { id: string; name: string; description?: string }[]
+  >([]);
+  const [employeePerformanceData, setEmployeePerformanceData] = useState<
+    Record<string, PreviousObservation[]>
+  >({});
 
   // Best practices and process adherence
   const [bestPracticesChecked, setBestPracticesChecked] = useState<string[]>(
@@ -193,17 +199,20 @@ export default function GazeObservationApp() {
   ];
 
   // Helper function to get tag group color
-  const getTagGroupColor = useCallback((tags: string[]) => {
-    if (!tags || tags.length === 0) return null;
-    // Use the first tag to determine group identity, create a simple hash
-    const firstTag = tags[0];
-    const hash = firstTag.split("").reduce((a, b) => {
-      a = (a << 5) - a + b.charCodeAt(0);
-      return a & a;
-    }, 0);
-    const colorIndex = Math.abs(hash) % pastelColors.length;
-    return pastelColors[colorIndex];
-  }, []);
+  const getTagGroupColor = useCallback(
+    (tags: string[]) => {
+      if (!tags || tags.length === 0) return null;
+      // Use the first tag to determine group identity, create a simple hash
+      const firstTag = tags[0];
+      const hash = firstTag.split("").reduce((a, b) => {
+        a = (a << 5) - a + b.charCodeAt(0);
+        return a & a;
+      }, 0);
+      const colorIndex = Math.abs(hash) % pastelColors.length;
+      return pastelColors[colorIndex];
+    },
+    [pastelColors],
+  );
 
   // UI state
   const [showPreviousObservations, setShowPreviousObservations] =
@@ -222,31 +231,38 @@ export default function GazeObservationApp() {
     "Distribution trend of System performance vs. Standard",
   ];
 
-  // Previous observations data for popup
-  const previousObservations: Record<
-    string,
-    Record<string, PreviousObservation[]>
-  > = {
-    emp001: {
-      std1: [
+  // Load employee performance data dynamically
+  const loadEmployeePerformanceData = async (employeeId: string) => {
+    try {
+      const response = await fetch(
+        `/api/observations?userId=${employeeId}&limit=5`,
+      );
+      if (response.ok) {
+        const observations = await response.json();
+        const performanceData = observations.map((obs: any) => ({
+          date: new Date(obs.createdAt).toISOString().split("T")[0],
+          observedPerf: obs.observedPerformance.toFixed(1),
+          gradeFactorPerf: obs.pumpScore.toFixed(1),
+        }));
+
+        setEmployeePerformanceData((prev) => ({
+          ...prev,
+          [employeeId]: performanceData,
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading employee performance data:", error);
+      // Set fallback data if API fails
+      const fallbackData = [
         { date: "2024-01-15", observedPerf: "95.2", gradeFactorPerf: "98.1" },
         { date: "2024-01-10", observedPerf: "92.8", gradeFactorPerf: "96.5" },
         { date: "2024-01-05", observedPerf: "98.1", gradeFactorPerf: "102.3" },
-        { date: "2023-12-28", observedPerf: "89.8", gradeFactorPerf: "94.2" },
-        { date: "2023-12-20", observedPerf: "101.5", gradeFactorPerf: "105.8" },
-      ],
-    },
-    emp002: {
-      std2: [
-        { date: "2024-01-12", observedPerf: "88.5", gradeFactorPerf: "91.2" },
-        { date: "2024-01-08", observedPerf: "93.1", gradeFactorPerf: "97.8" },
-      ],
-    },
-    emp003: {
-      std3: [
-        { date: "2024-01-14", observedPerf: "102.3", gradeFactorPerf: "106.1" },
-      ],
-    },
+      ];
+      setEmployeePerformanceData((prev) => ({
+        ...prev,
+        [employeeId]: fallbackData,
+      }));
+    }
   };
 
   // Helper function to sync active row IDs based on quantities
@@ -1000,6 +1016,7 @@ export default function GazeObservationApp() {
 
     loadStandards(controller.signal);
     loadDelayReasons(controller.signal);
+    loadObservationReasons(controller.signal);
     loadTeamMembers(controller.signal);
 
     return () => {
@@ -1058,6 +1075,77 @@ export default function GazeObservationApp() {
       // Set empty array as fallback and show non-blocking notification
       setDelayReasons([]);
       console.warn("Delay reasons could not be loaded:", errorMessage);
+    }
+  };
+
+  const loadObservationReasons = async (signal?: AbortSignal) => {
+    try {
+      const timeoutId = setTimeout(() => {
+        if (!signal?.aborted) {
+          console.warn(
+            "Observation reasons request timed out after 10 seconds",
+          );
+        }
+      }, 10000);
+
+      const response = await fetch("/api/observation-reasons", {
+        signal: signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        setObservationReasons(data);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to fetch observation reasons`,
+        );
+      }
+    } catch (error) {
+      // Don't show errors for aborted requests during component unmount
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!signal?.aborted) {
+          console.warn("Observation reasons request was aborted");
+        }
+        return; // Silently return for component unmount
+      }
+
+      console.error("Error loading observation reasons:", error);
+
+      // Set fallback reasons as backup
+      const fallbackReasons = [
+        {
+          id: "1",
+          name: "Performance Review",
+          description: "Regular performance assessment",
+        },
+        {
+          id: "2",
+          name: "Training Assessment",
+          description: "Evaluate training effectiveness",
+        },
+        {
+          id: "3",
+          name: "Incident Follow-up",
+          description: "Post-incident observation",
+        },
+        {
+          id: "4",
+          name: "Routine Check",
+          description: "Regular operational oversight",
+        },
+      ];
+      setObservationReasons(fallbackReasons);
+      console.warn(
+        "Using fallback observation reasons due to error:",
+        error.message,
+      );
     }
   };
 
@@ -1541,6 +1629,9 @@ export default function GazeObservationApp() {
                                 setEmployeeId(employee.employeeId);
                                 setShowEmployeeDropdown(false);
                                 setEmployeeSearch("");
+                                loadEmployeePerformanceData(
+                                  employee.employeeId,
+                                );
                                 setShowPreviousObservations(true);
                               }}
                               className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
@@ -1582,10 +1673,11 @@ export default function GazeObservationApp() {
                   className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
                 >
                   <option value="">Select Observation Reason</option>
-                  <option value="performance">Performance Review</option>
-                  <option value="training">Training Assessment</option>
-                  <option value="incident">Incident Follow-up</option>
-                  <option value="routine">Routine Check</option>
+                  {observationReasons.map((reason) => (
+                    <option key={reason.id} value={reason.name}>
+                      {reason.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -2368,7 +2460,7 @@ export default function GazeObservationApp() {
             {/* AI Notes Section */}
             <div className="p-5 bg-white rounded-lg border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <span>Engage.X Leader Notes</span>
+                <span>TLC Leader Notes</span>
                 <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm">
                   AI Generated
                 </div>
@@ -2536,10 +2628,10 @@ export default function GazeObservationApp() {
               </h2>
 
               {(() => {
-                // Get all observations for the employee across all standards
+                // Get dynamic observations for the employee
                 const allObservations =
-                  employeeId && previousObservations[employeeId]
-                    ? Object.values(previousObservations[employeeId]).flat()
+                  employeeId && employeePerformanceData[employeeId]
+                    ? employeePerformanceData[employeeId]
                     : [];
 
                 // Sort by date (newest first) and take the last 5
