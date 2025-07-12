@@ -554,12 +554,12 @@ export async function getRoles() {
     include: {
       rolePermissions: {
         include: {
-          permission: true,
+          permissions: true,
         },
       },
       _count: {
         select: {
-          userRoles: true,
+          user_roles: true,
         },
       },
     },
