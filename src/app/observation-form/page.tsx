@@ -998,9 +998,18 @@ export default function GazeObservationApp() {
         });
 
         if (!createUserResponse.ok) {
-          throw new Error("Failed to create user");
+          const errorData = await createUserResponse.json().catch(() => ({}));
+          console.error(
+            "User creation failed:",
+            createUserResponse.status,
+            errorData,
+          );
+          throw new Error(
+            `Failed to create user: ${errorData.error || createUserResponse.status}`,
+          );
         }
         user = await createUserResponse.json();
+        console.log("Created new user:", user.id);
       }
 
       if (!selectedStandardData) {
@@ -2010,7 +2019,7 @@ export default function GazeObservationApp() {
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">
                     {isObserving || isPumpAssessmentActive
-                      ? "��"
+                      ? "—"
                       : totalSams.toFixed(2)}
                   </div>
                   <div className="text-gray-600">Total SAMs</div>
