@@ -955,6 +955,8 @@ export default function GazeObservationApp() {
 
   const resetForm = () => {
     setEmployeeId("");
+    setEmployeeSearch("");
+    setShowEmployeeDropdown(false);
     setObservationReason("");
     setStandard("");
     resetStandardSelection();
