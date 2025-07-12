@@ -109,12 +109,17 @@ export default function RolesAdminPage() {
         setSelectedPermissions([]);
         fetchRoles();
       } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to add role");
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Role creation failed:", response.status, errorData);
+        setError(
+          errorData.error || `Failed to add role (Status: ${response.status})`,
+        );
       }
     } catch (error) {
       console.error("Error adding role:", error);
-      setError("Failed to add role");
+      setError(
+        `Network error: ${error instanceof Error ? error.message : "Failed to add role"}`,
+      );
     } finally {
       setIsSubmitting(false);
     }
