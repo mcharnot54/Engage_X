@@ -293,6 +293,32 @@ export function UserManagementModal({
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Organization *
+              </label>
+              <select
+                value={formData.organizationid || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    organizationid: e.target.value
+                      ? parseInt(e.target.value)
+                      : undefined,
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
+              >
+                <option value="">Select an organization</option>
+                {organizations.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name} ({org.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="flex items-center">
               <input
                 type="checkbox"
