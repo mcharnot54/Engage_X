@@ -1065,6 +1065,77 @@ export default function GazeObservationApp() {
     }
   };
 
+  const loadObservationReasons = async (signal?: AbortSignal) => {
+    try {
+      const timeoutId = setTimeout(() => {
+        if (!signal?.aborted) {
+          console.warn(
+            "Observation reasons request timed out after 10 seconds",
+          );
+        }
+      }, 10000);
+
+      const response = await fetch("/api/observation-reasons", {
+        signal: signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        setObservationReasons(data);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to fetch observation reasons`,
+        );
+      }
+    } catch (error) {
+      // Don't show errors for aborted requests during component unmount
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!signal?.aborted) {
+          console.warn("Observation reasons request was aborted");
+        }
+        return; // Silently return for component unmount
+      }
+
+      console.error("Error loading observation reasons:", error);
+
+      // Set fallback reasons as backup
+      const fallbackReasons = [
+        {
+          id: "1",
+          name: "Performance Review",
+          description: "Regular performance assessment",
+        },
+        {
+          id: "2",
+          name: "Training Assessment",
+          description: "Evaluate training effectiveness",
+        },
+        {
+          id: "3",
+          name: "Incident Follow-up",
+          description: "Post-incident observation",
+        },
+        {
+          id: "4",
+          name: "Routine Check",
+          description: "Regular operational oversight",
+        },
+      ];
+      setObservationReasons(fallbackReasons);
+      console.warn(
+        "Using fallback observation reasons due to error:",
+        error.message,
+      );
+    }
+  };
+
   const loadTeamMembers = async (signal?: AbortSignal) => {
     try {
       const timeoutId = setTimeout(() => {
