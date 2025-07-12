@@ -145,6 +145,9 @@ export default function GazeObservationApp() {
   const [observationReasons, setObservationReasons] = useState<
     { id: string; name: string; description?: string }[]
   >([]);
+  const [employeePerformanceData, setEmployeePerformanceData] = useState<
+    Record<string, PreviousObservation[]>
+  >({});
 
   // Best practices and process adherence
   const [bestPracticesChecked, setBestPracticesChecked] = useState<string[]>(
@@ -225,31 +228,38 @@ export default function GazeObservationApp() {
     "Distribution trend of System performance vs. Standard",
   ];
 
-  // Previous observations data for popup
-  const previousObservations: Record<
-    string,
-    Record<string, PreviousObservation[]>
-  > = {
-    emp001: {
-      std1: [
+  // Load employee performance data dynamically
+  const loadEmployeePerformanceData = async (employeeId: string) => {
+    try {
+      const response = await fetch(
+        `/api/observations?userId=${employeeId}&limit=5`,
+      );
+      if (response.ok) {
+        const observations = await response.json();
+        const performanceData = observations.map((obs: any) => ({
+          date: new Date(obs.createdAt).toISOString().split("T")[0],
+          observedPerf: obs.observedPerformance.toFixed(1),
+          gradeFactorPerf: obs.pumpScore.toFixed(1),
+        }));
+
+        setEmployeePerformanceData((prev) => ({
+          ...prev,
+          [employeeId]: performanceData,
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading employee performance data:", error);
+      // Set fallback data if API fails
+      const fallbackData = [
         { date: "2024-01-15", observedPerf: "95.2", gradeFactorPerf: "98.1" },
         { date: "2024-01-10", observedPerf: "92.8", gradeFactorPerf: "96.5" },
         { date: "2024-01-05", observedPerf: "98.1", gradeFactorPerf: "102.3" },
-        { date: "2023-12-28", observedPerf: "89.8", gradeFactorPerf: "94.2" },
-        { date: "2023-12-20", observedPerf: "101.5", gradeFactorPerf: "105.8" },
-      ],
-    },
-    emp002: {
-      std2: [
-        { date: "2024-01-12", observedPerf: "88.5", gradeFactorPerf: "91.2" },
-        { date: "2024-01-08", observedPerf: "93.1", gradeFactorPerf: "97.8" },
-      ],
-    },
-    emp003: {
-      std3: [
-        { date: "2024-01-14", observedPerf: "102.3", gradeFactorPerf: "106.1" },
-      ],
-    },
+      ];
+      setEmployeePerformanceData((prev) => ({
+        ...prev,
+        [employeeId]: fallbackData,
+      }));
+    }
   };
 
   // Helper function to sync active row IDs based on quantities
