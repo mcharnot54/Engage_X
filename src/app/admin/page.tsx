@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
+import { useAdminContext } from "@/hooks/useAdminContext";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,7 @@ function AdminContent() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { user, tenantContext, isLoading: contextLoading } = useAdminContext();
 
   useEffect(() => {
     fetchSystemStats();
@@ -121,11 +123,63 @@ function AdminContent() {
 
         <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-semibold text-red-600">
-              System Administration
-            </h1>
+            <div>
+              <h1 className="text-2xl font-semibold text-red-600">
+                System Administration
+              </h1>
+              {tenantContext &&
+                !tenantContext.isSystemAdmin &&
+                tenantContext.organizationId && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Managing organization ID: {tenantContext.organizationId}
+                  </p>
+                )}
+            </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">Welcome, Admin User</span>
+              {contextLoading ? (
+                <span className="text-sm text-gray-600">Loading...</span>
+              ) : user ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-600">
+                    Welcome, {user.name}
+                  </span>
+                  {tenantContext?.isSystemAdmin ? (
+                    <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                      System Administrator
+                    </span>
+                  ) : (
+                    <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      Organization Admin
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-sm text-gray-600">
+                  Welcome, Admin User
+                </span>
+              )}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set("admin", "true");
+                    window.location.href = url.toString();
+                  }}
+                  className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-md hover:bg-red-200"
+                >
+                  Test as System Admin
+                </button>
+                <button
+                  onClick={() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete("admin");
+                    window.location.href = url.toString();
+                  }}
+                  className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
+                >
+                  Test as Org Admin
+                </button>
+              </div>
             </div>
           </div>
 

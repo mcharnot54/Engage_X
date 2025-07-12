@@ -16,10 +16,15 @@ model User {
   role           String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  organizationId Int?
+  roleId         String?
+  employeeNumber String?
+  externalSource String?
+  isActive       Boolean       @default(true)
+  lastSyncAt     DateTime?
+  organizationid Int?
   observations   Observation[]
-  userRoles      UserRole[]
-  organization   Organization? @relation(fields: [organizationId], references: [id])
+  user_roles     UserRole[]
+  roles          Role?         @relation(fields: [roleId], references: [id])
 
   @@map("users")
 }
@@ -32,9 +37,7 @@ model Organization {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   facilities Facility[]
-  roles      Role[]
-  userRoles  UserRole[]
-  users      User[]
+  user_roles UserRole[]
 
   @@map("organizations")
 }
@@ -96,7 +99,7 @@ model Standard {
   isCurrentVersion     Boolean       @default(true)
   versionNotes         String?
   createdBy            String?
-  notes                String
+  notes                String        @default("No notes provided")
   observations         Observation[]
   area                 Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
   baseStandard         Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id])
@@ -168,40 +171,40 @@ model ObservationData {
 }
 
 model Role {
-  id              Int              @id @default(autoincrement())
-  name            String
+  id              String           @id
+  name            String           @unique
   description     String?
-  organizationId  Int?
-  isSystemRole    Boolean          @default(false)
+  isActive        Boolean          @default(true)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   rolePermissions RolePermission[]
-  organization    Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userRoles       UserRole[]
+  user_roles      UserRole[]
+  users           User[]
 
-  @@unique([name, organizationId])
   @@map("roles")
 }
 
 model Permission {
-  id              Int              @id @default(autoincrement())
-  name            String
-  resource        String
-  action          String
+  id              String           @id
+  name            String           @unique
   description     String?
+  module          String
+  action          String
+  isActive        Boolean          @default(true)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   rolePermissions RolePermission[]
 
-  @@unique([name, resource, action])
   @@map("permissions")
 }
 
 model RolePermission {
-  id           Int        @id @default(autoincrement())
-  roleId       Int
-  permissionId Int
+  id           String     @id
+  roleId       String
+  permissionId String
+  granted      Boolean    @default(true)
   createdAt    DateTime   @default(now())
+  updatedAt    DateTime
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
@@ -211,20 +214,20 @@ model RolePermission {
 
 model UserRole {
   id             Int           @id @default(autoincrement())
-  userId         String
-  roleId         Int
-  organizationId Int?
-  createdAt      DateTime      @default(now())
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  role           Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userid         String
+  roleid         String
+  organizationid Int?
+  createdat      DateTime      @default(now()) @db.Timestamp(6)
+  organizations  Organization? @relation(fields: [organizationid], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_roles_org")
+  roles          Role          @relation(fields: [roleid], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_roles_role")
+  users          User          @relation(fields: [userid], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_roles_user")
 
-  @@unique([userId, roleId, organizationId])
+  @@unique([userid, roleid, organizationid])
   @@map("user_roles")
 }
 
 model DelayReason {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   name        String   @unique
   description String?
   isActive    Boolean  @default(true)
@@ -235,14 +238,14 @@ model DelayReason {
 }
 
 model ObservationReason {
-  id               String  @id @default(cuid())
-  name             String  @unique
+  id               String   @id @default(cuid())
+  name             String   @unique
   description      String?
-  isActive         Boolean @default(true)
-  externalApiUrl   String?
-  apiConfiguration Json?
+  isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  apiConfiguration Json?
+  externalApiUrl   String?
 
   @@map("observation_reasons")
 }

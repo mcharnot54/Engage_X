@@ -1,4 +1,9 @@
 import { prisma } from "./prisma";
+import {
+  TenantContext,
+  applyTenantFilter,
+  applyUserTenantFilter,
+} from "./tenant-context";
 
 // Organization operations
 export async function createOrganization(data: {
@@ -18,6 +23,28 @@ export async function getOrganizations() {
       facilities: true,
     },
   });
+}
+
+// Tenant-aware version of getOrganizations
+export async function getOrganizationsWithTenantContext(
+  tenantContext: TenantContext,
+) {
+  if (tenantContext.isSystemAdmin) {
+    // System admins can see all organizations
+    return getOrganizations();
+  } else if (tenantContext.organizationId) {
+    // Regular users can only see their own organization
+    return prisma.organization.findMany({
+      where: { id: tenantContext.organizationId },
+      orderBy: { name: "asc" },
+      include: {
+        facilities: true,
+      },
+    });
+  } else {
+    // No organization access
+    return [];
+  }
 }
 
 export async function updateOrganization(
@@ -51,6 +78,21 @@ export async function createFacility(data: {
 
 export async function getFacilities() {
   return prisma.facility.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      organization: true,
+    },
+  });
+}
+
+// Tenant-aware version of getFacilities
+export async function getFacilitiesWithTenantContext(
+  tenantContext: TenantContext,
+) {
+  const filter = applyTenantFilter(tenantContext);
+
+  return prisma.facility.findMany({
+    where: filter,
     orderBy: { name: "asc" },
     include: {
       organization: true,
@@ -442,9 +484,9 @@ export async function createUser(data: {
   return prisma.user.create({
     data,
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
     },
@@ -470,9 +512,9 @@ export async function updateUser(
     where: { id },
     data,
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
     },
@@ -489,9 +531,9 @@ export async function getUserByEmployeeId(employeeId: string) {
   return prisma.user.findUnique({
     where: { employeeId },
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
     },
@@ -502,9 +544,9 @@ export async function getUserById(id: string) {
   return prisma.user.findUnique({
     where: { id },
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
     },
@@ -512,16 +554,67 @@ export async function getUserById(id: string) {
 }
 
 export async function getUsers() {
-  return prisma.user.findMany({
+  const users = await prisma.user.findMany({
     orderBy: { name: "asc" },
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
+      roles: true, // Direct role relationship
     },
   });
+
+  // Manually fetch organization data for each user
+  const usersWithOrganizations = await Promise.all(
+    users.map(async (user) => {
+      if (user.organizationid) {
+        const organization = await prisma.organization.findUnique({
+          where: { id: user.organizationid },
+          select: { id: true, name: true, code: true },
+        });
+        return { ...user, organization };
+      }
+      return { ...user, organization: null };
+    }),
+  );
+
+  return usersWithOrganizations;
+}
+
+// Tenant-aware version of getUsers
+export async function getUsersWithTenantContext(tenantContext: TenantContext) {
+  const filter = applyUserTenantFilter(tenantContext);
+
+  const users = await prisma.user.findMany({
+    where: filter,
+    orderBy: { name: "asc" },
+    include: {
+      user_roles: {
+        include: {
+          roles: true,
+        },
+      },
+      roles: true,
+    },
+  });
+
+  // Manually fetch organization data for each user
+  const usersWithOrganizations = await Promise.all(
+    users.map(async (user) => {
+      if (user.organizationid) {
+        const organization = await prisma.organization.findUnique({
+          where: { id: user.organizationid },
+          select: { id: true, name: true, code: true },
+        });
+        return { ...user, organization };
+      }
+      return { ...user, organization: null };
+    }),
+  );
+
+  return usersWithOrganizations;
 }
 
 export async function syncUserFromExternal(data: {
@@ -559,7 +652,7 @@ export async function getRoles() {
       },
       _count: {
         select: {
-          userRoles: true,
+          user_roles: true,
         },
       },
     },
@@ -568,7 +661,7 @@ export async function getRoles() {
 
 export async function getRoleById(id: string | number) {
   return prisma.role.findUnique({
-    where: { id: typeof id === "string" ? parseInt(id) : id },
+    where: { id: id.toString() },
     include: {
       rolePermissions: {
         include: {
@@ -577,7 +670,7 @@ export async function getRoleById(id: string | number) {
       },
       _count: {
         select: {
-          userRoles: true,
+          user_roles: true,
         },
       },
     },
@@ -587,7 +680,7 @@ export async function getRoleById(id: string | number) {
 export async function createRole(data: {
   name: string;
   description?: string;
-  permissionIds?: number[];
+  permissionIds?: string[];
 }) {
   const { permissionIds, ...roleData } = data;
 
@@ -597,7 +690,7 @@ export async function createRole(data: {
       rolePermissions: permissionIds
         ? {
             create: permissionIds.map((permissionId) => ({
-              permissionId,
+              permissionId: permissionId,
             })),
           }
         : undefined,
@@ -610,7 +703,7 @@ export async function createRole(data: {
       },
       _count: {
         select: {
-          userRoles: true,
+          user_roles: true,
         },
       },
     },
@@ -623,11 +716,11 @@ export async function updateRole(
     name?: string;
     description?: string;
     isActive?: boolean;
-    permissionIds?: number[];
+    permissionIds?: string[];
   },
 ) {
   const { permissionIds, ...roleData } = data;
-  const roleId = typeof id === "string" ? parseInt(id) : id;
+  const roleId = id.toString();
 
   return prisma.$transaction(async (tx) => {
     // Update the role
@@ -665,7 +758,7 @@ export async function updateRole(
         },
         _count: {
           select: {
-            userRoles: true,
+            user_roles: true,
           },
         },
       },
@@ -674,7 +767,7 @@ export async function updateRole(
 }
 
 export async function deleteRole(id: string | number) {
-  const roleId = typeof id === "string" ? parseInt(id) : id;
+  const roleId = id.toString();
   return prisma.role.delete({
     where: { id: roleId },
   });
@@ -683,7 +776,7 @@ export async function deleteRole(id: string | number) {
 // Permission operations
 export async function getPermissions() {
   return prisma.permission.findMany({
-    orderBy: [{ resource: "asc" }, { action: "asc" }],
+    orderBy: [{ module: "asc" }, { action: "asc" }],
   });
 }
 
@@ -846,5 +939,81 @@ export async function createUserRole(data: {
 export async function deleteUserRole(id: number) {
   return prisma.userRole.delete({
     where: { id },
+  });
+}
+
+// Delay Reason operations
+export async function getDelayReasons() {
+  return prisma.delayReason.findMany({
+    orderBy: { name: "asc" },
+  });
+}
+
+export async function createDelayReason(data: {
+  name: string;
+  description?: string;
+}) {
+  return prisma.delayReason.create({
+    data,
+  });
+}
+
+export async function updateDelayReason(
+  id: number,
+  data: {
+    name?: string;
+    description?: string;
+    isActive?: boolean;
+  },
+) {
+  return prisma.delayReason.update({
+    where: { id },
+    data,
+  });
+}
+
+export async function deleteDelayReason(id: number) {
+  return prisma.delayReason.update({
+    where: { id },
+    data: { isActive: false },
+  });
+}
+
+// Observation Reason operations
+export async function getObservationReasons() {
+  return prisma.observationReason.findMany({
+    orderBy: { name: "asc" },
+  });
+}
+
+export async function createObservationReason(data: {
+  name: string;
+  description?: string;
+  externalApiUrl?: string;
+}) {
+  return prisma.observationReason.create({
+    data,
+  });
+}
+
+export async function updateObservationReason(
+  id: string,
+  data: {
+    name?: string;
+    description?: string;
+    externalApiUrl?: string;
+    isActive?: boolean;
+  },
+) {
+  return prisma.observationReason.update({
+    where: { id },
+    data,
+  });
+}
+
+export async function deleteObservationReason(id: string) {
+  return prisma.observationReason.update({
+    where: { id },
+    data: { isActive: false },
   });
 }

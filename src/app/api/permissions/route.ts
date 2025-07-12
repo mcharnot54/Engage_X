@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPermissions } from "@/lib/db-operations";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const permissions = await getPermissions();
     return NextResponse.json(permissions);

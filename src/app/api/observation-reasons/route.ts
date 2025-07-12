@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import {
+  getObservationReasons,
+  createObservationReason,
+} from "@/lib/db-operations";
 
 export async function GET() {
   try {
-    const observationReasons = await prisma.observationReason.findMany({
-      orderBy: {
-        name: "asc",
-      },
-    });
+    const observationReasons = await getObservationReasons();
     return NextResponse.json(observationReasons);
   } catch (error) {
     console.error("Error fetching observation reasons:", error);
@@ -30,12 +29,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const observationReason = await prisma.observationReason.create({
-      data: {
-        name: name.trim(),
-        description: description?.trim() || null,
-        externalApiUrl: externalApiUrl?.trim() || null,
-      },
+    const observationReason = await createObservationReason({
+      name: name.trim(),
+      description: description?.trim() || undefined,
+      externalApiUrl: externalApiUrl?.trim() || undefined,
     });
 
     return NextResponse.json(observationReason);

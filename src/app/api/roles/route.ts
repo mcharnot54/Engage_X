@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRoles, createRole } from "@/lib/db-operations";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const roles = await getRoles();
     return NextResponse.json(roles);

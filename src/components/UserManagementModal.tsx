@@ -13,12 +13,19 @@ interface User {
   roleId?: string;
   isActive?: boolean;
   externalSource?: string;
+  organizationid?: number;
 }
 
 interface Role {
   id: string;
   name: string;
   description?: string;
+}
+
+interface Organization {
+  id: number;
+  name: string;
+  code: string;
 }
 
 interface UserManagementModalProps {
@@ -43,15 +50,18 @@ export function UserManagementModal({
     email: "",
     department: "",
     roleId: "",
+    organizationid: undefined,
     isActive: true,
   });
   const [roles, setRoles] = useState<Role[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isOpen) {
       fetchRoles();
+      fetchOrganizations();
       if (user && mode === "edit") {
         setFormData({
           id: user.id,
@@ -61,6 +71,7 @@ export function UserManagementModal({
           email: user.email || "",
           department: user.department || "",
           roleId: user.roleId || "",
+          organizationid: user.organizationid || undefined,
           isActive: user.isActive !== false,
         });
       } else {
@@ -71,6 +82,7 @@ export function UserManagementModal({
           email: "",
           department: "",
           roleId: "",
+          organizationid: undefined,
           isActive: true,
         });
       }
@@ -87,6 +99,18 @@ export function UserManagementModal({
       }
     } catch (error) {
       console.error("Error fetching roles:", error);
+    }
+  };
+
+  const fetchOrganizations = async () => {
+    try {
+      const response = await fetch("/api/organizations");
+      if (response.ok) {
+        const data = await response.json();
+        setOrganizations(data);
+      }
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
     }
   };
 
@@ -264,6 +288,32 @@ export function UserManagementModal({
                 {roles.map((role) => (
                   <option key={role.id} value={role.id}>
                     {role.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Organization *
+              </label>
+              <select
+                value={formData.organizationid || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    organizationid: e.target.value
+                      ? parseInt(e.target.value)
+                      : undefined,
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
+              >
+                <option value="">Select an organization</option>
+                {organizations.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name} ({org.code})
                   </option>
                 ))}
               </select>

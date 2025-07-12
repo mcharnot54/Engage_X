@@ -23,14 +23,35 @@ interface User {
   lastSyncAt?: string;
   createdAt: string;
   updatedAt: string;
-  userRoles?: {
+  organizationid?: number;
+  facilityId?: number;
+  departmentId?: number;
+  areaId?: number;
+  user_roles?: {
     id: number;
-    role: {
-      id: number;
+    roles: {
+      id: string;
       name: string;
       description?: string;
     };
   }[];
+  organization?: {
+    id: number;
+    name: string;
+    code: string;
+  };
+  facility?: {
+    id: number;
+    name: string;
+  };
+  userDepartment?: {
+    id: number;
+    name: string;
+  };
+  area?: {
+    id: number;
+    name: string;
+  };
 }
 
 export default function UsersAdminPage() {
@@ -331,6 +352,9 @@ export default function UsersAdminPage() {
                           Role
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Organization
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Status
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
@@ -360,9 +384,21 @@ export default function UsersAdminPage() {
                             {user.department || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {user.userRoles?.[0]?.role?.name ||
+                            {user.user_roles?.[0]?.roles?.name ||
                               user.role ||
                               "—"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            {user.organization ? (
+                              <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                {user.organization.name} (
+                                {user.organization.code})
+                              </span>
+                            ) : (
+                              <span className="text-red-500">
+                                No Organization
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-sm">
                             <span
