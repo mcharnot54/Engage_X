@@ -1002,6 +1002,8 @@ export async function updateObservationReason(
   data: {
     name?: string;
     description?: string;
+    purpose?: string;
+    leaderActionGuidelines?: string;
     externalApiUrl?: string;
     isActive?: boolean;
   },
