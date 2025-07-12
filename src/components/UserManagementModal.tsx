@@ -61,6 +61,7 @@ export function UserManagementModal({
   useEffect(() => {
     if (isOpen) {
       fetchRoles();
+      fetchOrganizations();
       if (user && mode === "edit") {
         setFormData({
           id: user.id,
