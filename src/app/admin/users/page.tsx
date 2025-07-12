@@ -352,6 +352,9 @@ export default function UsersAdminPage() {
                           Role
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Organization
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Status
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
