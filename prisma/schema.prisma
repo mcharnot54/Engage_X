@@ -39,6 +39,7 @@ model Organization {
   updatedAt  DateTime   @updatedAt
   facilities Facility[]
   user_roles UserRole[]
+  users      User[]
 
   @@map("organizations")
 }
