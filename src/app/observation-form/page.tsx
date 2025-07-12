@@ -935,8 +935,9 @@ export default function GazeObservationApp() {
     if (!observationReason) return "Observation reason is required";
     if (!standard) return "Standard is required";
     if (!selectedStandardData) return "Selected standard data not loaded";
-    if (!timeObserved) return "No time observed recorded";
-    if (!totalSams) return "No SAMs recorded";
+    if (!timeObserved || timeObserved <= 0) return "No time observed recorded";
+    if (totalSams === null || totalSams === undefined || totalSams <= 0)
+      return "No SAMs recorded - please enter quantities for observed operations";
     if (pace === null || pace === undefined || pace <= 0)
       return "Valid Pace percentage is required";
     if (utilization === null || utilization === undefined || utilization <= 0)
