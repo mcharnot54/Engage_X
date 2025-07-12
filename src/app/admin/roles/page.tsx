@@ -528,9 +528,9 @@ export default function RolesAdminPage() {
                     </button>
                   </div>
                 </form>
-              </div>
+                            </div>
             </div>
-                    )}
+          )}
 
           {/* Existing Roles Section */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-200">
