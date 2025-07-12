@@ -623,6 +623,12 @@ export default function ObservationReasonsAdminPage() {
                           Description
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Purpose
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Leader Guidelines
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Deactivated
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
