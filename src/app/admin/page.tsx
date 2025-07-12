@@ -51,6 +51,7 @@ function AdminContent() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { user, tenantContext, isLoading: contextLoading } = useAdminContext();
 
   useEffect(() => {
     fetchSystemStats();
