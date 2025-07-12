@@ -9,7 +9,7 @@ interface ObservationReason {
   name: string;
   description?: string;
   externalApiUrl?: string;
-  apiConfiguration?: any;
+  apiConfiguration?: unknown;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
