@@ -85,6 +85,21 @@ export async function getFacilities() {
   });
 }
 
+// Tenant-aware version of getFacilities
+export async function getFacilitiesWithTenantContext(
+  tenantContext: TenantContext,
+) {
+  const filter = applyTenantFilter(tenantContext);
+
+  return prisma.facility.findMany({
+    where: filter,
+    orderBy: { name: "asc" },
+    include: {
+      organization: true,
+    },
+  });
+}
+
 export async function getFacilitiesByOrganization(organizationId: number) {
   return prisma.facility.findMany({
     where: { organizationId },
