@@ -13,6 +13,7 @@ interface User {
   roleId?: string;
   isActive?: boolean;
   externalSource?: string;
+  organizationid?: number;
 }
 
 interface Role {
