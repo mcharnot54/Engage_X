@@ -648,6 +648,22 @@ export default function ObservationReasonsAdminPage() {
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {reason.description || "—"}
                           </td>
+                          <td className="px-4 py-3 text-sm text-gray-500 max-w-48">
+                            <div
+                              className="truncate"
+                              title={reason.purpose || ""}
+                            >
+                              {reason.purpose || "—"}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500 max-w-48">
+                            <div
+                              className="truncate"
+                              title={reason.leaderActionGuidelines || ""}
+                            >
+                              {reason.leaderActionGuidelines || "—"}
+                            </div>
+                          </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {new Date(reason.updatedAt).toLocaleDateString()}
                           </td>
