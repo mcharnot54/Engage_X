@@ -442,9 +442,9 @@ export async function createUser(data: {
   return prisma.user.create({
     data,
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
     },
