@@ -248,15 +248,14 @@ export default function RolesAdminPage() {
           ]}
         />
 
-        <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0 max-w-7xl mx-auto">
+                <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0 max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-red-600">
                 Roles & Permissions Management
               </h1>
               <p className="text-gray-600 mt-2 text-lg">
-                Manage user roles and their permissions for system access
-                control
+                Manage user roles and their permissions for system access control
               </p>
             </div>
             <a
@@ -281,29 +280,24 @@ export default function RolesAdminPage() {
             <div className="px-4 py-2 bg-white text-gray-900 rounded-md shadow-sm font-medium">
               Role Management
             </div>
-            <a
-              href="/admin/user-roles"
-              className="px-4 py-2 text-gray-600 hover:text-gray-900 rounded-md font-medium transition-colors"
-            >
+            <a href="/admin/user-roles" className="px-4 py-2 text-gray-600 hover:text-gray-900 rounded-md font-medium transition-colors">
               User Assignments
             </a>
           </div>
 
-          {/* Create New Role Section */}
+                    {/* Create New Role Section */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-xl">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <span className="text-2xl">🔐</span>
                 Create New Role
               </h3>
-              <p className="text-blue-100 mt-1">
-                Define a new role with specific permissions
-              </p>
+              <p className="text-blue-100 mt-1">Define a new role with specific permissions</p>
             </div>
 
             <div className="p-6">
               <form onSubmit={handleAddRole}>
-                {/* Basic Information */}
+                              {/* Basic Information */}
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <span>📝</span> Basic Information
@@ -347,14 +341,12 @@ export default function RolesAdminPage() {
                   </div>
                 </div>
 
-                {/* Permissions Selection */}
+                              {/* Permissions Selection */}
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <span>🔒</span> Permissions Assignment
                   </h4>
-                  <p className="text-gray-600 mb-4">
-                    Select the permissions this role should have access to
-                  </p>
+                  <p className="text-gray-600 mb-4">Select the permissions this role should have access to</p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {Object.entries(groupedPermissions).map(
@@ -378,9 +370,7 @@ export default function RolesAdminPage() {
                                   checked={selectedPermissions.includes(
                                     permission.id,
                                   )}
-                                  onChange={() =>
-                                    togglePermission(permission.id)
-                                  }
+                                  onChange={() => togglePermission(permission.id)}
                                   className="mr-3 w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                                 />
                                 <span className="text-sm capitalize font-medium">
@@ -395,12 +385,9 @@ export default function RolesAdminPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                              <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                   <div className="text-sm text-gray-600">
-                    Selected Permissions:{" "}
-                    <span className="font-semibold text-blue-600">
-                      {selectedPermissions.length}
-                    </span>
+                    Selected Permissions: <span className="font-semibold text-blue-600">{selectedPermissions.length}</span>
                   </div>
                   <div className="flex gap-3">
                     <button
@@ -545,16 +532,25 @@ export default function RolesAdminPage() {
             </div>
           )}
 
-          {/* Active Roles */}
-          <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Active Roles
-              </h3>
-              <div className="text-sm text-gray-600">
-                Active: {activeRoles.length}
+                    {/* Existing Roles Section */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+            <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 rounded-t-xl">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-xl font-bold flex items-center gap-2">
+                    <span className="text-2xl">📋</span>
+                    Existing Roles
+                  </h3>
+                  <p className="text-green-100 mt-1">Manage and monitor current system roles</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{activeRoles.length}</div>
+                  <div className="text-green-100 text-sm">Active Roles</div>
+                </div>
               </div>
             </div>
+
+            <div className="p-6">
 
             {isLoading ? (
               <div className="text-center py-8 text-gray-500">
