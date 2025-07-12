@@ -25,6 +25,7 @@ model User {
   observations   Observation[]
   user_roles     UserRole[]
   roles          Role?         @relation(fields: [roleId], references: [id])
+  organization   Organization? @relation(fields: [organizationid], references: [id], map: "fk_users_organization")
 
   @@map("users")
 }
