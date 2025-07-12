@@ -1060,6 +1060,65 @@ export default function GazeObservationApp() {
     }
   };
 
+  const loadTeamMembers = async (signal?: AbortSignal) => {
+    try {
+      const timeoutId = setTimeout(() => {
+        if (!signal?.aborted) {
+          console.warn("Team members request timed out after 10 seconds");
+        }
+      }, 10000);
+
+      const response = await fetch("/api/users-tenant?role=Team Member", {
+        signal: signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        const teamMembers = data.users.map((user: any) => ({
+          id: user.id,
+          name: user.name,
+          employeeId: user.employeeId || user.id,
+        }));
+        setEmployees(teamMembers);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to fetch team members`,
+        );
+      }
+    } catch (error) {
+      // Don't show errors for aborted requests during component unmount
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!signal?.aborted) {
+          console.warn("Team members request was aborted");
+        }
+        return; // Silently return for component unmount
+      }
+
+      console.error("Error loading team members:", error);
+      let errorMessage = "Failed to load team members";
+
+      if (error instanceof Error) {
+        if (error.message.includes("fetch")) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      // Set empty array as fallback and show non-blocking notification
+      setEmployees([]);
+      console.warn("Team members could not be loaded:", errorMessage);
+    }
+  };
+
   useEffect(() => {
     if (standard && standards.length > 0) {
       const selectedStd = standards.find((s) => s.id === Number(standard));
