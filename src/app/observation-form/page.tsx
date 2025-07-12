@@ -1000,6 +1000,7 @@ export default function GazeObservationApp() {
 
     loadStandards(controller.signal);
     loadDelayReasons(controller.signal);
+    loadTeamMembers(controller.signal);
 
     return () => {
       controller.abort();
