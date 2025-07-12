@@ -74,9 +74,13 @@ export default function RolesAdminPage() {
       if (response.ok) {
         const data = await response.json();
         setPermissions(data);
+      } else {
+        console.error("Failed to fetch permissions:", response.statusText);
+        setError("Failed to load permissions. Please refresh the page.");
       }
     } catch (error) {
       console.error("Error fetching permissions:", error);
+      setError("Failed to load permissions. Please check your connection.");
     }
   };
 
