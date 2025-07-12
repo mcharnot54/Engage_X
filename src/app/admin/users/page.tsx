@@ -23,14 +23,35 @@ interface User {
   lastSyncAt?: string;
   createdAt: string;
   updatedAt: string;
-  userRoles?: {
+  organizationid?: number;
+  facilityId?: number;
+  departmentId?: number;
+  areaId?: number;
+  user_roles?: {
     id: number;
-    role: {
-      id: number;
+    roles: {
+      id: string;
       name: string;
       description?: string;
     };
   }[];
+  organization?: {
+    id: number;
+    name: string;
+    code: string;
+  };
+  facility?: {
+    id: number;
+    name: string;
+  };
+  userDepartment?: {
+    id: number;
+    name: string;
+  };
+  area?: {
+    id: number;
+    name: string;
+  };
 }
 
 export default function UsersAdminPage() {
