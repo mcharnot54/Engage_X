@@ -674,7 +674,7 @@ export async function updateRole(
 }
 
 export async function deleteRole(id: string | number) {
-  const roleId = typeof id === "string" ? parseInt(id) : id;
+  const roleId = id.toString();
   return prisma.role.delete({
     where: { id: roleId },
   });
