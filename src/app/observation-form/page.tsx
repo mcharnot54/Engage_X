@@ -578,6 +578,11 @@ export default function GazeObservationApp() {
         // Reset checkboxes when standard changes
         setBestPracticesChecked([]);
         setProcessAdherenceChecked([]);
+
+        // Automatically show standard notes popup if notes exist
+        if (data.notes && data.notes.trim() && !isObserving) {
+          setShowStandardNotes(true);
+        }
       }
     } catch (error) {
       console.error("Error loading standard details:", error);
@@ -1227,6 +1232,10 @@ export default function GazeObservationApp() {
       const selectedStd = standards.find((s) => s.id === Number(standard));
       if (selectedStd) {
         loadSelectedStandard(selectedStd.id);
+        // Automatically show standard notes popup when standard is selected
+        if (selectedStd.notes && selectedStd.notes.trim()) {
+          setShowStandardNotes(true);
+        }
       }
     }
   }, [standard, standards]);
