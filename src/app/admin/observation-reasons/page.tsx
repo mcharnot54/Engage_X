@@ -415,6 +415,38 @@ export default function ObservationReasonsAdminPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Purpose
+                      </label>
+                      <textarea
+                        value={editingReason.purpose || ""}
+                        onChange={(e) =>
+                          setEditingReason({
+                            ...editingReason,
+                            purpose: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                        placeholder="Purpose of this observation type"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Leader Action Guidelines
+                      </label>
+                      <textarea
+                        value={editingReason.leaderActionGuidelines || ""}
+                        onChange={(e) =>
+                          setEditingReason({
+                            ...editingReason,
+                            leaderActionGuidelines: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                        placeholder="Guidelines for leaders when conducting this type of observation"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         External API URL
                         <span className="text-xs text-gray-500 ml-1">
                           (for future client integrations)
