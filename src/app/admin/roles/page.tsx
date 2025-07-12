@@ -289,102 +289,151 @@ export default function RolesAdminPage() {
             </a>
           </div>
 
-          {/* Add Role Form */}
-          <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              Add New Role
-            </h3>
+          {/* Create New Role Section */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-xl">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <span className="text-2xl">🔐</span>
+                Create New Role
+              </h3>
+              <p className="text-blue-100 mt-1">
+                Define a new role with specific permissions
+              </p>
+            </div>
 
-            <form onSubmit={handleAddRole}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Role Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newRole.name}
-                    onChange={(e) =>
-                      setNewRole({
-                        ...newRole,
-                        name: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="e.g., Site Administrator"
-                    required
-                  />
+            <div className="p-6">
+              <form onSubmit={handleAddRole}>
+                {/* Basic Information */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span>📝</span> Basic Information
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Role Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={newRole.name}
+                        onChange={(e) =>
+                          setNewRole({
+                            ...newRole,
+                            name: e.target.value,
+                          })
+                        }
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="e.g., Site Administrator"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                      </label>
+                      <input
+                        type="text"
+                        value={newRole.description}
+                        onChange={(e) =>
+                          setNewRole({
+                            ...newRole,
+                            description: e.target.value,
+                          })
+                        }
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="Optional description"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    value={newRole.description}
-                    onChange={(e) =>
-                      setNewRole({
-                        ...newRole,
-                        description: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Optional description"
-                  />
-                </div>
-              </div>
 
-              {/* Permissions Selection */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Permissions
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Object.entries(groupedPermissions).map(
-                    ([module, modulePermissions]) => (
-                      <div
-                        key={module}
-                        className="border border-gray-200 rounded-lg p-3"
-                      >
-                        <h4 className="font-medium text-gray-800 mb-2 capitalize">
-                          {module}
-                        </h4>
-                        <div className="space-y-2">
-                          {modulePermissions.map((permission) => (
-                            <label
-                              key={permission.id}
-                              className="flex items-center"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedPermissions.includes(
-                                  permission.id,
-                                )}
-                                onChange={() => togglePermission(permission.id)}
-                                className="mr-2"
-                              />
-                              <span className="text-sm capitalize">
-                                {permission.action}
-                              </span>
-                            </label>
-                          ))}
+                {/* Permissions Selection */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span>🔒</span> Permissions Assignment
+                  </h4>
+                  <p className="text-gray-600 mb-4">
+                    Select the permissions this role should have access to
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Object.entries(groupedPermissions).map(
+                      ([module, modulePermissions]) => (
+                        <div
+                          key={module}
+                          className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <h5 className="font-semibold text-gray-800 mb-3 capitalize flex items-center gap-2">
+                            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                            {module}
+                          </h5>
+                          <div className="space-y-2">
+                            {modulePermissions.map((permission) => (
+                              <label
+                                key={permission.id}
+                                className="flex items-center hover:bg-gray-50 p-1 rounded cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedPermissions.includes(
+                                    permission.id,
+                                  )}
+                                  onChange={() =>
+                                    togglePermission(permission.id)
+                                  }
+                                  className="mr-3 w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                                />
+                                <span className="text-sm capitalize font-medium">
+                                  {permission.action}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ),
-                  )}
+                      ),
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !newRole.name.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? "Adding..." : "Add Role"}
-                </button>
-              </div>
-            </form>
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    Selected Permissions:{" "}
+                    <span className="font-semibold text-blue-600">
+                      {selectedPermissions.length}
+                    </span>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewRole({ name: "", description: "" });
+                        setSelectedPermissions([]);
+                      }}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      Clear Form
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || !newRole.name.trim()}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <span>➕</span>
+                          Create Role
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
 
           {/* Edit Modal */}
