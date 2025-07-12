@@ -954,9 +954,12 @@ export default function GazeObservationApp() {
 
     const validationError = validateObservation();
     if (validationError) {
+      console.log("Validation failed:", validationError);
       setSubmissionError(validationError);
       return;
     }
+
+    console.log("Validation passed, proceeding with submission");
 
     setIsSubmitting(true);
     setSubmissionError("");
