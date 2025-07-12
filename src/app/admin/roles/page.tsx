@@ -206,7 +206,6 @@ export default function RolesAdminPage() {
   };
 
   const activeRoles = roles.filter((role) => role.isActive !== false);
-  const inactiveRoles = roles.filter((role) => role.isActive === false);
   const groupedPermissions = groupPermissionsByResource(permissions);
 
   return (
