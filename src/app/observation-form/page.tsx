@@ -906,14 +906,21 @@ export default function GazeObservationApp() {
         throw new Error("No standard selected");
       }
 
-      // Prepare observation data
-      const observationData = rows.map((row) => ({
-        uom: row.uom,
-        description: row.description,
-        quantity: row.quantity,
-        samValue: row.samValue,
-        totalSams: row.quantity * row.samValue,
-      }));
+      // Prepare observation data - include both ticker and submitted quantities
+      const observationData = rows.map((row) => {
+        const tickerQuantity = row.quantity;
+        const submittedQuantity = submittedQuantities[row.id] || 0;
+        const totalQuantity = tickerQuantity + submittedQuantity;
+        return {
+          uom: row.uom,
+          description: row.description,
+          quantity: totalQuantity,
+          tickerQuantity: tickerQuantity,
+          submittedQuantity: submittedQuantity,
+          samValue: row.samValue,
+          totalSams: totalQuantity * row.samValue,
+        };
+      });
 
       // Create observation
       const observationResponse = await fetch("/api/observations", {
