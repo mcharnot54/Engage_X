@@ -6,7 +6,10 @@ export async function GET(request: NextRequest) {
   try {
     // For now, we'll use a hardcoded user ID for demonstration
     // In a real app, this would come from the session/auth token
-    const userId = "user1"; // This should come from authentication
+    // Switch between "user1" (regular user) and "cmcnmochd0001l204wtiz8k8t" (system admin)
+    const { searchParams } = new URL(request.url);
+    const testUser = searchParams.get("user") || "user1";
+    const userId = testUser === "admin" ? "cmcnmochd0001l204wtiz8k8t" : "user1";
 
     const user = await getUserById(userId);
     if (!user) {
