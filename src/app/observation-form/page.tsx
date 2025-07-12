@@ -123,6 +123,17 @@ export default function GazeObservationApp() {
   const [teamMemberSignature, setTeamMemberSignature] = useState("");
   const [aiNotes, setAiNotes] = useState("");
 
+  // Dynamic employee loading
+  const [employees, setEmployees] = useState<
+    Array<{
+      id: string;
+      name: string;
+      employeeId: string;
+    }>
+  >([]);
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
+
   // Delay tracking with timer functionality
   const [isDelayActive, setIsDelayActive] = useState(false);
   const [delayStartTime, setDelayStartTime] = useState<number | null>(null);
