@@ -71,6 +71,7 @@ export function UserManagementModal({
           email: user.email || "",
           department: user.department || "",
           roleId: user.roleId || "",
+          organizationid: user.organizationid || undefined,
           isActive: user.isActive !== false,
         });
       } else {
