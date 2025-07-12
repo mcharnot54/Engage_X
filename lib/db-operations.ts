@@ -25,6 +25,28 @@ export async function getOrganizations() {
   });
 }
 
+// Tenant-aware version of getOrganizations
+export async function getOrganizationsWithTenantContext(
+  tenantContext: TenantContext,
+) {
+  if (tenantContext.isSystemAdmin) {
+    // System admins can see all organizations
+    return getOrganizations();
+  } else if (tenantContext.organizationId) {
+    // Regular users can only see their own organization
+    return prisma.organization.findMany({
+      where: { id: tenantContext.organizationId },
+      orderBy: { name: "asc" },
+      include: {
+        facilities: true,
+      },
+    });
+  } else {
+    // No organization access
+    return [];
+  }
+}
+
 export async function updateOrganization(
   id: number,
   data: {
