@@ -623,11 +623,11 @@ export async function updateRole(
     name?: string;
     description?: string;
     isActive?: boolean;
-    permissionIds?: number[];
+    permissionIds?: string[];
   },
 ) {
   const { permissionIds, ...roleData } = data;
-  const roleId = typeof id === "string" ? parseInt(id) : id;
+  const roleId = id.toString();
 
   return prisma.$transaction(async (tx) => {
     // Update the role
@@ -660,12 +660,12 @@ export async function updateRole(
       include: {
         rolePermissions: {
           include: {
-            permission: true,
+            permissions: true,
           },
         },
         _count: {
           select: {
-            userRoles: true,
+            user_roles: true,
           },
         },
       },
