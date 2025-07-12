@@ -82,6 +82,7 @@ export function UserManagementModal({
           email: "",
           department: "",
           roleId: "",
+          organizationid: undefined,
           isActive: true,
         });
       }
