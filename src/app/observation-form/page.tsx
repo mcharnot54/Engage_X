@@ -937,10 +937,11 @@ export default function GazeObservationApp() {
     if (!selectedStandardData) return "Selected standard data not loaded";
     if (!timeObserved) return "No time observed recorded";
     if (!totalSams) return "No SAMs recorded";
-    if (!pace || pace <= 0) return "Valid Pace percentage is required";
-    if (!utilization || utilization <= 0)
+    if (pace === null || pace === undefined || pace <= 0)
+      return "Valid Pace percentage is required";
+    if (utilization === null || utilization === undefined || utilization <= 0)
       return "Valid Utilization percentage is required";
-    if (!methods || methods <= 0)
+    if (methods === null || methods === undefined || methods <= 0)
       return "Valid Methods and Procedures percentage is required";
     if (!supervisorSignature) return "Supervisor signature required";
     if (isObserving) return "Please stop the observation before submitting";
