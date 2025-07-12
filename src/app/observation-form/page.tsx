@@ -961,14 +961,20 @@ export default function GazeObservationApp() {
     setSubmissionSuccess(false);
 
     try {
+      console.log("Starting observation submission for employee:", employeeId);
+
       // Find or create user
       let user;
       try {
         const userResponse = await fetch(`/api/users?employeeId=${employeeId}`);
         if (userResponse.ok) {
           user = await userResponse.json();
+          console.log("Found existing user:", user.id);
+        } else {
+          console.log("User not found, status:", userResponse.status);
         }
       } catch (error) {
+        console.log("Error fetching user:", error);
         // User not found, will create below
       }
 
@@ -2004,7 +2010,7 @@ export default function GazeObservationApp() {
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">
                     {isObserving || isPumpAssessmentActive
-                      ? "—"
+                      ? "��"
                       : totalSams.toFixed(2)}
                   </div>
                   <div className="text-gray-600">Total SAMs</div>
