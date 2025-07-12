@@ -1626,6 +1626,9 @@ export default function GazeObservationApp() {
                                 setEmployeeId(employee.employeeId);
                                 setShowEmployeeDropdown(false);
                                 setEmployeeSearch("");
+                                loadEmployeePerformanceData(
+                                  employee.employeeId,
+                                );
                                 setShowPreviousObservations(true);
                               }}
                               className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
@@ -2622,10 +2625,10 @@ export default function GazeObservationApp() {
               </h2>
 
               {(() => {
-                // Get all observations for the employee across all standards
+                // Get dynamic observations for the employee
                 const allObservations =
-                  employeeId && previousObservations[employeeId]
-                    ? Object.values(previousObservations[employeeId]).flat()
+                  employeeId && employeePerformanceData[employeeId]
+                    ? employeePerformanceData[employeeId]
                     : [];
 
                 // Sort by date (newest first) and take the last 5
