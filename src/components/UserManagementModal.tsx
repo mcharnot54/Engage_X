@@ -22,6 +22,12 @@ interface Role {
   description?: string;
 }
 
+interface Organization {
+  id: number;
+  name: string;
+  code: string;
+}
+
 interface UserManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
