@@ -1465,22 +1465,93 @@ export default function GazeObservationApp() {
                     </div>
                   )}
                 </div>
-                <select
-                  value={employeeId}
-                  onChange={(e) => {
-                    setEmployeeId(e.target.value);
-                    if (e.target.value) {
-                      setShowPreviousObservations(true);
+                {/* Dynamic Employee Dropdown with Search */}
+                <div className="relative">
+                  <div
+                    onClick={() =>
+                      !isObserving &&
+                      setShowEmployeeDropdown(!showEmployeeDropdown)
                     }
-                  }}
-                  disabled={isObserving}
-                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
-                >
-                  <option value="">Select Employee</option>
-                  <option value="emp001">John Smith (emp001)</option>
-                  <option value="emp002">Sarah Johnson (emp002)</option>
-                  <option value="emp003">Michael Brown (emp003)</option>
-                </select>
+                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 cursor-pointer flex justify-between items-center ${
+                      isObserving
+                        ? "opacity-70 cursor-not-allowed"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <span
+                      className={employeeId ? "text-black" : "text-gray-500"}
+                    >
+                      {employeeId
+                        ? employees.find((emp) => emp.employeeId === employeeId)
+                            ?.name +
+                          ` (${employees.find((emp) => emp.employeeId === employeeId)?.employeeId})`
+                        : "Select Employee"}
+                    </span>
+                    <span
+                      className={`transform transition-transform ${showEmployeeDropdown ? "rotate-180" : ""}`}
+                    >
+                      ▼
+                    </span>
+                  </div>
+
+                  {showEmployeeDropdown && (
+                    <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                      <div className="p-3">
+                        <input
+                          type="text"
+                          placeholder="Search by name or employee ID..."
+                          value={employeeSearch}
+                          onChange={(e) => setEmployeeSearch(e.target.value)}
+                          className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {employees
+                          .filter(
+                            (employee) =>
+                              employeeSearch === "" ||
+                              employee.name
+                                .toLowerCase()
+                                .includes(employeeSearch.toLowerCase()) ||
+                              employee.employeeId
+                                .toLowerCase()
+                                .includes(employeeSearch.toLowerCase()),
+                          )
+                          .map((employee) => (
+                            <div
+                              key={employee.id}
+                              onClick={() => {
+                                setEmployeeId(employee.employeeId);
+                                setShowEmployeeDropdown(false);
+                                setEmployeeSearch("");
+                                setShowPreviousObservations(true);
+                              }}
+                              className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="font-medium">{employee.name}</div>
+                              <div className="text-sm text-gray-600">
+                                {employee.employeeId}
+                              </div>
+                            </div>
+                          ))}
+                        {employees.filter(
+                          (employee) =>
+                            employeeSearch === "" ||
+                            employee.name
+                              .toLowerCase()
+                              .includes(employeeSearch.toLowerCase()) ||
+                            employee.employeeId
+                              .toLowerCase()
+                              .includes(employeeSearch.toLowerCase()),
+                        ).length === 0 && (
+                          <div className="p-3 text-gray-500 text-center">
+                            No employees found
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <select
                   value={observationReason}
