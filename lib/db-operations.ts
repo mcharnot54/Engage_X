@@ -470,9 +470,9 @@ export async function updateUser(
     where: { id },
     data,
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
     },
