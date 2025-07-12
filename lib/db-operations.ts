@@ -1,4 +1,9 @@
 import { prisma } from "./prisma";
+import {
+  TenantContext,
+  applyTenantFilter,
+  applyUserTenantFilter,
+} from "./tenant-context";
 
 // Organization operations
 export async function createOrganization(data: {
