@@ -74,7 +74,7 @@ export default function UsersAdminPage() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [refreshKey]);
 
   const filterUsers = () => {
     let filtered = users;
