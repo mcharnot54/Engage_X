@@ -1469,7 +1469,7 @@ export default function GazeObservationApp() {
                   )}
                 </div>
                 {/* Dynamic Employee Dropdown with Search */}
-                <div className="relative">
+                <div className="relative employee-dropdown">
                   <div
                     onClick={() =>
                       !isObserving &&
