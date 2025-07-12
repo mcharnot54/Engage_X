@@ -806,6 +806,8 @@ export async function createObservation(data: {
     uom: string;
     description: string;
     quantity: number;
+    tickerQuantity?: number;
+    submittedQuantity?: number;
     samValue: number;
     totalSams: number;
   }[];
