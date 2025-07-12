@@ -384,9 +384,21 @@ export default function UsersAdminPage() {
                             {user.department || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {user.userRoles?.[0]?.role?.name ||
+                            {user.user_roles?.[0]?.roles?.name ||
                               user.role ||
                               "—"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            {user.organization ? (
+                              <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                {user.organization.name} (
+                                {user.organization.code})
+                              </span>
+                            ) : (
+                              <span className="text-red-500">
+                                No Organization
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-sm">
                             <span
