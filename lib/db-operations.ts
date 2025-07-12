@@ -990,6 +990,8 @@ export async function getObservationReasons() {
 export async function createObservationReason(data: {
   name: string;
   description?: string;
+  purpose?: string;
+  leaderActionGuidelines?: string;
   externalApiUrl?: string;
 }) {
   return prisma.observationReason.create({
