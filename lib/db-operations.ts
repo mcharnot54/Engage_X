@@ -546,6 +546,40 @@ export async function getUsers() {
   return usersWithOrganizations;
 }
 
+// Tenant-aware version of getUsers
+export async function getUsersWithTenantContext(tenantContext: TenantContext) {
+  const filter = applyUserTenantFilter(tenantContext);
+
+  const users = await prisma.user.findMany({
+    where: filter,
+    orderBy: { name: "asc" },
+    include: {
+      user_roles: {
+        include: {
+          roles: true,
+        },
+      },
+      roles: true,
+    },
+  });
+
+  // Manually fetch organization data for each user
+  const usersWithOrganizations = await Promise.all(
+    users.map(async (user) => {
+      if (user.organizationid) {
+        const organization = await prisma.organization.findUnique({
+          where: { id: user.organizationid },
+          select: { id: true, name: true, code: true },
+        });
+        return { ...user, organization };
+      }
+      return { ...user, organization: null };
+    }),
+  );
+
+  return usersWithOrganizations;
+}
+
 export async function syncUserFromExternal(data: {
   employeeId: string;
   employeeNumber?: string;
