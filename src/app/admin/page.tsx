@@ -127,7 +127,28 @@ function AdminContent() {
               System Administration
             </h1>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">Welcome, Admin User</span>
+              {contextLoading ? (
+                <span className="text-sm text-gray-600">Loading...</span>
+              ) : user ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-600">
+                    Welcome, {user.name}
+                  </span>
+                  {tenantContext?.isSystemAdmin ? (
+                    <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                      System Administrator
+                    </span>
+                  ) : (
+                    <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      Organization Admin
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-sm text-gray-600">
+                  Welcome, Admin User
+                </span>
+              )}
             </div>
           </div>
 
