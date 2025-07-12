@@ -812,27 +812,114 @@ export default function GazeObservationApp() {
   };
 
   const generateAINotes = () => {
-    const performanceLevel = Number(observedPerformance) >= 95;
-    const perfDiff = Math.abs(Number(observedPerformance) - Number(pumpScore));
+    const observedPerf = Number(observedPerformance);
+    const pumpGradeFactor = Number(pumpScore);
+    const perfDiff = Math.abs(observedPerf - pumpGradeFactor);
 
-    const highPerformanceFeedback =
-      "Your consistent high performance is impressive. You demonstrate excellent understanding of the standard procedures and maintain quality while achieving strong productivity metrics.";
-    const improvementFeedback =
-      "I see great potential in your work. Focus on maintaining consistent pace while ensuring all safety and quality protocols are followed.";
+    // Get employee performance history for trend analysis
+    const employeeHistory = employeePerformanceData[employeeId] || [];
+    const recentTrend =
+      employeeHistory.length > 0
+        ? employeeHistory.slice(-3).map((obs) => parseFloat(obs.observedPerf))
+        : [];
 
-    const feedback = performanceLevel
-      ? highPerformanceFeedback
-      : improvementFeedback;
+    // Calculate trend direction
+    let trendAnalysis = "";
+    if (recentTrend.length >= 2) {
+      const avgRecent =
+        recentTrend.reduce((sum, val) => sum + val, 0) / recentTrend.length;
+      const improvement = observedPerf > avgRecent;
+      trendAnalysis = improvement
+        ? `Performance trending upward (+${(observedPerf - avgRecent).toFixed(1)}% from recent average). `
+        : `Performance variance noted (${(observedPerf - avgRecent).toFixed(1)}% from recent average). `;
+    }
 
-    const validationNote =
+    // Analyze PUMP components
+    const pumpAnalysis = [];
+    if (pace < 95) pumpAnalysis.push(`pace optimization (currently ${pace}%)`);
+    if (utilization < 95)
+      pumpAnalysis.push(`utilization improvement (currently ${utilization}%)`);
+    if (methods < 95)
+      pumpAnalysis.push(
+        `methods & procedures enhancement (currently ${methods}%)`,
+      );
+
+    const pumpFeedback =
+      pumpAnalysis.length > 0
+        ? `Focus areas for improvement: ${pumpAnalysis.join(", ")}. `
+        : "Excellent PUMP Grade Factor performance across all dimensions. ";
+
+    // Best practices analysis
+    const practicesAnalyzed = selectedStandardData?.bestPractices?.length || 0;
+    const practicesFollowed = bestPracticesChecked.length;
+    const practiceScore =
+      practicesAnalyzed > 0
+        ? (practicesFollowed / practicesAnalyzed) * 100
+        : 100;
+
+    const practicesFeedback =
+      practiceScore >= 80
+        ? `Strong adherence to best practices (${practicesFollowed}/${practicesAnalyzed} implemented). `
+        : `Opportunity to enhance best practices implementation (${practicesFollowed}/${practicesAnalyzed} currently followed). `;
+
+    // Process adherence analysis
+    const processOpportunities =
+      selectedStandardData?.processOpportunities?.length || 0;
+    const processesImplemented = processAdherenceChecked.length;
+    const processScore =
+      processOpportunities > 0
+        ? (processesImplemented / processOpportunities) * 100
+        : 100;
+
+    const processFeedback =
+      processScore >= 80
+        ? `Excellent process adherence and optimization awareness. `
+        : `Consider implementing additional process optimization opportunities for enhanced efficiency. `;
+
+    // Performance level categorization
+    let performanceCategory = "";
+    let specificFeedback = "";
+
+    if (observedPerf >= 110) {
+      performanceCategory = "Exceptional Performance";
+      specificFeedback =
+        "Outstanding productivity that exceeds standard expectations. Your efficiency and skill level set a benchmark for others. Continue leveraging these strengths while mentoring team members.";
+    } else if (observedPerf >= 100) {
+      performanceCategory = "Target Performance";
+      specificFeedback =
+        "Solid performance meeting standard expectations. You demonstrate reliable execution and consistent quality delivery. Focus on maintaining this standard while identifying areas for continuous improvement.";
+    } else if (observedPerf >= 90) {
+      performanceCategory = "Developing Performance";
+      specificFeedback =
+        "Good foundation with clear potential for growth. Continue building confidence in standard procedures and focus on consistency. Small improvements in rhythm and technique will yield significant gains.";
+    } else {
+      performanceCategory = "Opportunity for Growth";
+      specificFeedback =
+        "Dedicated effort observed with specific areas identified for development. Recommend additional coaching sessions, standard review, and focused practice on key operational elements.";
+    }
+
+    // Variance analysis between observed and PUMP
+    const varianceAnalysis =
       perfDiff > 25
-        ? " Note: Due to the significant difference between observed performance and PUMP Grade Factor Performance, additional observations will be conducted to validate standard alignment with expectations."
-        : "";
+        ? `\n\n⚠️ VARIANCE ALERT: Significant difference (${perfDiff.toFixed(1)}%) between Observed Performance (${observedPerf}%) and PUMP Grade Factor (${pumpGradeFactor}%). This indicates potential standard calibration needs or observation methodology review. Additional validation observations recommended.`
+        : perfDiff > 15
+          ? `\n\nNOTE: Moderate variance (${perfDiff.toFixed(1)}%) between metrics suggests opportunity for standard refinement or technique optimization.`
+          : `\n\nAlignment between Observed Performance and PUMP Grade Factor indicates consistent evaluation and standard application.`;
 
-    const observationDetails =
-      "During today's observation, I noticed your attention to detail and commitment to following established procedures. Your work demonstrates understanding of the process flow and safety requirements. ";
+    // Construct comprehensive feedback
+    const comprehensiveFeedback =
+      `📊 PERFORMANCE ANALYSIS: ${performanceCategory} (${observedPerf}%)\n\n` +
+      `${trendAnalysis}${specificFeedback}\n\n` +
+      `🎯 PUMP ASSESSMENT: Grade Factor ${pumpGradeFactor}%\n${pumpFeedback}\n\n` +
+      `✅ BEST PRACTICES: ${practicesFeedback}\n\n` +
+      `⚙️ PROCESS OPTIMIZATION: ${processFeedback}\n\n` +
+      `NEXT STEPS: ` +
+      (observedPerf >= 100
+        ? `Continue excellent performance standards. Consider advanced technique refinement and knowledge sharing opportunities.`
+        : `Focus on ${pumpAnalysis.length > 0 ? pumpAnalysis.join(" and ") : "consistency and standard procedures"}. Schedule follow-up coaching session within 2 weeks.`) +
+      varianceAnalysis;
 
-    setAiNotes(`${observationDetails}${feedback}${validationNote}`);
+    setAiNotes(comprehensiveFeedback);
   };
 
   const validateObservation = () => {
