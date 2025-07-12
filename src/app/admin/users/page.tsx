@@ -70,6 +70,7 @@ export default function UsersAdminPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
     null,
   );
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     fetchUsers();
