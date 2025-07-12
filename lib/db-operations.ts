@@ -520,6 +520,7 @@ export async function getUsers() {
           roles: true,
         },
       },
+      roles: true, // Direct role relationship
     },
   });
 }
