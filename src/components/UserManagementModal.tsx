@@ -102,6 +102,18 @@ export function UserManagementModal({
     }
   };
 
+  const fetchOrganizations = async () => {
+    try {
+      const response = await fetch("/api/organizations");
+      if (response.ok) {
+        const data = await response.json();
+        setOrganizations(data);
+      }
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
+    }
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
