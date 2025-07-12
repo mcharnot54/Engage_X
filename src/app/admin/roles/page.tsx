@@ -248,30 +248,46 @@ export default function RolesAdminPage() {
           ]}
         />
 
-        <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
-          <div className="flex justify-between items-center mb-6">
+        <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0 max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-2xl font-semibold text-red-600">
+              <h1 className="text-3xl font-bold text-red-600">
                 Roles & Permissions Management
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 mt-2 text-lg">
                 Manage user roles and their permissions for system access
                 control
               </p>
             </div>
             <a
               href="/admin"
-              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
             >
               ← Back to Admin
             </a>
           </div>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-6 py-4 rounded-r-lg mb-6 shadow-sm">
+              <div className="flex items-center">
+                <span className="text-red-500 mr-3">⚠️</span>
+                <span className="font-medium">{error}</span>
+              </div>
             </div>
           )}
+
+          {/* Page Navigation Tabs */}
+          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-8 inline-flex">
+            <div className="px-4 py-2 bg-white text-gray-900 rounded-md shadow-sm font-medium">
+              Role Management
+            </div>
+            <a
+              href="/admin/user-roles"
+              className="px-4 py-2 text-gray-600 hover:text-gray-900 rounded-md font-medium transition-colors"
+            >
+              User Assignments
+            </a>
+          </div>
 
           {/* Add Role Form */}
           <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
