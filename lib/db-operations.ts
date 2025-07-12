@@ -848,3 +848,79 @@ export async function deleteUserRole(id: number) {
     where: { id },
   });
 }
+
+// Delay Reason operations
+export async function getDelayReasons() {
+  return prisma.delayReason.findMany({
+    orderBy: { name: "asc" },
+  });
+}
+
+export async function createDelayReason(data: {
+  name: string;
+  description?: string;
+}) {
+  return prisma.delayReason.create({
+    data,
+  });
+}
+
+export async function updateDelayReason(
+  id: number,
+  data: {
+    name?: string;
+    description?: string;
+    isActive?: boolean;
+  },
+) {
+  return prisma.delayReason.update({
+    where: { id },
+    data,
+  });
+}
+
+export async function deleteDelayReason(id: number) {
+  return prisma.delayReason.update({
+    where: { id },
+    data: { isActive: false },
+  });
+}
+
+// Observation Reason operations
+export async function getObservationReasons() {
+  return prisma.observationReason.findMany({
+    orderBy: { name: "asc" },
+  });
+}
+
+export async function createObservationReason(data: {
+  name: string;
+  description?: string;
+  externalApiUrl?: string;
+}) {
+  return prisma.observationReason.create({
+    data,
+  });
+}
+
+export async function updateObservationReason(
+  id: string,
+  data: {
+    name?: string;
+    description?: string;
+    externalApiUrl?: string;
+    isActive?: boolean;
+  },
+) {
+  return prisma.observationReason.update({
+    where: { id },
+    data,
+  });
+}
+
+export async function deleteObservationReason(id: string) {
+  return prisma.observationReason.update({
+    where: { id },
+    data: { isActive: false },
+  });
+}
