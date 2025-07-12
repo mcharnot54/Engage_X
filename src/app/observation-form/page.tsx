@@ -812,6 +812,14 @@ export default function GazeObservationApp() {
   };
 
   const generateAINotes = () => {
+    // Only generate notes if observation is finalized
+    if (!isFinalized) {
+      setAiNotes(
+        "Please complete and finalize the observation to generate comprehensive Engage.X TLC analysis.",
+      );
+      return;
+    }
+
     const observedPerf = Number(observedPerformance);
     const pumpGradeFactor = Number(pumpScore);
     const perfDiff = Math.abs(observedPerf - pumpGradeFactor);
