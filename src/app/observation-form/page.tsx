@@ -962,6 +962,12 @@ export default function GazeObservationApp() {
       }
 
       setSubmissionSuccess(true);
+
+      // Reload employee performance data if employee is selected
+      if (employeeId) {
+        await loadEmployeePerformanceData(employeeId);
+      }
+
       resetForm();
 
       setTimeout(() => {
