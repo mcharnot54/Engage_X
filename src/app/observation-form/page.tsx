@@ -1161,13 +1161,16 @@ export default function GazeObservationApp() {
       if (showStandardDropdown && !target.closest(".standard-dropdown")) {
         setShowStandardDropdown(false);
       }
+      if (showEmployeeDropdown && !target.closest(".employee-dropdown")) {
+        setShowEmployeeDropdown(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showStandardDropdown]);
+  }, [showStandardDropdown, showEmployeeDropdown]);
 
   // Helper function to get tag color with gold highlighting for active use
   const getTagColor = (
