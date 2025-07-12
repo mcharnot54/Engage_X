@@ -157,10 +157,30 @@ export default function UsersAdminPage() {
       }
 
       if (response.ok) {
+        // Get the updated user data
+        const updatedUser = await response.json();
+
+        // Refresh the users list to ensure latest data
         await fetchUsers();
+
+        // Clear modal state
+        setSelectedUser(null);
         setIsModalOpen(false);
+
+        // Force a re-render by clearing and resetting filter
+        const currentSearch = searchTerm;
+        const currentFilter = filterActive;
+        setSearchTerm("");
+        setFilterActive("all");
+
+        // Restore filters after a brief delay to trigger re-filtering
+        setTimeout(() => {
+          setSearchTerm(currentSearch);
+          setFilterActive(currentFilter);
+        }, 100);
       } else {
-        throw new Error("Failed to save user");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to save user");
       }
     } catch (error) {
       console.error("Error saving user:", error);
