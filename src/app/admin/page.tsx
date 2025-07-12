@@ -123,9 +123,18 @@ function AdminContent() {
 
         <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-semibold text-red-600">
-              System Administration
-            </h1>
+            <div>
+              <h1 className="text-2xl font-semibold text-red-600">
+                System Administration
+              </h1>
+              {tenantContext &&
+                !tenantContext.isSystemAdmin &&
+                tenantContext.organizationId && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Managing organization ID: {tenantContext.organizationId}
+                  </p>
+                )}
+            </div>
             <div className="flex items-center gap-4">
               {contextLoading ? (
                 <span className="text-sm text-gray-600">Loading...</span>
