@@ -857,13 +857,11 @@ export default function GazeObservationApp() {
       }
 
       if (!user) {
-        // Get employee name from the select option
-        const employeeName =
-          employeeId === "emp001"
-            ? "John Smith"
-            : employeeId === "emp002"
-              ? "Sarah Johnson"
-              : "Michael Brown";
+        // Get employee name from the selected employee
+        const selectedEmployee = employees.find(
+          (emp) => emp.employeeId === employeeId,
+        );
+        const employeeName = selectedEmployee?.name || "Unknown Employee";
 
         const createUserResponse = await fetch("/api/users", {
           method: "POST",
