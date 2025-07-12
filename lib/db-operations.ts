@@ -683,7 +683,7 @@ export async function deleteRole(id: string | number) {
 // Permission operations
 export async function getPermissions() {
   return prisma.permission.findMany({
-    orderBy: [{ resource: "asc" }, { action: "asc" }],
+    orderBy: [{ module: "asc" }, { action: "asc" }],
   });
 }
 
