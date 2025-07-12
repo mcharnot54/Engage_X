@@ -88,7 +88,7 @@ export default function GazeObservationApp() {
 
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
-  const [selectedOrganization, setSelectedOrganization] = useState("");
+  // const [selectedOrganization, setSelectedOrganization] = useState("");
   const [selectedFacility, setSelectedFacility] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
@@ -2298,8 +2298,8 @@ export default function GazeObservationApp() {
                                       {(isObserving ||
                                         isPumpAssessmentActive) && (
                                         <div className="mt-2 pt-1 border-t border-gray-600 text-center text-gray-400 text-xs">
-                                          Hover over entries to delete • Click ×
-                                          to clear all
+                                          Hover over entries to delete �� Click
+                                          × to clear all
                                         </div>
                                       )}
 
