@@ -806,6 +806,8 @@ export async function createObservation(data: {
     uom: string;
     description: string;
     quantity: number;
+    tickerQuantity?: number;
+    submittedQuantity?: number;
     samValue: number;
     totalSams: number;
   }[];
@@ -990,6 +992,8 @@ export async function getObservationReasons() {
 export async function createObservationReason(data: {
   name: string;
   description?: string;
+  purpose?: string;
+  leaderActionGuidelines?: string;
   externalApiUrl?: string;
 }) {
   return prisma.observationReason.create({
@@ -1002,6 +1006,8 @@ export async function updateObservationReason(
   data: {
     name?: string;
     description?: string;
+    purpose?: string;
+    leaderActionGuidelines?: string;
     externalApiUrl?: string;
     isActive?: boolean;
   },

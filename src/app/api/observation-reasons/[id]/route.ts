@@ -10,7 +10,13 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { name, description, externalApiUrl } = body;
+    const {
+      name,
+      description,
+      purpose,
+      leaderActionGuidelines,
+      externalApiUrl,
+    } = body;
     const id = params.id;
 
     if (!name || !name.trim()) {
@@ -23,6 +29,8 @@ export async function PUT(
     const observationReason = await updateObservationReason(id, {
       name: name.trim(),
       description: description?.trim() || null,
+      purpose: purpose?.trim() || null,
+      leaderActionGuidelines: leaderActionGuidelines?.trim() || null,
       externalApiUrl: externalApiUrl?.trim() || null,
     });
 

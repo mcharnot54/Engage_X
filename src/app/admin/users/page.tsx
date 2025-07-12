@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -70,12 +70,13 @@ export default function UsersAdminPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
     null,
   );
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [refreshKey]);
 
-  const filterUsers = () => {
+  const filterUsers = useCallback(() => {
     let filtered = users;
 
     // Search filter
@@ -97,11 +98,11 @@ export default function UsersAdminPage() {
     }
 
     setFilteredUsers(filtered);
-  };
+  }, [users, searchTerm, filterActive]);
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchTerm, filterActive]);
+  }, [filterUsers]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -157,10 +158,16 @@ export default function UsersAdminPage() {
       }
 
       if (response.ok) {
-        await fetchUsers();
+        // Clear modal state first
+        setSelectedUser(null);
         setIsModalOpen(false);
+
+        // Force a complete refresh of the data
+        setRefreshKey((prev) => prev + 1);
+        await fetchUsers();
       } else {
-        throw new Error("Failed to save user");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to save user");
       }
     } catch (error) {
       console.error("Error saving user:", error);
@@ -381,7 +388,7 @@ export default function UsersAdminPage() {
                             {user.email || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {user.department || "—"}
+                            {user.department || "���"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {user.user_roles?.[0]?.roles?.name ||

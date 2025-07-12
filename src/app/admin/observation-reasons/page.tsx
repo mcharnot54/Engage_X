@@ -8,6 +8,8 @@ interface ObservationReason {
   id: string;
   name: string;
   description?: string;
+  purpose?: string;
+  leaderActionGuidelines?: string;
   externalApiUrl?: string;
   apiConfiguration?: unknown;
   isActive: boolean;
@@ -22,6 +24,8 @@ export default function ObservationReasonsAdminPage() {
   const [newObservationReason, setNewObservationReason] = useState({
     name: "",
     description: "",
+    purpose: "",
+    leaderActionGuidelines: "",
     externalApiUrl: "",
   });
   const [editingReason, setEditingReason] = useState<ObservationReason | null>(
@@ -70,6 +74,9 @@ export default function ObservationReasonsAdminPage() {
         body: JSON.stringify({
           name: newObservationReason.name.trim(),
           description: newObservationReason.description.trim() || undefined,
+          purpose: newObservationReason.purpose.trim() || undefined,
+          leaderActionGuidelines:
+            newObservationReason.leaderActionGuidelines.trim() || undefined,
           externalApiUrl:
             newObservationReason.externalApiUrl.trim() || undefined,
         }),
@@ -79,6 +86,8 @@ export default function ObservationReasonsAdminPage() {
         setNewObservationReason({
           name: "",
           description: "",
+          purpose: "",
+          leaderActionGuidelines: "",
           externalApiUrl: "",
         });
         fetchObservationReasons();
@@ -112,6 +121,9 @@ export default function ObservationReasonsAdminPage() {
           body: JSON.stringify({
             name: editingReason.name.trim(),
             description: editingReason.description?.trim() || undefined,
+            purpose: editingReason.purpose?.trim() || undefined,
+            leaderActionGuidelines:
+              editingReason.leaderActionGuidelines?.trim() || undefined,
             externalApiUrl: editingReason.externalApiUrl?.trim() || undefined,
           }),
         },
@@ -294,6 +306,38 @@ export default function ObservationReasonsAdminPage() {
                     placeholder="Optional description"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Purpose
+                  </label>
+                  <textarea
+                    value={newObservationReason.purpose}
+                    onChange={(e) =>
+                      setNewObservationReason({
+                        ...newObservationReason,
+                        purpose: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                    placeholder="Purpose of this observation type"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Leader Action Guidelines
+                  </label>
+                  <textarea
+                    value={newObservationReason.leaderActionGuidelines}
+                    onChange={(e) =>
+                      setNewObservationReason({
+                        ...newObservationReason,
+                        leaderActionGuidelines: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                    placeholder="Guidelines for leaders when conducting this type of observation"
+                  />
+                </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     External API URL
@@ -367,6 +411,38 @@ export default function ObservationReasonsAdminPage() {
                           })
                         }
                         className="w-full p-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Purpose
+                      </label>
+                      <textarea
+                        value={editingReason.purpose || ""}
+                        onChange={(e) =>
+                          setEditingReason({
+                            ...editingReason,
+                            purpose: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                        placeholder="Purpose of this observation type"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Leader Action Guidelines
+                      </label>
+                      <textarea
+                        value={editingReason.leaderActionGuidelines || ""}
+                        onChange={(e) =>
+                          setEditingReason({
+                            ...editingReason,
+                            leaderActionGuidelines: e.target.value,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                        placeholder="Guidelines for leaders when conducting this type of observation"
                       />
                     </div>
                     <div>
@@ -462,6 +538,22 @@ export default function ObservationReasonsAdminPage() {
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {reason.description || "—"}
                           </td>
+                          <td className="px-4 py-3 text-sm text-gray-500 max-w-48">
+                            <div
+                              className="truncate"
+                              title={reason.purpose || ""}
+                            >
+                              {reason.purpose || "—"}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500 max-w-48">
+                            <div
+                              className="truncate"
+                              title={reason.leaderActionGuidelines || ""}
+                            >
+                              {reason.leaderActionGuidelines || "—"}
+                            </div>
+                          </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {reason.externalApiUrl ? (
                               <a
@@ -531,6 +623,12 @@ export default function ObservationReasonsAdminPage() {
                           Description
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Purpose
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                          Leader Guidelines
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Deactivated
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
@@ -549,6 +647,22 @@ export default function ObservationReasonsAdminPage() {
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {reason.description || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500 max-w-48">
+                            <div
+                              className="truncate"
+                              title={reason.purpose || ""}
+                            >
+                              {reason.purpose || "—"}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500 max-w-48">
+                            <div
+                              className="truncate"
+                              title={reason.leaderActionGuidelines || ""}
+                            >
+                              {reason.leaderActionGuidelines || "—"}
+                            </div>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {new Date(reason.updatedAt).toLocaleDateString()}

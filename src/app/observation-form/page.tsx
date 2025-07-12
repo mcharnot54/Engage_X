@@ -578,6 +578,11 @@ export default function GazeObservationApp() {
         // Reset checkboxes when standard changes
         setBestPracticesChecked([]);
         setProcessAdherenceChecked([]);
+
+        // Automatically show standard notes popup if notes exist
+        if (data.notes && data.notes.trim() && !isObserving) {
+          setShowStandardNotes(true);
+        }
       }
     } catch (error) {
       console.error("Error loading standard details:", error);
@@ -807,27 +812,122 @@ export default function GazeObservationApp() {
   };
 
   const generateAINotes = () => {
-    const performanceLevel = Number(observedPerformance) >= 95;
-    const perfDiff = Math.abs(Number(observedPerformance) - Number(pumpScore));
+    // Only generate notes if observation is finalized
+    if (!isFinalized) {
+      setAiNotes(
+        "Please complete and finalize the observation to generate comprehensive Engage.X TLC analysis.",
+      );
+      return;
+    }
 
-    const highPerformanceFeedback =
-      "Your consistent high performance is impressive. You demonstrate excellent understanding of the standard procedures and maintain quality while achieving strong productivity metrics.";
-    const improvementFeedback =
-      "I see great potential in your work. Focus on maintaining consistent pace while ensuring all safety and quality protocols are followed.";
+    const observedPerf = Number(observedPerformance);
+    const pumpGradeFactor = Number(pumpScore);
+    const perfDiff = Math.abs(observedPerf - pumpGradeFactor);
 
-    const feedback = performanceLevel
-      ? highPerformanceFeedback
-      : improvementFeedback;
+    // Get employee performance history for trend analysis
+    const employeeHistory = employeePerformanceData[employeeId] || [];
+    const recentTrend =
+      employeeHistory.length > 0
+        ? employeeHistory.slice(-3).map((obs) => parseFloat(obs.observedPerf))
+        : [];
 
-    const validationNote =
+    // Calculate trend direction
+    let trendAnalysis = "";
+    if (recentTrend.length >= 2) {
+      const avgRecent =
+        recentTrend.reduce((sum, val) => sum + val, 0) / recentTrend.length;
+      const improvement = observedPerf > avgRecent;
+      trendAnalysis = improvement
+        ? `Performance trending upward (+${(observedPerf - avgRecent).toFixed(1)}% from recent average). `
+        : `Performance variance noted (${(observedPerf - avgRecent).toFixed(1)}% from recent average). `;
+    }
+
+    // Analyze PUMP components
+    const pumpAnalysis = [];
+    if (pace < 95) pumpAnalysis.push(`pace optimization (currently ${pace}%)`);
+    if (utilization < 95)
+      pumpAnalysis.push(`utilization improvement (currently ${utilization}%)`);
+    if (methods < 95)
+      pumpAnalysis.push(
+        `methods & procedures enhancement (currently ${methods}%)`,
+      );
+
+    const pumpFeedback =
+      pumpAnalysis.length > 0
+        ? `Focus areas for improvement: ${pumpAnalysis.join(", ")}. `
+        : "Excellent PUMP Grade Factor performance across all dimensions. ";
+
+    // Best practices analysis
+    const practicesAnalyzed = selectedStandardData?.bestPractices?.length || 0;
+    const practicesFollowed = bestPracticesChecked.length;
+    const practiceScore =
+      practicesAnalyzed > 0
+        ? (practicesFollowed / practicesAnalyzed) * 100
+        : 100;
+
+    const practicesFeedback =
+      practiceScore >= 80
+        ? `Strong adherence to best practices (${practicesFollowed}/${practicesAnalyzed} implemented). `
+        : `Opportunity to enhance best practices implementation (${practicesFollowed}/${practicesAnalyzed} currently followed). `;
+
+    // Process adherence analysis
+    const processOpportunities =
+      selectedStandardData?.processOpportunities?.length || 0;
+    const processesImplemented = processAdherenceChecked.length;
+    const processScore =
+      processOpportunities > 0
+        ? (processesImplemented / processOpportunities) * 100
+        : 100;
+
+    const processFeedback =
+      processScore >= 80
+        ? `Excellent process adherence and optimization awareness. `
+        : `Consider implementing additional process optimization opportunities for enhanced efficiency. `;
+
+    // Performance level categorization
+    let performanceCategory = "";
+    let specificFeedback = "";
+
+    if (observedPerf >= 110) {
+      performanceCategory = "Exceptional Performance";
+      specificFeedback =
+        "Outstanding productivity that exceeds standard expectations. Your efficiency and skill level set a benchmark for others. Continue leveraging these strengths while mentoring team members.";
+    } else if (observedPerf >= 100) {
+      performanceCategory = "Target Performance";
+      specificFeedback =
+        "Solid performance meeting standard expectations. You demonstrate reliable execution and consistent quality delivery. Focus on maintaining this standard while identifying areas for continuous improvement.";
+    } else if (observedPerf >= 90) {
+      performanceCategory = "Developing Performance";
+      specificFeedback =
+        "Good foundation with clear potential for growth. Continue building confidence in standard procedures and focus on consistency. Small improvements in rhythm and technique will yield significant gains.";
+    } else {
+      performanceCategory = "Opportunity for Growth";
+      specificFeedback =
+        "Dedicated effort observed with specific areas identified for development. Recommend additional coaching sessions, standard review, and focused practice on key operational elements.";
+    }
+
+    // Variance analysis between observed and PUMP
+    const varianceAnalysis =
       perfDiff > 25
-        ? " Note: Due to the significant difference between observed performance and PUMP Grade Factor Performance, additional observations will be conducted to validate standard alignment with expectations."
-        : "";
+        ? `\n\n⚠️ VARIANCE ALERT: Significant difference (${perfDiff.toFixed(1)}%) between Observed Performance (${observedPerf}%) and PUMP Grade Factor (${pumpGradeFactor}%). This indicates potential standard calibration needs or observation methodology review. Additional validation observations recommended.`
+        : perfDiff > 15
+          ? `\n\nNOTE: Moderate variance (${perfDiff.toFixed(1)}%) between metrics suggests opportunity for standard refinement or technique optimization.`
+          : `\n\nAlignment between Observed Performance and PUMP Grade Factor indicates consistent evaluation and standard application.`;
 
-    const observationDetails =
-      "During today's observation, I noticed your attention to detail and commitment to following established procedures. Your work demonstrates understanding of the process flow and safety requirements. ";
+    // Construct comprehensive feedback
+    const comprehensiveFeedback =
+      `📊 PERFORMANCE ANALYSIS: ${performanceCategory} (${observedPerf}%)\n\n` +
+      `${trendAnalysis}${specificFeedback}\n\n` +
+      `🎯 PUMP ASSESSMENT: Grade Factor ${pumpGradeFactor}%\n${pumpFeedback}\n\n` +
+      `✅ BEST PRACTICES: ${practicesFeedback}\n\n` +
+      `⚙️ PROCESS OPTIMIZATION: ${processFeedback}\n\n` +
+      `NEXT STEPS: ` +
+      (observedPerf >= 100
+        ? `Continue excellent performance standards. Consider advanced technique refinement and knowledge sharing opportunities.`
+        : `Focus on ${pumpAnalysis.length > 0 ? pumpAnalysis.join(" and ") : "consistency and standard procedures"}. Schedule follow-up coaching session within 2 weeks.`) +
+      varianceAnalysis;
 
-    setAiNotes(`${observationDetails}${feedback}${validationNote}`);
+    setAiNotes(comprehensiveFeedback);
   };
 
   const validateObservation = () => {
@@ -835,12 +935,14 @@ export default function GazeObservationApp() {
     if (!observationReason) return "Observation reason is required";
     if (!standard) return "Standard is required";
     if (!selectedStandardData) return "Selected standard data not loaded";
-    if (!timeObserved) return "No time observed recorded";
-    if (!totalSams) return "No SAMs recorded";
-    if (!pace || pace <= 0) return "Valid Pace percentage is required";
-    if (!utilization || utilization <= 0)
+    if (!timeObserved || timeObserved <= 0) return "No time observed recorded";
+    if (totalSams === null || totalSams === undefined || totalSams <= 0)
+      return "No SAMs recorded - please enter quantities for observed operations";
+    if (pace === null || pace === undefined || pace <= 0)
+      return "Valid Pace percentage is required";
+    if (utilization === null || utilization === undefined || utilization <= 0)
       return "Valid Utilization percentage is required";
-    if (!methods || methods <= 0)
+    if (methods === null || methods === undefined || methods <= 0)
       return "Valid Methods and Procedures percentage is required";
     if (!supervisorSignature) return "Supervisor signature required";
     if (isObserving) return "Please stop the observation before submitting";
@@ -852,23 +954,32 @@ export default function GazeObservationApp() {
 
     const validationError = validateObservation();
     if (validationError) {
+      console.log("Validation failed:", validationError);
       setSubmissionError(validationError);
       return;
     }
+
+    console.log("Validation passed, proceeding with submission");
 
     setIsSubmitting(true);
     setSubmissionError("");
     setSubmissionSuccess(false);
 
     try {
+      console.log("Starting observation submission for employee:", employeeId);
+
       // Find or create user
       let user;
       try {
         const userResponse = await fetch(`/api/users?employeeId=${employeeId}`);
         if (userResponse.ok) {
           user = await userResponse.json();
+          console.log("Found existing user:", user.id);
+        } else {
+          console.log("User not found, status:", userResponse.status);
         }
       } catch (error) {
+        console.log("Error fetching user:", error);
         // User not found, will create below
       }
 
@@ -892,64 +1003,99 @@ export default function GazeObservationApp() {
         });
 
         if (!createUserResponse.ok) {
-          throw new Error("Failed to create user");
+          const errorData = await createUserResponse.json().catch(() => ({}));
+          console.error(
+            "User creation failed:",
+            createUserResponse.status,
+            errorData,
+          );
+          throw new Error(
+            `Failed to create user: ${errorData.error || createUserResponse.status}`,
+          );
         }
         user = await createUserResponse.json();
+        console.log("Created new user:", user.id);
       }
 
       if (!selectedStandardData) {
         throw new Error("No standard selected");
       }
 
-      // Prepare observation data
-      const observationData = rows.map((row) => ({
-        uom: row.uom,
-        description: row.description,
-        quantity: row.quantity,
-        samValue: row.samValue,
-        totalSams: row.quantity * row.samValue,
-      }));
+      // Prepare observation data - include both ticker and submitted quantities
+      const observationData = rows.map((row) => {
+        const tickerQuantity = row.quantity;
+        const submittedQuantity = submittedQuantities[row.id] || 0;
+        const totalQuantity = tickerQuantity + submittedQuantity;
+        return {
+          uom: row.uom,
+          description: row.description,
+          quantity: totalQuantity,
+          tickerQuantity: tickerQuantity,
+          submittedQuantity: submittedQuantity,
+          samValue: row.samValue,
+          totalSams: totalQuantity * row.samValue,
+        };
+      });
 
       // Create observation
+      const observationPayload = {
+        userId: user.id,
+        standardId: selectedStandardData.id,
+        timeObserved,
+        totalSams,
+        observedPerformance,
+        pumpScore,
+        pace,
+        utilization,
+        methods,
+        comments,
+        aiNotes,
+        supervisorSignature,
+        teamMemberSignature,
+        bestPracticesChecked,
+        processAdherenceChecked,
+        delays,
+        observationReason,
+        observationStartTime: observationStartTime
+          ? new Date(observationStartTime)
+          : undefined,
+        observationEndTime: observationEndTime
+          ? new Date(observationEndTime)
+          : undefined,
+        isFinalized,
+        observationData,
+      };
+
+      console.log("Submitting observation with payload:", observationPayload);
+
       const observationResponse = await fetch("/api/observations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userId: user.id,
-          standardId: selectedStandardData.id,
-          timeObserved,
-          totalSams,
-          observedPerformance,
-          pumpScore,
-          pace,
-          utilization,
-          methods,
-          comments,
-          aiNotes,
-          supervisorSignature,
-          teamMemberSignature,
-          bestPracticesChecked,
-          processAdherenceChecked,
-          delays,
-          observationReason,
-          observationStartTime: observationStartTime
-            ? new Date(observationStartTime)
-            : undefined,
-          observationEndTime: observationEndTime
-            ? new Date(observationEndTime)
-            : undefined,
-          isFinalized,
-          observationData,
-        }),
+        body: JSON.stringify(observationPayload),
       });
 
       if (!observationResponse.ok) {
-        throw new Error("Failed to create observation");
+        const errorData = await observationResponse.json().catch(() => ({}));
+        console.error(
+          "Observation creation failed:",
+          observationResponse.status,
+          errorData,
+        );
+        throw new Error(
+          errorData.error ||
+            `Failed to create observation (Status: ${observationResponse.status})`,
+        );
       }
 
       setSubmissionSuccess(true);
+
+      // Reload employee performance data if employee is selected
+      if (employeeId) {
+        await loadEmployeePerformanceData(employeeId);
+      }
+
       resetForm();
 
       setTimeout(() => {
@@ -1227,6 +1373,10 @@ export default function GazeObservationApp() {
       const selectedStd = standards.find((s) => s.id === Number(standard));
       if (selectedStd) {
         loadSelectedStandard(selectedStd.id);
+        // Automatically show standard notes popup when standard is selected
+        if (selectedStd.notes && selectedStd.notes.trim()) {
+          setShowStandardNotes(true);
+        }
       }
     }
   }, [standard, standards]);
@@ -1680,30 +1830,6 @@ export default function GazeObservationApp() {
                   ))}
                 </select>
               </div>
-
-              {/* Standard Notes Section */}
-              {selectedStandardData && selectedStandardData.notes && (
-                <div className="mt-4">
-                  <div
-                    onClick={() => !isObserving && setShowStandardNotes(true)}
-                    className={`w-full p-3 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 text-left flex justify-between items-center transition-all duration-200 ${
-                      isObserving
-                        ? "opacity-70 cursor-not-allowed"
-                        : "hover:bg-blue-100 hover:border-blue-400 hover:shadow-md cursor-pointer"
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-blue-600">📝</span>
-                      <span className="text-blue-800 font-medium">
-                        {selectedStandardData.name} - Standard Notes Available
-                      </span>
-                    </span>
-                    <span className="text-blue-600 text-sm hover:text-blue-800 transition-colors">
-                      Click to view notes ↗
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* PUMP Grade Factor */}
@@ -2460,22 +2586,53 @@ export default function GazeObservationApp() {
             {/* AI Notes Section */}
             <div className="p-5 bg-white rounded-lg border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <span>TLC Leader Notes</span>
-                <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm">
-                  AI Generated
+                <span>Engage.X TLC Notes</span>
+                <div className="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">
+                  Enhanced AI Analysis
                 </div>
               </h3>
 
               <div className="bg-yellow-100 p-5 rounded-lg mb-4 leading-relaxed">
-                <div className="flex justify-end mb-4">
-                  <button
-                    onClick={generateAINotes}
-                    className="px-4 py-2 bg-blue-500 text-white border-none rounded cursor-pointer"
-                  >
-                    Generate AI Feedback
-                  </button>
-                </div>
-                <div className="whitespace-pre-wrap">{aiNotes}</div>
+                {!isFinalized ? (
+                  <div className="text-center py-8">
+                    <div className="text-yellow-700 mb-4">
+                      <svg
+                        className="w-12 h-12 mx-auto mb-3 text-yellow-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <h4 className="text-lg font-semibold text-yellow-800">
+                        Observation In Progress
+                      </h4>
+                      <p className="text-yellow-700 mt-2">
+                        Complete the observation and finalize PUMP assessment to
+                        generate comprehensive Engage.X TLC analysis.
+                      </p>
+                      <p className="text-yellow-600 text-sm mt-2">
+                        Performance metrics and detailed feedback will be
+                        available once the observation is saved.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-end mb-4">
+                      <button
+                        onClick={generateAINotes}
+                        className="px-4 py-2 bg-green-500 text-white border-none rounded cursor-pointer hover:bg-green-600 transition-colors"
+                      >
+                        Generate Engage.X Analysis
+                      </button>
+                    </div>
+                    <div className="whitespace-pre-wrap">{aiNotes}</div>
+                  </>
+                )}
               </div>
 
               <div className="flex items-center gap-2 text-gray-600 text-sm mb-6">
@@ -2486,8 +2643,9 @@ export default function GazeObservationApp() {
                   />
                 </svg>
                 <span>
-                  AI-generated insights based on current observation and
-                  historical performance data
+                  Enhanced AI analysis incorporating performance trends, current
+                  PUMP scores, observed performance, best practices adherence,
+                  and process optimization opportunities
                 </span>
               </div>
 
