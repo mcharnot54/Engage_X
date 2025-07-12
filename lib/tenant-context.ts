@@ -8,22 +8,15 @@ export interface TenantContext {
 
 // Check if a user has system admin privileges
 export function isSystemAdmin(userRoles: any[]): boolean {
-  console.log(
-    "Checking system admin status for roles:",
-    JSON.stringify(userRoles, null, 2),
-  );
-
-  const isAdmin =
+  return (
     userRoles?.some(
       (userRole) =>
         userRole.roles?.name?.toLowerCase().includes("system") ||
         userRole.roles?.name?.toLowerCase().includes("superuser") ||
         userRole.role?.name?.toLowerCase().includes("system") ||
         userRole.role?.name?.toLowerCase().includes("superuser"),
-    ) || false;
-
-  console.log("Is system admin:", isAdmin);
-  return isAdmin;
+    ) || false
+  );
 }
 
 // Get tenant context from user data
