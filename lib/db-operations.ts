@@ -587,7 +587,7 @@ export async function getRoleById(id: string | number) {
 export async function createRole(data: {
   name: string;
   description?: string;
-  permissionIds?: number[];
+  permissionIds?: string[];
 }) {
   const { permissionIds, ...roleData } = data;
 
@@ -597,7 +597,7 @@ export async function createRole(data: {
       rolePermissions: permissionIds
         ? {
             create: permissionIds.map((permissionId) => ({
-              permissionId,
+              permissionid: permissionId,
             })),
           }
         : undefined,
@@ -605,12 +605,12 @@ export async function createRole(data: {
     include: {
       rolePermissions: {
         include: {
-          permission: true,
+          permissions: true,
         },
       },
       _count: {
         select: {
-          userRoles: true,
+          user_roles: true,
         },
       },
     },
