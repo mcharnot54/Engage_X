@@ -660,7 +660,7 @@ export async function updateRole(
       include: {
         rolePermissions: {
           include: {
-            permissions: true,
+            permission: true,
           },
         },
         _count: {
