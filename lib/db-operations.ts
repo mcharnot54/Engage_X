@@ -502,9 +502,9 @@ export async function getUserById(id: string) {
   return prisma.user.findUnique({
     where: { id },
     include: {
-      userRoles: {
+      user_roles: {
         include: {
-          role: true,
+          roles: true,
         },
       },
     },
