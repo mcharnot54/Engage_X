@@ -142,6 +142,9 @@ export default function GazeObservationApp() {
   const [delayReasons, setDelayReasons] = useState<
     { id: string; name: string; description?: string }[]
   >([]);
+  const [observationReasons, setObservationReasons] = useState<
+    { id: string; name: string; description?: string }[]
+  >([]);
 
   // Best practices and process adherence
   const [bestPracticesChecked, setBestPracticesChecked] = useState<string[]>(
@@ -1000,6 +1003,7 @@ export default function GazeObservationApp() {
 
     loadStandards(controller.signal);
     loadDelayReasons(controller.signal);
+    loadObservationReasons(controller.signal);
     loadTeamMembers(controller.signal);
 
     return () => {
@@ -1582,10 +1586,11 @@ export default function GazeObservationApp() {
                   className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
                 >
                   <option value="">Select Observation Reason</option>
-                  <option value="performance">Performance Review</option>
-                  <option value="training">Training Assessment</option>
-                  <option value="incident">Incident Follow-up</option>
-                  <option value="routine">Routine Check</option>
+                  {observationReasons.map((reason) => (
+                    <option key={reason.id} value={reason.name}>
+                      {reason.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -2368,7 +2373,7 @@ export default function GazeObservationApp() {
             {/* AI Notes Section */}
             <div className="p-5 bg-white rounded-lg border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <span>Engage.X Leader Notes</span>
+                <span>TLC Leader Notes</span>
                 <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm">
                   AI Generated
                 </div>
