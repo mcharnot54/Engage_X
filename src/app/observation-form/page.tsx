@@ -1053,7 +1053,16 @@ export default function GazeObservationApp() {
       });
 
       if (!observationResponse.ok) {
-        throw new Error("Failed to create observation");
+        const errorData = await observationResponse.json().catch(() => ({}));
+        console.error(
+          "Observation creation failed:",
+          observationResponse.status,
+          errorData,
+        );
+        throw new Error(
+          errorData.error ||
+            `Failed to create observation (Status: ${observationResponse.status})`,
+        );
       }
 
       setSubmissionSuccess(true);
