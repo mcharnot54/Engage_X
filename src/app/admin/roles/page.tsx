@@ -530,9 +530,9 @@ export default function RolesAdminPage() {
                 </form>
               </div>
             </div>
-          )}
+                    )}
 
-                    {/* Existing Roles Section */}
+          {/* Existing Roles Section */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-200">
             <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 rounded-t-xl">
               <div className="flex justify-between items-center">
