@@ -2482,9 +2482,9 @@ export default function GazeObservationApp() {
             {/* AI Notes Section */}
             <div className="p-5 bg-white rounded-lg border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <span>TLC Leader Notes</span>
-                <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm">
-                  AI Generated
+                <span>Engage.X TLC Notes</span>
+                <div className="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">
+                  Enhanced AI Analysis
                 </div>
               </h3>
 
@@ -2492,9 +2492,9 @@ export default function GazeObservationApp() {
                 <div className="flex justify-end mb-4">
                   <button
                     onClick={generateAINotes}
-                    className="px-4 py-2 bg-blue-500 text-white border-none rounded cursor-pointer"
+                    className="px-4 py-2 bg-green-500 text-white border-none rounded cursor-pointer hover:bg-green-600 transition-colors"
                   >
-                    Generate AI Feedback
+                    Generate Engage.X Analysis
                   </button>
                 </div>
                 <div className="whitespace-pre-wrap">{aiNotes}</div>
@@ -2508,8 +2508,9 @@ export default function GazeObservationApp() {
                   />
                 </svg>
                 <span>
-                  AI-generated insights based on current observation and
-                  historical performance data
+                  Enhanced AI analysis incorporating performance trends, current
+                  PUMP scores, observed performance, best practices adherence,
+                  and process optimization opportunities
                 </span>
               </div>
 
