@@ -102,7 +102,7 @@ export default function UsersAdminPage() {
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchTerm, filterActive]);
+  }, [users, searchTerm, filterActive, filterUsers]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
