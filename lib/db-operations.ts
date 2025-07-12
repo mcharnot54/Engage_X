@@ -521,6 +521,7 @@ export async function getUsers() {
         },
       },
       roles: true, // Direct role relationship
+      organization: true, // Include organization details
     },
   });
 }
