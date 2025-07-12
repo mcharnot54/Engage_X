@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createObservation, getRecentObservations } from "@/lib/db-operations";
+import {
+  createObservation,
+  getRecentObservations,
+  getObservationsByUser,
+} from "@/lib/db-operations";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const observations = await getRecentObservations(50);
-    return NextResponse.json(observations);
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+    const limit = parseInt(searchParams.get("limit") || "50");
+
+    if (userId) {
+      const observations = await getObservationsByUser(userId, limit);
+      return NextResponse.json(observations);
+    } else {
+      const observations = await getRecentObservations(limit);
+      return NextResponse.json(observations);
+    }
   } catch (error) {
     console.error("Error fetching observations:", error);
     return NextResponse.json(
