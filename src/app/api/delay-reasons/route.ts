@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getDelayReasons, createDelayReason } from "@/lib/db-operations";
 
 export async function GET() {
   try {
-    const delayReasons = await prisma.delayReason.findMany({
-      orderBy: {
-        name: "asc",
-      },
-    });
+    const delayReasons = await getDelayReasons();
     return NextResponse.json(delayReasons);
   } catch (error) {
     console.error("Error fetching delay reasons:", error);
@@ -30,11 +26,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const delayReason = await prisma.delayReason.create({
-      data: {
-        name: name.trim(),
-        description: description?.trim() || null,
-      },
+    const delayReason = await createDelayReason({
+      name: name.trim(),
+      description: description?.trim() || undefined,
     });
 
     return NextResponse.json(delayReason);
