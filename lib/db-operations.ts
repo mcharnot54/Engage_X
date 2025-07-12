@@ -568,16 +568,16 @@ export async function getRoles() {
 
 export async function getRoleById(id: string | number) {
   return prisma.role.findUnique({
-    where: { id: typeof id === "string" ? parseInt(id) : id },
+    where: { id: id.toString() },
     include: {
       rolePermissions: {
         include: {
-          permission: true,
+          permissions: true,
         },
       },
       _count: {
         select: {
-          userRoles: true,
+          user_roles: true,
         },
       },
     },
