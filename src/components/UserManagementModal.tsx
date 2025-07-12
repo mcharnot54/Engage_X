@@ -50,9 +50,11 @@ export function UserManagementModal({
     email: "",
     department: "",
     roleId: "",
+    organizationid: undefined,
     isActive: true,
   });
   const [roles, setRoles] = useState<Role[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
