@@ -158,27 +158,13 @@ export default function UsersAdminPage() {
       }
 
       if (response.ok) {
-        // Get the updated user data
-        const updatedUser = await response.json();
-
-        // Refresh the users list to ensure latest data
-        await fetchUsers();
-
-        // Clear modal state
+        // Clear modal state first
         setSelectedUser(null);
         setIsModalOpen(false);
 
-        // Force a re-render by clearing and resetting filter
-        const currentSearch = searchTerm;
-        const currentFilter = filterActive;
-        setSearchTerm("");
-        setFilterActive("all");
-
-        // Restore filters after a brief delay to trigger re-filtering
-        setTimeout(() => {
-          setSearchTerm(currentSearch);
-          setFilterActive(currentFilter);
-        }, 100);
+        // Force a complete refresh of the data
+        setRefreshKey((prev) => prev + 1);
+        await fetchUsers();
       } else {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to save user");
@@ -402,7 +388,7 @@ export default function UsersAdminPage() {
                             {user.email || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {user.department || "—"}
+                            {user.department || "���"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {user.user_roles?.[0]?.roles?.name ||
