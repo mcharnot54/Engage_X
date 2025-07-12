@@ -605,7 +605,7 @@ export async function createRole(data: {
     include: {
       rolePermissions: {
         include: {
-          permissions: true,
+          permission: true,
         },
       },
       _count: {
