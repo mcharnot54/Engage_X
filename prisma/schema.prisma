@@ -157,15 +157,17 @@ model Observation {
 }
 
 model ObservationData {
-  id            String      @id @default(cuid())
-  observationId String
-  uom           String
-  description   String
-  quantity      Int
-  samValue      Float
-  totalSams     Float
-  createdAt     DateTime    @default(now())
-  observation   Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  id                String      @id @default(cuid())
+  observationId     String
+  uom               String
+  description       String
+  quantity          Int
+  tickerQuantity    Int         @default(0)
+  submittedQuantity Int         @default(0)
+  samValue          Float
+  totalSams         Float
+  createdAt         DateTime    @default(now())
+  observation       Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
 
   @@map("observation_data")
 }
