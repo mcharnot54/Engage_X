@@ -2318,7 +2318,7 @@ export default function GazeObservationApp() {
                                         parseInt(e.target.value) || 0,
                                       )
                                     }
-                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
+                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50 bg-white opacity-100"
                                   />
                                   <button
                                     disabled={
