@@ -1387,11 +1387,13 @@ export default function GazeObservationApp() {
 
       if (response.ok) {
         const data = await response.json();
-        const teamMembers = data.users.map((user: any) => ({
-          id: user.id,
-          name: user.name,
-          employeeId: user.employeeId || user.id,
-        }));
+        const teamMembers = data.users.map(
+          (user: { id: string; name: string; employeeId?: string }) => ({
+            id: user.id,
+            name: user.name,
+            employeeId: user.employeeId || user.id,
+          }),
+        );
 
         // If no team members found, add some fallback demo employees
         if (teamMembers.length === 0) {
