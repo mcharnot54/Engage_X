@@ -652,10 +652,8 @@ export default function GazeObservationApp() {
         setBestPracticesChecked([]);
         setProcessAdherenceChecked([]);
 
-        // Automatically show standard notes popup if notes exist
-        if (data.notes && data.notes.trim() && !isObserving) {
-          setShowStandardNotes(true);
-        }
+        // Note: Standard notes popup is now only shown when standard is explicitly selected,
+        // not when loading for employee performance data
       }
     } catch (error) {
       console.error("Error loading standard details:", error);
