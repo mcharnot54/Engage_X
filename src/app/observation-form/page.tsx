@@ -413,14 +413,6 @@ export default function GazeObservationApp() {
   ]);
 
   // Helper functions for multi-level dropdown
-  const getUniqueOrganizations = () => {
-    const organizations = new Set();
-    standards.forEach((std) => {
-      // Assuming facility has organization info, or we can extract from facility name
-      organizations.add(std.facility.name.split(" - ")[0] || std.facility.name);
-    });
-    return Array.from(organizations) as string[];
-  };
 
   const getUniqueFacilities = (organization?: string) => {
     return standards
