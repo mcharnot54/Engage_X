@@ -264,11 +264,17 @@ export default function GazeObservationApp() {
       );
       if (response.ok) {
         const observations = await response.json();
-        const performanceData = observations.map((obs: any) => ({
-          date: new Date(obs.createdAt).toISOString().split("T")[0],
-          observedPerf: obs.observedPerformance.toFixed(1),
-          gradeFactorPerf: obs.pumpScore.toFixed(1),
-        }));
+        const performanceData = observations.map(
+          (obs: {
+            createdAt: string;
+            observedPerformance: number;
+            pumpScore: number;
+          }) => ({
+            date: new Date(obs.createdAt).toISOString().split("T")[0],
+            observedPerf: obs.observedPerformance.toFixed(1),
+            gradeFactorPerf: obs.pumpScore.toFixed(1),
+          }),
+        );
 
         setEmployeePerformanceData((prev) => ({
           ...prev,
