@@ -27,7 +27,7 @@ export default function TestBuilderPage() {
       setConnectionTest(connection);
       console.log("Connection test result:", connection);
 
-            // Test content search
+      // Test content search
       console.log("Testing content search...");
       const content = await searchBuilderContent(
         "Copy of Mark's Standards Page",
@@ -44,9 +44,14 @@ export default function TestBuilderPage() {
           tablet: 768,
           desktop: 1024,
         },
-        currentDevice: typeof window !== "undefined" ?
-          (window.innerWidth <= 480 ? "mobile" :
-           window.innerWidth <= 768 ? "tablet" : "desktop") : "unknown",
+        currentDevice:
+          typeof window !== "undefined"
+            ? window.innerWidth <= 480
+              ? "mobile"
+              : window.innerWidth <= 768
+                ? "tablet"
+                : "desktop"
+            : "unknown",
         viewportWidth: typeof window !== "undefined" ? window.innerWidth : 0,
         userAttributes: builder.userAttributes || {},
       };
@@ -147,12 +152,22 @@ export default function TestBuilderPage() {
         </div>
       </div>
 
-            <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Responsive Configuration Test</h2>
-        <div className={`p-4 rounded-lg ${responsiveTest?.isInitialized ? "bg-green-100" : "bg-red-100"}`}>
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">
+          Responsive Configuration Test
+        </h2>
+        <div
+          className={`p-4 rounded-lg ${responsiveTest?.isInitialized ? "bg-green-100" : "bg-red-100"}`}
+        >
           <p className="mb-2">
             <strong>Builder Initialized:</strong>{" "}
-            <span className={responsiveTest?.isInitialized ? "text-green-600" : "text-red-600"}>
+            <span
+              className={
+                responsiveTest?.isInitialized
+                  ? "text-green-600"
+                  : "text-red-600"
+              }
+            >
               {responsiveTest?.isInitialized ? "✓ Yes" : "✗ No"}
             </span>
           </p>
@@ -163,15 +178,18 @@ export default function TestBuilderPage() {
             <strong>Viewport Width:</strong> {responsiveTest?.viewportWidth}px
           </p>
           <p className="mb-2">
-            <strong>Breakpoints:</strong> Mobile ≤ {responsiveTest?.breakpoints?.mobile}px,
-            Tablet ≤ {responsiveTest?.breakpoints?.tablet}px,
-            Desktop > {responsiveTest?.breakpoints?.desktop}px
+            <strong>Breakpoints:</strong> Mobile ≤{" "}
+            {responsiveTest?.breakpoints?.mobile}px, Tablet ≤{" "}
+            {responsiveTest?.breakpoints?.tablet}px, Desktop &gt;{" "}
+            {responsiveTest?.breakpoints?.desktop}px
           </p>
-          {responsiveTest?.userAttributes && Object.keys(responsiveTest.userAttributes).length > 0 && (
-            <p className="mb-2">
-              <strong>User Attributes:</strong> {JSON.stringify(responsiveTest.userAttributes)}
-            </p>
-          )}
+          {responsiveTest?.userAttributes &&
+            Object.keys(responsiveTest.userAttributes).length > 0 && (
+              <p className="mb-2">
+                <strong>User Attributes:</strong>{" "}
+                {JSON.stringify(responsiveTest.userAttributes)}
+              </p>
+            )}
         </div>
       </div>
 
