@@ -803,6 +803,7 @@ export default function Standards() {
             bestPractices: validBestPractices,
             processOpportunities: validProcessOpportunities,
             uomEntries: uomData,
+            notes: standardNotes.trim(),
             versionNotes: editVersionNotes,
             createdBy: "current_user", // You can replace this with actual user data
           },
