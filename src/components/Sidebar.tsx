@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { UserProfile } from "./UserProfile";
 
 interface SidebarMenuItem {
   label: string;
