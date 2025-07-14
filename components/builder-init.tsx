@@ -98,7 +98,7 @@ export default function BuilderContent(props: {
   return (
     <BuilderComponent
       model={model}
-      content={content || undefined} /* never pass null */
+      content={content as any} /* Type assertion for compatibility */
     />
   );
 }
