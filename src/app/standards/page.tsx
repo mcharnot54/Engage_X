@@ -1810,6 +1810,22 @@ export default function Standards() {
                     />
                   </div>
 
+                  {/* Standard Notes */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Standard Notes <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      placeholder="Enter notes and comments for this standard..."
+                      value={standardNotes}
+                      onChange={(e) => setStandardNotes(e.target.value)}
+                      disabled={isLoading}
+                      rows={4}
+                      className="w-full p-3 rounded-md border border-gray-300 bg-white disabled:opacity-50 resize-vertical"
+                      required
+                    />
+                  </div>
+
                   {/* Location Selection */}
                   <div className="grid grid-cols-3 gap-4">
                     <div>
