@@ -1827,7 +1827,26 @@ export default function Standards() {
                   </div>
 
                   {/* Location Selection */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Organization
+                      </label>
+                      <select
+                        value={selectedOrganization}
+                        onChange={(e) =>
+                          setSelectedOrganization(e.target.value)
+                        }
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Organization</option>
+                        {organizations.map((organization) => (
+                          <option key={organization.id} value={organization.id}>
+                            {organization.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Facility
@@ -1835,7 +1854,8 @@ export default function Standards() {
                       <select
                         value={selectedFacility}
                         onChange={(e) => setSelectedFacility(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        disabled={!selectedOrganization}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="">Select Facility</option>
                         {facilities.map((facility) => (
@@ -1852,7 +1872,8 @@ export default function Standards() {
                       <select
                         value={selectedDepartment}
                         onChange={(e) => setSelectedDepartment(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        disabled={!selectedFacility}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="">Select Department</option>
                         {departments.map((department) => (
@@ -1869,7 +1890,8 @@ export default function Standards() {
                       <select
                         value={selectedArea}
                         onChange={(e) => setSelectedArea(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        disabled={!selectedDepartment}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="">Select Area</option>
                         {areas.map((area) => (
