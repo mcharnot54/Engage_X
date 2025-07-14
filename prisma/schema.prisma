@@ -240,14 +240,16 @@ model DelayReason {
 }
 
 model ObservationReason {
-  id               String   @id @default(cuid())
-  name             String   @unique
-  description      String?
-  isActive         Boolean  @default(true)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  apiConfiguration Json?
-  externalApiUrl   String?
+  id                      String   @id @default(cuid())
+  name                    String   @unique
+  description             String?
+  purpose                 String?
+  leaderActionGuidelines  String?
+  isActive                Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  apiConfiguration        Json?
+  externalApiUrl          String?
 
   @@map("observation_reasons")
 }
