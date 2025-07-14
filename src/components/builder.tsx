@@ -4,8 +4,7 @@
 import {
   builder,
   BuilderComponent,
-  useIsPreviewing,
-  type BuilderContent, // ← add this
+  type BuilderContent,
 } from "@builder.io/react";
 import { useEffect, useState } from "react";
 
