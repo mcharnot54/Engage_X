@@ -1456,9 +1456,13 @@ export default function GazeObservationApp() {
         if (selectedStd.notes && selectedStd.notes.trim()) {
           setShowStandardNotes(true);
         }
+        // Reload employee performance data when standard changes
+        if (employeeId) {
+          loadEmployeePerformanceData(employeeId, selectedStd.id);
+        }
       }
     }
-  }, [standard, standards]);
+  }, [standard, standards, employeeId]);
 
   useEffect(() => {
     calculateTotalSams();
@@ -3059,10 +3063,53 @@ export default function GazeObservationApp() {
                                 {obs.observedPerf}%
                               </div>
                               <div>{obs.gradeFactorPerf}%</div>
-                              <div
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}
-                              >
-                                {status}
+                              <div className="relative">
+                                <div
+                                  className={`px-2 py-1 rounded-full text-xs font-medium cursor-help ${statusColor}`}
+                                  title="Hover to see observation comments"
+                                  onMouseEnter={(e) => {
+                                    const tooltip =
+                                      document.createElement("div");
+                                    tooltip.className =
+                                      "absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl max-w-80 pointer-events-none";
+                                    tooltip.style.cssText = `
+                                      top: 100%;
+                                      left: 50%;
+                                      transform: translateX(-50%);
+                                      margin-top: 5px;
+                                      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+                                    `;
+
+                                    const commentsHtml = obs.comments
+                                      ? `<div class="font-semibold mb-2 text-blue-300">Comments:</div><div class="mb-2">${obs.comments}</div>`
+                                      : "";
+                                    const aiNotesHtml = obs.aiNotes
+                                      ? `<div class="font-semibold mb-2 text-green-300">AI Analysis:</div><div>${obs.aiNotes.substring(0, 150)}${obs.aiNotes.length > 150 ? "..." : ""}</div>`
+                                      : "";
+
+                                    tooltip.innerHTML = `
+                                      <div class="font-semibold mb-2 text-center border-b border-gray-600 pb-1">Observation Details</div>
+                                      <div class="text-gray-300 mb-2"><strong>Standard:</strong> ${obs.standardName}</div>
+                                      ${commentsHtml}
+                                      ${aiNotesHtml}
+                                      ${!obs.comments && !obs.aiNotes ? '<div class="text-gray-400 italic">No comments or analysis available</div>' : ""}
+                                      <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                                    `;
+
+                                    e.currentTarget.appendChild(tooltip);
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    const tooltip =
+                                      e.currentTarget.querySelector(
+                                        ".absolute.z-\\[9999\\]",
+                                      );
+                                    if (tooltip) {
+                                      tooltip.remove();
+                                    }
+                                  }}
+                                >
+                                  {status}
+                                </div>
                               </div>
                             </div>
                           );
