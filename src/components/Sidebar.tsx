@@ -218,6 +218,14 @@ export function Sidebar({
           </div>
         </div>
       )}
+
+      {/* User Profile Modal */}
+      <UserProfile
+        isOpen={showUserProfileModal}
+        onClose={() => setShowUserProfileModal(false)}
+        userData={currentUser}
+        onSave={handleUserProfileSave}
+      />
     </div>
   );
 }
