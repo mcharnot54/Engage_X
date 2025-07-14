@@ -469,7 +469,6 @@ export default function GazeObservationApp() {
 
   const resetStandardSelection = () => {
     setStandard("");
-    setSelectedOrganization("");
     setSelectedFacility("");
     setSelectedDepartment("");
     setSelectedArea("");
