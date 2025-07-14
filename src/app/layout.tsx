@@ -34,8 +34,14 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "PhoenixPGS",
   description: "PhoenixPGS Observation Management System",
-  viewport: "width=device-width, initial-scale=1.0",
 };
+
+export function generateViewport() {
+  return {
+    width: "device-width",
+    initialScale: 1.0,
+  };
+}
 
 export default function RootLayout({
   children,
