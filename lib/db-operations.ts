@@ -836,9 +836,18 @@ export async function createObservation(data: {
   });
 }
 
-export async function getObservationsByUser(userId: string, limit?: number) {
+export async function getObservationsByUser(
+  userId: string,
+  limit?: number,
+  standardId?: number,
+) {
+  const whereClause: any = { userId };
+  if (standardId) {
+    whereClause.standardId = standardId;
+  }
+
   return prisma.observation.findMany({
-    where: { userId },
+    where: whereClause,
     include: {
       user: true,
       standard: {

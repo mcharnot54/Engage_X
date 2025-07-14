@@ -9,10 +9,15 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
+    const standardId = searchParams.get("standardId");
     const limit = parseInt(searchParams.get("limit") || "50");
 
     if (userId) {
-      const observations = await getObservationsByUser(userId, limit);
+      const observations = await getObservationsByUser(
+        userId,
+        limit,
+        standardId ? parseInt(standardId) : undefined,
+      );
       return NextResponse.json(observations);
     } else {
       const observations = await getRecentObservations(limit);

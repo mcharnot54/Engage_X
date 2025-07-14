@@ -45,9 +45,13 @@ type Delay = {
 };
 
 type PreviousObservation = {
+  id: string;
   date: string;
   observedPerf: string;
   gradeFactorPerf: string;
+  comments: string;
+  aiNotes: string;
+  standardName: string;
 };
 
 export default function GazeObservationApp() {
@@ -72,10 +76,13 @@ export default function GazeObservationApp() {
     Record<number, Array<{ amount: number; timestamp: string }>>
   >({});
 
-  // Hover state for quantity tooltip
+  // Hover state for quantity tooltip - now persistent until Submit PUMP
   const [hoveredQuantityRowId, setHoveredQuantityRowId] = useState<
     number | null
   >(null);
+  const [persistentQuantityTooltips, setPersistentQuantityTooltips] = useState<
+    Set<number>
+  >(new Set());
   const [error, setError] = useState("");
 
   // Observation tracking
@@ -242,8 +249,11 @@ export default function GazeObservationApp() {
     "Distribution trend of System performance vs. Standard",
   ];
 
-  // Load employee performance data dynamically
-  const loadEmployeePerformanceData = async (employeeId: string) => {
+  // Load employee performance data dynamically with standard filtering
+  const loadEmployeePerformanceData = async (
+    employeeId: string,
+    standardId?: number,
+  ) => {
     try {
       // First, get the user ID from the employee ID
       const userResponse = await fetch(`/api/users?employeeId=${employeeId}`);
@@ -264,20 +274,32 @@ export default function GazeObservationApp() {
         return;
       }
 
-      const response = await fetch(
-        `/api/observations?userId=${userId}&limit=5`,
-      );
+      // Build query parameters for filtering by standard if provided
+      let url = `/api/observations?userId=${userId}&limit=5`;
+      if (standardId) {
+        url += `&standardId=${standardId}`;
+      }
+
+      const response = await fetch(url);
       if (response.ok) {
         const observations = await response.json();
         const performanceData = observations.map(
           (obs: {
+            id: string;
             createdAt: string;
             observedPerformance: number;
             pumpScore: number;
+            comments?: string;
+            aiNotes?: string;
+            standard: { id: number; name: string };
           }) => ({
+            id: obs.id,
             date: new Date(obs.createdAt).toISOString().split("T")[0],
             observedPerf: obs.observedPerformance.toFixed(1),
             gradeFactorPerf: obs.pumpScore.toFixed(1),
+            comments: obs.comments || "",
+            aiNotes: obs.aiNotes || "",
+            standardName: obs.standard.name,
           }),
         );
 
@@ -290,9 +312,33 @@ export default function GazeObservationApp() {
       console.error("Error loading employee performance data:", error);
       // Set fallback data if API fails
       const fallbackData = [
-        { date: "2024-01-15", observedPerf: "95.2", gradeFactorPerf: "98.1" },
-        { date: "2024-01-10", observedPerf: "92.8", gradeFactorPerf: "96.5" },
-        { date: "2024-01-05", observedPerf: "98.1", gradeFactorPerf: "102.3" },
+        {
+          id: "1",
+          date: "2024-01-15",
+          observedPerf: "95.2",
+          gradeFactorPerf: "98.1",
+          comments: "Good performance overall",
+          aiNotes: "Consistent work pace",
+          standardName: "Sample Standard",
+        },
+        {
+          id: "2",
+          date: "2024-01-10",
+          observedPerf: "92.8",
+          gradeFactorPerf: "96.5",
+          comments: "Needs improvement in efficiency",
+          aiNotes: "Focus on process optimization",
+          standardName: "Sample Standard",
+        },
+        {
+          id: "3",
+          date: "2024-01-05",
+          observedPerf: "98.1",
+          gradeFactorPerf: "102.3",
+          comments: "Excellent work quality",
+          aiNotes: "Exceeding expectations",
+          standardName: "Sample Standard",
+        },
       ];
       setEmployeePerformanceData((prev) => ({
         ...prev,
@@ -656,6 +702,8 @@ export default function GazeObservationApp() {
     setIsPumpAssessmentActive(false);
     setIsFinalized(true);
     setShowPumpFinalizationModal(false);
+    // Clear persistent quantity tooltips when PUMP is submitted
+    setPersistentQuantityTooltips(new Set());
   };
 
   const calculatePerformance = () => {
@@ -936,7 +984,7 @@ export default function GazeObservationApp() {
     // Variance analysis between observed and PUMP
     const varianceAnalysis =
       perfDiff > 25
-        ? `\n\n⚠️ VARIANCE ALERT: Significant difference (${perfDiff.toFixed(1)}%) between Observed Performance (${observedPerf}%) and PUMP Grade Factor (${pumpGradeFactor}%). This indicates potential standard calibration needs or observation methodology review. Additional validation observations recommended.`
+        ? `\n\n��️ VARIANCE ALERT: Significant difference (${perfDiff.toFixed(1)}%) between Observed Performance (${observedPerf}%) and PUMP Grade Factor (${pumpGradeFactor}%). This indicates potential standard calibration needs or observation methodology review. Additional validation observations recommended.`
         : perfDiff > 15
           ? `\n\nNOTE: Moderate variance (${perfDiff.toFixed(1)}%) between metrics suggests opportunity for standard refinement or technique optimization.`
           : `\n\nAlignment between Observed Performance and PUMP Grade Factor indicates consistent evaluation and standard application.`;
@@ -1404,9 +1452,13 @@ export default function GazeObservationApp() {
         if (selectedStd.notes && selectedStd.notes.trim()) {
           setShowStandardNotes(true);
         }
+        // Reload employee performance data when standard changes
+        if (employeeId) {
+          loadEmployeePerformanceData(employeeId, selectedStd.id);
+        }
       }
     }
-  }, [standard, standards]);
+  }, [standard, standards, employeeId]);
 
   useEffect(() => {
     calculateTotalSams();
@@ -1806,8 +1858,13 @@ export default function GazeObservationApp() {
                                 setEmployeeId(employee.employeeId);
                                 setShowEmployeeDropdown(false);
                                 setEmployeeSearch("");
+                                // Load performance data filtered by current standard if selected
+                                const currentStandardId = standard
+                                  ? Number(standard)
+                                  : undefined;
                                 loadEmployeePerformanceData(
                                   employee.employeeId,
+                                  currentStandardId,
                                 );
                                 setShowPreviousObservations(true);
                               }}
@@ -2342,13 +2399,39 @@ export default function GazeObservationApp() {
                                 </div>
                               </td>
                               <td
-                                className="p-3 text-center font-medium relative"
-                                onMouseEnter={() =>
-                                  setHoveredQuantityRowId(row.id)
-                                }
-                                onMouseLeave={() =>
-                                  setHoveredQuantityRowId(null)
-                                }
+                                className="p-3 text-center font-medium relative cursor-pointer"
+                                onMouseEnter={() => {
+                                  if (!persistentQuantityTooltips.has(row.id)) {
+                                    setHoveredQuantityRowId(row.id);
+                                  }
+                                }}
+                                onMouseLeave={() => {
+                                  if (!persistentQuantityTooltips.has(row.id)) {
+                                    setHoveredQuantityRowId(null);
+                                  }
+                                }}
+                                onClick={() => {
+                                  if (
+                                    (isObserving || isPumpAssessmentActive) &&
+                                    (quantitySubmissionHistory[row.id]?.length >
+                                      0 ||
+                                      row.quantity > 0)
+                                  ) {
+                                    const newPersistent = new Set(
+                                      persistentQuantityTooltips,
+                                    );
+                                    if (newPersistent.has(row.id)) {
+                                      newPersistent.delete(row.id);
+                                      setHoveredQuantityRowId(null);
+                                    } else {
+                                      newPersistent.add(row.id);
+                                      setHoveredQuantityRowId(row.id);
+                                    }
+                                    setPersistentQuantityTooltips(
+                                      newPersistent,
+                                    );
+                                  }
+                                }}
                               >
                                 <div className="flex items-center justify-center gap-2">
                                   <span className="cursor-help">
@@ -2372,13 +2455,18 @@ export default function GazeObservationApp() {
                                     )}
                                 </div>
 
-                                {/* Hover Tooltip */}
-                                {hoveredQuantityRowId === row.id &&
+                                {/* Hover/Persistent Tooltip */}
+                                {(hoveredQuantityRowId === row.id ||
+                                  persistentQuantityTooltips.has(row.id)) &&
                                   (quantitySubmissionHistory[row.id]?.length >
                                     0 ||
                                     row.quantity > 0) && (
                                     <div
-                                      className="absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto opacity-100"
+                                      className={`absolute z-[9999] text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto opacity-100 ${
+                                        persistentQuantityTooltips.has(row.id)
+                                          ? "bg-blue-800 border-2 border-blue-400"
+                                          : "bg-gray-800"
+                                      }`}
                                       style={{
                                         top: "100%",
                                         left: "50%",
@@ -2454,13 +2542,22 @@ export default function GazeObservationApp() {
                                       {(isObserving ||
                                         isPumpAssessmentActive) && (
                                         <div className="mt-2 pt-1 border-t border-gray-600 text-center text-gray-400 text-xs">
-                                          Hover over entries to delete • Click ×
-                                          to clear all
+                                          {persistentQuantityTooltips.has(
+                                            row.id,
+                                          )
+                                            ? "Click anywhere to close • Hover entries to delete • Click × to clear all"
+                                            : "Click to keep open • Hover entries to delete • Click × to clear all"}
                                         </div>
                                       )}
 
                                       {/* Arrow pointer */}
-                                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                                      <div
+                                        className={`absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent ${
+                                          persistentQuantityTooltips.has(row.id)
+                                            ? "border-b-blue-800"
+                                            : "border-b-gray-800"
+                                        }`}
+                                      ></div>
                                     </div>
                                   )}
                               </td>
@@ -2962,10 +3059,53 @@ export default function GazeObservationApp() {
                                 {obs.observedPerf}%
                               </div>
                               <div>{obs.gradeFactorPerf}%</div>
-                              <div
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}
-                              >
-                                {status}
+                              <div className="relative">
+                                <div
+                                  className={`px-2 py-1 rounded-full text-xs font-medium cursor-help ${statusColor}`}
+                                  title="Hover to see observation comments"
+                                  onMouseEnter={(e) => {
+                                    const tooltip =
+                                      document.createElement("div");
+                                    tooltip.className =
+                                      "absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl max-w-80 pointer-events-none";
+                                    tooltip.style.cssText = `
+                                      top: 100%;
+                                      left: 50%;
+                                      transform: translateX(-50%);
+                                      margin-top: 5px;
+                                      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+                                    `;
+
+                                    const commentsHtml = obs.comments
+                                      ? `<div class="font-semibold mb-2 text-blue-300">Comments:</div><div class="mb-2">${obs.comments}</div>`
+                                      : "";
+                                    const aiNotesHtml = obs.aiNotes
+                                      ? `<div class="font-semibold mb-2 text-green-300">AI Analysis:</div><div>${obs.aiNotes.substring(0, 150)}${obs.aiNotes.length > 150 ? "..." : ""}</div>`
+                                      : "";
+
+                                    tooltip.innerHTML = `
+                                      <div class="font-semibold mb-2 text-center border-b border-gray-600 pb-1">Observation Details</div>
+                                      <div class="text-gray-300 mb-2"><strong>Standard:</strong> ${obs.standardName}</div>
+                                      ${commentsHtml}
+                                      ${aiNotesHtml}
+                                      ${!obs.comments && !obs.aiNotes ? '<div class="text-gray-400 italic">No comments or analysis available</div>' : ""}
+                                      <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                                    `;
+
+                                    e.currentTarget.appendChild(tooltip);
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    const tooltip =
+                                      e.currentTarget.querySelector(
+                                        ".absolute.z-\\[9999\\]",
+                                      );
+                                    if (tooltip) {
+                                      tooltip.remove();
+                                    }
+                                  }}
+                                >
+                                  {status}
+                                </div>
                               </div>
                             </div>
                           );
@@ -3173,6 +3313,148 @@ export default function GazeObservationApp() {
                         );
                       })()}
                     </div>
+                  </div>
+                )}
+
+              {/* Previous Version Notes */}
+              {selectedStandardData.versions &&
+                selectedStandardData.versions.length > 1 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Previous Version Notes
+                    </h3>
+                    {(() => {
+                      const sortedVersions = [
+                        ...selectedStandardData.versions!,
+                      ].sort((a, b) => b.version - a.version);
+                      const previousVersion = sortedVersions[1];
+
+                      return (
+                        <div className="space-y-4">
+                          {/* Previous Version */}
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <h4 className="font-medium text-gray-800 mb-2">
+                              Version {previousVersion.version} Notes
+                            </h4>
+                            <p className="text-sm text-gray-600 mb-2">
+                              <strong>Date:</strong>{" "}
+                              {new Date(
+                                previousVersion.createdAt,
+                              ).toLocaleDateString()}
+                            </p>
+                            {previousVersion.versionNotes ? (
+                              <div className="text-sm text-gray-700">
+                                <strong>Notes:</strong>
+                                <div className="mt-1 whitespace-pre-wrap bg-white p-2 rounded border">
+                                  {previousVersion.versionNotes}
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500 italic">
+                                No notes available for this version.
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Changes Summary */}
+                          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                            <h4 className="font-medium text-orange-800 mb-2">
+                              What Changed in Current Version
+                            </h4>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex items-start gap-2">
+                                <span className="text-orange-600 font-medium">
+                                  •
+                                </span>
+                                <span className="text-orange-700">
+                                  Standard details may have been modified
+                                </span>
+                              </div>
+                              {selectedStandardData.uomEntries &&
+                                selectedStandardData.uomEntries.length > 0 && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-orange-600 font-medium">
+                                      •
+                                    </span>
+                                    <span className="text-orange-700">
+                                      UOM entries updated (
+                                      {selectedStandardData.uomEntries.length}{" "}
+                                      total entries)
+                                    </span>
+                                  </div>
+                                )}
+                              {selectedStandardData.bestPractices &&
+                                selectedStandardData.bestPractices.length >
+                                  0 && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-orange-600 font-medium">
+                                      •
+                                    </span>
+                                    <span className="text-orange-700">
+                                      Best practices modified (
+                                      {
+                                        selectedStandardData.bestPractices
+                                          .length
+                                      }{" "}
+                                      practices)
+                                    </span>
+                                  </div>
+                                )}
+                              {selectedStandardData.processOpportunities &&
+                                selectedStandardData.processOpportunities
+                                  .length > 0 && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-orange-600 font-medium">
+                                      •
+                                    </span>
+                                    <span className="text-orange-700">
+                                      Process opportunities updated (
+                                      {
+                                        selectedStandardData
+                                          .processOpportunities.length
+                                      }{" "}
+                                      opportunities)
+                                    </span>
+                                  </div>
+                                )}
+                            </div>
+                          </div>
+
+                          {/* Version History List */}
+                          {sortedVersions.length > 2 && (
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                              <h4 className="font-medium text-gray-800 mb-2">
+                                All Versions ({sortedVersions.length} total)
+                              </h4>
+                              <div className="space-y-1 max-h-32 overflow-y-auto">
+                                {sortedVersions.map((version, index) => (
+                                  <div
+                                    key={version.id}
+                                    className="flex justify-between items-center text-sm"
+                                  >
+                                    <span
+                                      className={`font-medium ${
+                                        index === 0
+                                          ? "text-blue-600"
+                                          : "text-gray-600"
+                                      }`}
+                                    >
+                                      Version {version.version}{" "}
+                                      {index === 0 && "(Current)"}
+                                    </span>
+                                    <span className="text-gray-500">
+                                      {new Date(
+                                        version.createdAt,
+                                      ).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
 
