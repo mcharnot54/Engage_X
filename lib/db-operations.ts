@@ -868,7 +868,9 @@ export async function getObservationsByUser(
 ) {
   const whereClause: any = { userId };
   if (standardId) {
-    whereClause.standardId = standardId;
+    // Get all version IDs for this standard
+    const standardIds = await getAllStandardVersionIds(standardId);
+    whereClause.standardId = { in: standardIds };
   }
 
   return prisma.observation.findMany({
