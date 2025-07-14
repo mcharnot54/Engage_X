@@ -88,7 +88,7 @@ export default function GazeObservationApp() {
 
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
-  // const [selectedOrganization, setSelectedOrganization] = useState("");
+
   const [selectedFacility, setSelectedFacility] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
@@ -234,8 +234,27 @@ export default function GazeObservationApp() {
   // Load employee performance data dynamically
   const loadEmployeePerformanceData = async (employeeId: string) => {
     try {
+      // First, get the user ID from the employee ID
+      const userResponse = await fetch(`/api/users?employeeId=${employeeId}`);
+      let userId = null;
+
+      if (userResponse.ok) {
+        const user = await userResponse.json();
+        userId = user.id;
+      }
+
+      if (!userId) {
+        console.log("No user found for employee ID:", employeeId);
+        // Set empty performance data if no user exists yet
+        setEmployeePerformanceData((prev) => ({
+          ...prev,
+          [employeeId]: [],
+        }));
+        return;
+      }
+
       const response = await fetch(
-        `/api/observations?userId=${employeeId}&limit=5`,
+        `/api/observations?userId=${userId}&limit=5`,
       );
       if (response.ok) {
         const observations = await response.json();
@@ -394,14 +413,6 @@ export default function GazeObservationApp() {
   ]);
 
   // Helper functions for multi-level dropdown
-  const getUniqueOrganizations = () => {
-    const organizations = new Set();
-    standards.forEach((std) => {
-      // Assuming facility has organization info, or we can extract from facility name
-      organizations.add(std.facility.name.split(" - ")[0] || std.facility.name);
-    });
-    return Array.from(organizations) as string[];
-  };
 
   const getUniqueFacilities = (organization?: string) => {
     return standards
@@ -450,7 +461,6 @@ export default function GazeObservationApp() {
 
   const resetStandardSelection = () => {
     setStandard("");
-    setSelectedOrganization("");
     setSelectedFacility("");
     setSelectedDepartment("");
     setSelectedArea("");
@@ -920,7 +930,7 @@ export default function GazeObservationApp() {
       `${trendAnalysis}${specificFeedback}\n\n` +
       `🎯 PUMP ASSESSMENT: Grade Factor ${pumpGradeFactor}%\n${pumpFeedback}\n\n` +
       `✅ BEST PRACTICES: ${practicesFeedback}\n\n` +
-      `⚙️ PROCESS OPTIMIZATION: ${processFeedback}\n\n` +
+      `��️ PROCESS OPTIMIZATION: ${processFeedback}\n\n` +
       `NEXT STEPS: ` +
       (observedPerf >= 100
         ? `Continue excellent performance standards. Consider advanced technique refinement and knowledge sharing opportunities.`
@@ -1584,7 +1594,7 @@ export default function GazeObservationApp() {
                       setShowStandardDropdown(!showStandardDropdown)
                     }
                     disabled={isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                    className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors h-12"
                   >
                     <span className={standard ? "text-black" : "text-gray-500"}>
                       {getSelectedStandardDisplay()}
@@ -1727,7 +1737,7 @@ export default function GazeObservationApp() {
                       !isObserving &&
                       setShowEmployeeDropdown(!showEmployeeDropdown)
                     }
-                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 cursor-pointer flex justify-between items-center ${
+                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 cursor-pointer flex justify-between items-center h-12 ${
                       isObserving
                         ? "opacity-70 cursor-not-allowed"
                         : "hover:bg-gray-50"
@@ -1820,7 +1830,7 @@ export default function GazeObservationApp() {
                     }
                   }}
                   disabled={isObserving}
-                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
+                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 h-12"
                 >
                   <option value="">Select Observation Reason</option>
                   {observationReasons.map((reason) => (
@@ -2247,7 +2257,7 @@ export default function GazeObservationApp() {
                                         submitTempQuantity(row.id);
                                       }
                                     }}
-                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
+                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50 bg-white opacity-100"
                                     placeholder="0"
                                   />
                                   <button
@@ -2299,7 +2309,7 @@ export default function GazeObservationApp() {
                                         parseInt(e.target.value) || 0,
                                       )
                                     }
-                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50"
+                                    className="w-16 text-center p-1 border border-gray-300 rounded disabled:opacity-50 bg-white opacity-100"
                                   />
                                   <button
                                     disabled={
@@ -2351,7 +2361,7 @@ export default function GazeObservationApp() {
                                     0 ||
                                     row.quantity > 0) && (
                                     <div
-                                      className="absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto"
+                                      className="absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto opacity-100"
                                       style={{
                                         top: "100%",
                                         left: "50%",
