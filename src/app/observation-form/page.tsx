@@ -45,9 +45,13 @@ type Delay = {
 };
 
 type PreviousObservation = {
+  id: string;
   date: string;
   observedPerf: string;
   gradeFactorPerf: string;
+  comments: string;
+  aiNotes: string;
+  standardName: string;
 };
 
 export default function GazeObservationApp() {
@@ -72,10 +76,16 @@ export default function GazeObservationApp() {
     Record<number, Array<{ amount: number; timestamp: string }>>
   >({});
 
-  // Hover state for quantity tooltip
+  // Hover state for quantity tooltip - now persistent until Submit PUMP
   const [hoveredQuantityRowId, setHoveredQuantityRowId] = useState<
     number | null
   >(null);
+  const [persistentQuantityTooltips, setPersistentQuantityTooltips] = useState<
+    Set<number>
+  >(new Set());
+  const [quantityTooltipStates, setQuantityTooltipStates] = useState<
+    Record<number, { isVisible: boolean; isPersistent: boolean }>
+  >({});
   const [error, setError] = useState("");
 
   // Observation tracking
@@ -242,8 +252,11 @@ export default function GazeObservationApp() {
     "Distribution trend of System performance vs. Standard",
   ];
 
-  // Load employee performance data dynamically
-  const loadEmployeePerformanceData = async (employeeId: string) => {
+  // Load employee performance data dynamically with standard filtering
+  const loadEmployeePerformanceData = async (
+    employeeId: string,
+    standardId?: number,
+  ) => {
     try {
       // First, get the user ID from the employee ID
       const userResponse = await fetch(`/api/users?employeeId=${employeeId}`);
@@ -264,20 +277,32 @@ export default function GazeObservationApp() {
         return;
       }
 
-      const response = await fetch(
-        `/api/observations?userId=${userId}&limit=5`,
-      );
+      // Build query parameters for filtering by standard if provided
+      let url = `/api/observations?userId=${userId}&limit=5`;
+      if (standardId) {
+        url += `&standardId=${standardId}`;
+      }
+
+      const response = await fetch(url);
       if (response.ok) {
         const observations = await response.json();
         const performanceData = observations.map(
           (obs: {
+            id: string;
             createdAt: string;
             observedPerformance: number;
             pumpScore: number;
+            comments?: string;
+            aiNotes?: string;
+            standard: { id: number; name: string };
           }) => ({
+            id: obs.id,
             date: new Date(obs.createdAt).toISOString().split("T")[0],
             observedPerf: obs.observedPerformance.toFixed(1),
             gradeFactorPerf: obs.pumpScore.toFixed(1),
+            comments: obs.comments || "",
+            aiNotes: obs.aiNotes || "",
+            standardName: obs.standard.name,
           }),
         );
 
@@ -290,9 +315,33 @@ export default function GazeObservationApp() {
       console.error("Error loading employee performance data:", error);
       // Set fallback data if API fails
       const fallbackData = [
-        { date: "2024-01-15", observedPerf: "95.2", gradeFactorPerf: "98.1" },
-        { date: "2024-01-10", observedPerf: "92.8", gradeFactorPerf: "96.5" },
-        { date: "2024-01-05", observedPerf: "98.1", gradeFactorPerf: "102.3" },
+        {
+          id: "1",
+          date: "2024-01-15",
+          observedPerf: "95.2",
+          gradeFactorPerf: "98.1",
+          comments: "Good performance overall",
+          aiNotes: "Consistent work pace",
+          standardName: "Sample Standard",
+        },
+        {
+          id: "2",
+          date: "2024-01-10",
+          observedPerf: "92.8",
+          gradeFactorPerf: "96.5",
+          comments: "Needs improvement in efficiency",
+          aiNotes: "Focus on process optimization",
+          standardName: "Sample Standard",
+        },
+        {
+          id: "3",
+          date: "2024-01-05",
+          observedPerf: "98.1",
+          gradeFactorPerf: "102.3",
+          comments: "Excellent work quality",
+          aiNotes: "Exceeding expectations",
+          standardName: "Sample Standard",
+        },
       ];
       setEmployeePerformanceData((prev) => ({
         ...prev,
@@ -656,6 +705,9 @@ export default function GazeObservationApp() {
     setIsPumpAssessmentActive(false);
     setIsFinalized(true);
     setShowPumpFinalizationModal(false);
+    // Clear persistent quantity tooltips when PUMP is submitted
+    setPersistentQuantityTooltips(new Set());
+    setQuantityTooltipStates({});
   };
 
   const calculatePerformance = () => {
