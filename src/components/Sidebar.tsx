@@ -183,28 +183,36 @@ export function Sidebar({
           className={`${!isSidebarCollapsed ? "border-t border-gray-200" : ""} pt-4`}
         >
           <div
-            className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "gap-3"} mb-3`}
+            className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "gap-3"} mb-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors`}
+            onClick={() => setShowUserProfileModal(true)}
           >
             <div
               className={`${isSidebarCollapsed ? "w-8 h-8" : "w-12 h-12"} rounded-full bg-red-100 flex items-center justify-center overflow-hidden`}
             >
-              <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=96&h=96&fit=crop&crop=face"
-                alt="User Profile"
-                className="w-full h-full object-cover"
-              />
+              {currentUser.profilePicture ? (
+                <img
+                  src={currentUser.profilePicture}
+                  alt="User Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-lg font-semibold text-red-600">
+                  {currentUser.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
+                </span>
+              )}
             </div>
             {!isSidebarCollapsed && (
               <div className="flex-1">
                 <div className="font-semibold text-gray-800 text-sm">
-                  John Smith
+                  {currentUser.name}
                 </div>
-                <a
-                  href="/profile"
-                  className="text-xs text-red-600 hover:text-red-800 transition-colors cursor-pointer"
-                >
-                  View Profile
-                </a>
+                <div className="text-xs text-red-600 hover:text-red-800 transition-colors">
+                  {currentUser.role}
+                </div>
               </div>
             )}
           </div>
