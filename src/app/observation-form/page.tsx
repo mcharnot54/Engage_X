@@ -234,8 +234,27 @@ export default function GazeObservationApp() {
   // Load employee performance data dynamically
   const loadEmployeePerformanceData = async (employeeId: string) => {
     try {
+      // First, get the user ID from the employee ID
+      const userResponse = await fetch(`/api/users?employeeId=${employeeId}`);
+      let userId = null;
+
+      if (userResponse.ok) {
+        const user = await userResponse.json();
+        userId = user.id;
+      }
+
+      if (!userId) {
+        console.log("No user found for employee ID:", employeeId);
+        // Set empty performance data if no user exists yet
+        setEmployeePerformanceData((prev) => ({
+          ...prev,
+          [employeeId]: [],
+        }));
+        return;
+      }
+
       const response = await fetch(
-        `/api/observations?userId=${employeeId}&limit=5`,
+        `/api/observations?userId=${userId}&limit=5`,
       );
       if (response.ok) {
         const observations = await response.json();
@@ -920,7 +939,7 @@ export default function GazeObservationApp() {
       `${trendAnalysis}${specificFeedback}\n\n` +
       `🎯 PUMP ASSESSMENT: Grade Factor ${pumpGradeFactor}%\n${pumpFeedback}\n\n` +
       `✅ BEST PRACTICES: ${practicesFeedback}\n\n` +
-      `⚙️ PROCESS OPTIMIZATION: ${processFeedback}\n\n` +
+      `��️ PROCESS OPTIMIZATION: ${processFeedback}\n\n` +
       `NEXT STEPS: ` +
       (observedPerf >= 100
         ? `Continue excellent performance standards. Consider advanced technique refinement and knowledge sharing opportunities.`
