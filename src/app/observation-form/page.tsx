@@ -1603,7 +1603,7 @@ export default function GazeObservationApp() {
                       setShowStandardDropdown(!showStandardDropdown)
                     }
                     disabled={isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                    className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors h-12"
                   >
                     <span className={standard ? "text-black" : "text-gray-500"}>
                       {getSelectedStandardDisplay()}
