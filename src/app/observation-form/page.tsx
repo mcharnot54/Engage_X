@@ -1220,6 +1220,7 @@ export default function GazeObservationApp() {
     setQuantitySubmissionHistory({});
     setTempQuantities({});
     setSubmittedQuantities({});
+    setIsExplicitStandardSelection(false);
   };
 
   // Slide navigation for performance trends
