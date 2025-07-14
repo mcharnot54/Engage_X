@@ -174,51 +174,56 @@ export default function GazeObservationApp() {
     new Set(),
   );
 
-  // Pastel colors for tag group differentiation
-  const pastelColors = [
-    { bg: "bg-rose-50", border: "border-l-rose-200", text: "text-rose-700" },
-    { bg: "bg-blue-50", border: "border-l-blue-200", text: "text-blue-700" },
-    { bg: "bg-green-50", border: "border-l-green-200", text: "text-green-700" },
-    {
-      bg: "bg-purple-50",
-      border: "border-l-purple-200",
-      text: "text-purple-700",
-    },
-    {
-      bg: "bg-indigo-50",
-      border: "border-l-indigo-200",
-      text: "text-indigo-700",
-    },
-    { bg: "bg-pink-50", border: "border-l-pink-200", text: "text-pink-700" },
-    { bg: "bg-cyan-50", border: "border-l-cyan-200", text: "text-cyan-700" },
-    { bg: "bg-amber-50", border: "border-l-amber-200", text: "text-amber-700" },
-    {
-      bg: "bg-emerald-50",
-      border: "border-l-emerald-200",
-      text: "text-emerald-700",
-    },
-    {
-      bg: "bg-violet-50",
-      border: "border-l-violet-200",
-      text: "text-violet-700",
-    },
-  ];
-
   // Helper function to get tag group color
-  const getTagGroupColor = useCallback(
-    (tags: string[]) => {
-      if (!tags || tags.length === 0) return null;
-      // Use the first tag to determine group identity, create a simple hash
-      const firstTag = tags[0];
-      const hash = firstTag.split("").reduce((a, b) => {
-        a = (a << 5) - a + b.charCodeAt(0);
-        return a & a;
-      }, 0);
-      const colorIndex = Math.abs(hash) % pastelColors.length;
-      return pastelColors[colorIndex];
-    },
-    [pastelColors],
-  );
+  const getTagGroupColor = useCallback((tags: string[]) => {
+    // Pastel colors for tag group differentiation
+    const pastelColors = [
+      { bg: "bg-rose-50", border: "border-l-rose-200", text: "text-rose-700" },
+      { bg: "bg-blue-50", border: "border-l-blue-200", text: "text-blue-700" },
+      {
+        bg: "bg-green-50",
+        border: "border-l-green-200",
+        text: "text-green-700",
+      },
+      {
+        bg: "bg-purple-50",
+        border: "border-l-purple-200",
+        text: "text-purple-700",
+      },
+      {
+        bg: "bg-indigo-50",
+        border: "border-l-indigo-200",
+        text: "text-indigo-700",
+      },
+      { bg: "bg-pink-50", border: "border-l-pink-200", text: "text-pink-700" },
+      { bg: "bg-cyan-50", border: "border-l-cyan-200", text: "text-cyan-700" },
+      {
+        bg: "bg-amber-50",
+        border: "border-l-amber-200",
+        text: "text-amber-700",
+      },
+      {
+        bg: "bg-emerald-50",
+        border: "border-l-emerald-200",
+        text: "text-emerald-700",
+      },
+      {
+        bg: "bg-violet-50",
+        border: "border-l-violet-200",
+        text: "text-violet-700",
+      },
+    ];
+
+    if (!tags || tags.length === 0) return null;
+    // Use the first tag to determine group identity, create a simple hash
+    const firstTag = tags[0];
+    const hash = firstTag.split("").reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    const colorIndex = Math.abs(hash) % pastelColors.length;
+    return pastelColors[colorIndex];
+  }, []);
 
   // UI state
   const [showPreviousObservations, setShowPreviousObservations] =
