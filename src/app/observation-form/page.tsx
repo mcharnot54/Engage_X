@@ -105,6 +105,8 @@ export default function GazeObservationApp() {
   const [showPumpFinalizationModal, setShowPumpFinalizationModal] =
     useState(false);
   const [showStandardNotes, setShowStandardNotes] = useState(false);
+  const [isExplicitStandardSelection, setIsExplicitStandardSelection] =
+    useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
@@ -532,6 +534,7 @@ export default function GazeObservationApp() {
     setHighlightedTagGroup(new Set());
     setActiveRowIds(new Set());
     setIsDynamicGroupingActive(false);
+    setIsExplicitStandardSelection(false);
   };
 
   const getSelectedStandardDisplay = () => {
@@ -825,7 +828,7 @@ export default function GazeObservationApp() {
     }));
   };
 
-  const calculateTotalSams = () => {
+  const calculateTotalSams = useCallback(() => {
     const total = rows.reduce(
       (sum, row) =>
         sum +
@@ -833,7 +836,7 @@ export default function GazeObservationApp() {
       0,
     );
     setTotalSams(total);
-  };
+  }, [rows, submittedQuantities]);
 
   // Delay timer functionality
   const startDelay = () => {
@@ -1218,6 +1221,7 @@ export default function GazeObservationApp() {
     setQuantitySubmissionHistory({});
     setTempQuantities({});
     setSubmittedQuantities({});
+    setIsExplicitStandardSelection(false);
   };
 
   // Slide navigation for performance trends
@@ -1448,8 +1452,12 @@ export default function GazeObservationApp() {
       const selectedStd = standards.find((s) => s.id === Number(standard));
       if (selectedStd) {
         loadSelectedStandard(selectedStd.id);
-        // Automatically show standard notes popup when standard is selected
-        if (selectedStd.notes && selectedStd.notes.trim()) {
+        // Only show standard notes popup when standard is explicitly selected by user
+        if (
+          isExplicitStandardSelection &&
+          selectedStd.notes &&
+          selectedStd.notes.trim()
+        ) {
           setShowStandardNotes(true);
         }
         // Reload employee performance data when standard changes
@@ -1458,12 +1466,16 @@ export default function GazeObservationApp() {
         }
       }
     }
-  }, [standard, standards, employeeId]);
+    // Reset the explicit selection flag after processing
+    if (isExplicitStandardSelection) {
+      setIsExplicitStandardSelection(false);
+    }
+  }, [standard, standards, employeeId, isExplicitStandardSelection]);
 
   useEffect(() => {
     calculateTotalSams();
     syncActiveRowIds();
-  }, [rows, submittedQuantities, syncActiveRowIds]);
+  }, [rows, submittedQuantities, syncActiveRowIds, calculateTotalSams]);
 
   useEffect(() => {
     calculatePerformance();
@@ -1766,6 +1778,7 @@ export default function GazeObservationApp() {
                               value={standard}
                               onChange={(e) => {
                                 setStandard(e.target.value);
+                                setIsExplicitStandardSelection(true);
                                 setShowStandardDropdown(false);
                               }}
                               className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

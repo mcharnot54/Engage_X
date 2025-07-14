@@ -470,6 +470,29 @@ export async function getStandardVersionHistory(standardId: number) {
   });
 }
 
+export async function getAllStandardVersionIds(standardId: number) {
+  const standard = await prisma.standard.findUnique({
+    where: { id: standardId },
+  });
+
+  if (!standard) {
+    throw new Error("Standard not found");
+  }
+
+  const baseId = standard.baseStandardId || standardId;
+
+  const versions = await prisma.standard.findMany({
+    where: {
+      OR: [{ id: baseId }, { baseStandardId: baseId }],
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return versions.map((v) => v.id);
+}
+
 // User operations
 export async function createUser(data: {
   employeeId: string;
@@ -845,7 +868,9 @@ export async function getObservationsByUser(
 ) {
   const whereClause: any = { userId };
   if (standardId) {
-    whereClause.standardId = standardId;
+    // Get all version IDs for this standard
+    const standardIds = await getAllStandardVersionIds(standardId);
+    whereClause.standardId = { in: standardIds };
   }
 
   return prisma.observation.findMany({
