@@ -83,9 +83,6 @@ export default function GazeObservationApp() {
   const [persistentQuantityTooltips, setPersistentQuantityTooltips] = useState<
     Set<number>
   >(new Set());
-  const [quantityTooltipStates, setQuantityTooltipStates] = useState<
-    Record<number, { isVisible: boolean; isPersistent: boolean }>
-  >({});
   const [error, setError] = useState("");
 
   // Observation tracking
@@ -707,7 +704,6 @@ export default function GazeObservationApp() {
     setShowPumpFinalizationModal(false);
     // Clear persistent quantity tooltips when PUMP is submitted
     setPersistentQuantityTooltips(new Set());
-    setQuantityTooltipStates({});
   };
 
   const calculatePerformance = () => {
@@ -988,7 +984,7 @@ export default function GazeObservationApp() {
     // Variance analysis between observed and PUMP
     const varianceAnalysis =
       perfDiff > 25
-        ? `\n\n⚠️ VARIANCE ALERT: Significant difference (${perfDiff.toFixed(1)}%) between Observed Performance (${observedPerf}%) and PUMP Grade Factor (${pumpGradeFactor}%). This indicates potential standard calibration needs or observation methodology review. Additional validation observations recommended.`
+        ? `\n\n��️ VARIANCE ALERT: Significant difference (${perfDiff.toFixed(1)}%) between Observed Performance (${observedPerf}%) and PUMP Grade Factor (${pumpGradeFactor}%). This indicates potential standard calibration needs or observation methodology review. Additional validation observations recommended.`
         : perfDiff > 15
           ? `\n\nNOTE: Moderate variance (${perfDiff.toFixed(1)}%) between metrics suggests opportunity for standard refinement or technique optimization.`
           : `\n\nAlignment between Observed Performance and PUMP Grade Factor indicates consistent evaluation and standard application.`;
