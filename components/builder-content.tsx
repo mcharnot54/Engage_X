@@ -1,11 +1,8 @@
 "use client";
 
-import {
-  builder,
-  BuilderComponent,
-  useIsPreviewing,
-  type BuilderContent, // ← add this
-} from "@builder.io/react";
+import { builder, BuilderComponent, useIsPreviewing } from "@builder.io/react";
+
+import type { BuilderContent } from "@builder.io/sdk";
 // Remove notFound import since it's for server components
 
 interface BuilderContentProps {
