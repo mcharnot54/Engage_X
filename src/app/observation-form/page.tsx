@@ -143,7 +143,13 @@ export default function GazeObservationApp() {
     { id: string; name: string; description?: string }[]
   >([]);
   const [observationReasons, setObservationReasons] = useState<
-    { id: string; name: string; description?: string }[]
+    {
+      id: string;
+      name: string;
+      description?: string;
+      purpose?: string;
+      leaderActionGuidelines?: string;
+    }[]
   >([]);
   const [employeePerformanceData, setEmployeePerformanceData] = useState<
     Record<string, PreviousObservation[]>
