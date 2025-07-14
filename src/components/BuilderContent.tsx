@@ -3,6 +3,7 @@
 
 import {
   builder,
+  Builder,
   BuilderComponent,
   useIsPreviewing,
   type BuilderContent,
@@ -13,6 +14,28 @@ if (typeof window !== "undefined") {
   const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
   if (apiKey) {
     builder.init(apiKey);
+
+    // Configure responsive breakpoints for Design/Interact mode
+    Builder.set({
+      canTrack: false,
+      env: process.env.NODE_ENV === "production" ? "production" : "development",
+      hideDefaultBuilderBlocks: ["Image"],
+      customBreakpoints: {
+        mobile: 480,
+        tablet: 768,
+        desktop: 1024,
+      },
+    });
+
+    // Set device attributes for proper responsive behavior
+    builder.setUserAttributes({
+      device:
+        window.innerWidth < 480
+          ? "mobile"
+          : window.innerWidth < 768
+            ? "tablet"
+            : "desktop",
+    });
   } else {
     console.warn(
       "NEXT_PUBLIC_BUILDER_API_KEY is not set — Builder content will be blank.",
