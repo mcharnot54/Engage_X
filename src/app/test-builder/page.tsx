@@ -14,6 +14,7 @@ import "../../../lib/builder-config";
 export default function TestBuilderPage() {
   const [connectionTest, setConnectionTest] = useState<any>(null);
   const [contentTest, setContentTest] = useState<any>(null);
+  const [responsiveTest, setResponsiveTest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
