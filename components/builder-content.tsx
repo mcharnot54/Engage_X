@@ -50,7 +50,7 @@ export function RenderBuilderContent({ content }: BuilderContentProps) {
   // Render the Builder.io content
   return (
     <div className="builder-content">
-      <BuilderComponent content={content || undefined} model="page" />
+      <BuilderComponent content={content as any} model="page" />
     </div>
   );
 }
