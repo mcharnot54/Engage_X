@@ -88,7 +88,7 @@ export default function GazeObservationApp() {
 
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
-  // const [selectedOrganization, setSelectedOrganization] = useState("");
+  const [selectedOrganization, setSelectedOrganization] = useState("");
   const [selectedFacility, setSelectedFacility] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
