@@ -27,7 +27,7 @@ export default function TestBuilderPage() {
       setConnectionTest(connection);
       console.log("Connection test result:", connection);
 
-      // Test content search
+            // Test content search
       console.log("Testing content search...");
       const content = await searchBuilderContent(
         "Copy of Mark's Standards Page",
@@ -44,14 +44,9 @@ export default function TestBuilderPage() {
           tablet: 768,
           desktop: 1024,
         },
-        currentDevice:
-          typeof window !== "undefined"
-            ? window.innerWidth <= 480
-              ? "mobile"
-              : window.innerWidth <= 768
-                ? "tablet"
-                : "desktop"
-            : "unknown",
+        currentDevice: typeof window !== "undefined" ?
+          (window.innerWidth <= 480 ? "mobile" :
+           window.innerWidth <= 768 ? "tablet" : "desktop") : "unknown",
         viewportWidth: typeof window !== "undefined" ? window.innerWidth : 0,
         userAttributes: builder.userAttributes || {},
       };
@@ -147,6 +142,34 @@ export default function TestBuilderPage() {
           {contentTest?.error && (
             <p className="text-orange-600">
               <strong>Error:</strong> {contentTest.error}
+            </p>
+          )}
+        </div>
+      </div>
+
+            <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Responsive Configuration Test</h2>
+        <div className={`p-4 rounded-lg ${responsiveTest?.isInitialized ? "bg-green-100" : "bg-red-100"}`}>
+          <p className="mb-2">
+            <strong>Builder Initialized:</strong>{" "}
+            <span className={responsiveTest?.isInitialized ? "text-green-600" : "text-red-600"}>
+              {responsiveTest?.isInitialized ? "✓ Yes" : "✗ No"}
+            </span>
+          </p>
+          <p className="mb-2">
+            <strong>Current Device:</strong> {responsiveTest?.currentDevice}
+          </p>
+          <p className="mb-2">
+            <strong>Viewport Width:</strong> {responsiveTest?.viewportWidth}px
+          </p>
+          <p className="mb-2">
+            <strong>Breakpoints:</strong> Mobile ≤ {responsiveTest?.breakpoints?.mobile}px,
+            Tablet ≤ {responsiveTest?.breakpoints?.tablet}px,
+            Desktop > {responsiveTest?.breakpoints?.desktop}px
+          </p>
+          {responsiveTest?.userAttributes && Object.keys(responsiveTest.userAttributes).length > 0 && (
+            <p className="mb-2">
+              <strong>User Attributes:</strong> {JSON.stringify(responsiveTest.userAttributes)}
             </p>
           )}
         </div>
