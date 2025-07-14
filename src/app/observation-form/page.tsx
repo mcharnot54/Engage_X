@@ -1450,8 +1450,12 @@ export default function GazeObservationApp() {
       const selectedStd = standards.find((s) => s.id === Number(standard));
       if (selectedStd) {
         loadSelectedStandard(selectedStd.id);
-        // Automatically show standard notes popup when standard is selected
-        if (selectedStd.notes && selectedStd.notes.trim()) {
+        // Only show standard notes popup when standard is explicitly selected by user
+        if (
+          isExplicitStandardSelection &&
+          selectedStd.notes &&
+          selectedStd.notes.trim()
+        ) {
           setShowStandardNotes(true);
         }
         // Reload employee performance data when standard changes
@@ -1460,7 +1464,11 @@ export default function GazeObservationApp() {
         }
       }
     }
-  }, [standard, standards, employeeId]);
+    // Reset the explicit selection flag after processing
+    if (isExplicitStandardSelection) {
+      setIsExplicitStandardSelection(false);
+    }
+  }, [standard, standards, employeeId, isExplicitStandardSelection]);
 
   useEffect(() => {
     calculateTotalSams();
