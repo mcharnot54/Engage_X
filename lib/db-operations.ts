@@ -346,6 +346,7 @@ export async function createStandardVersion(
     areaId?: number;
     bestPractices?: string[];
     processOpportunities?: string[];
+    notes?: string;
     versionNotes?: string;
     createdBy?: string;
     uomEntries?: {
