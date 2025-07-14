@@ -1858,8 +1858,13 @@ export default function GazeObservationApp() {
                                 setEmployeeId(employee.employeeId);
                                 setShowEmployeeDropdown(false);
                                 setEmployeeSearch("");
+                                // Load performance data filtered by current standard if selected
+                                const currentStandardId = standard
+                                  ? Number(standard)
+                                  : undefined;
                                 loadEmployeePerformanceData(
                                   employee.employeeId,
+                                  currentStandardId,
                                 );
                                 setShowPreviousObservations(true);
                               }}
@@ -2394,13 +2399,39 @@ export default function GazeObservationApp() {
                                 </div>
                               </td>
                               <td
-                                className="p-3 text-center font-medium relative"
-                                onMouseEnter={() =>
-                                  setHoveredQuantityRowId(row.id)
-                                }
-                                onMouseLeave={() =>
-                                  setHoveredQuantityRowId(null)
-                                }
+                                className="p-3 text-center font-medium relative cursor-pointer"
+                                onMouseEnter={() => {
+                                  if (!persistentQuantityTooltips.has(row.id)) {
+                                    setHoveredQuantityRowId(row.id);
+                                  }
+                                }}
+                                onMouseLeave={() => {
+                                  if (!persistentQuantityTooltips.has(row.id)) {
+                                    setHoveredQuantityRowId(null);
+                                  }
+                                }}
+                                onClick={() => {
+                                  if (
+                                    (isObserving || isPumpAssessmentActive) &&
+                                    (quantitySubmissionHistory[row.id]?.length >
+                                      0 ||
+                                      row.quantity > 0)
+                                  ) {
+                                    const newPersistent = new Set(
+                                      persistentQuantityTooltips,
+                                    );
+                                    if (newPersistent.has(row.id)) {
+                                      newPersistent.delete(row.id);
+                                      setHoveredQuantityRowId(null);
+                                    } else {
+                                      newPersistent.add(row.id);
+                                      setHoveredQuantityRowId(row.id);
+                                    }
+                                    setPersistentQuantityTooltips(
+                                      newPersistent,
+                                    );
+                                  }
+                                }}
                               >
                                 <div className="flex items-center justify-center gap-2">
                                   <span className="cursor-help">
@@ -2424,13 +2455,18 @@ export default function GazeObservationApp() {
                                     )}
                                 </div>
 
-                                {/* Hover Tooltip */}
-                                {hoveredQuantityRowId === row.id &&
+                                {/* Hover/Persistent Tooltip */}
+                                {(hoveredQuantityRowId === row.id ||
+                                  persistentQuantityTooltips.has(row.id)) &&
                                   (quantitySubmissionHistory[row.id]?.length >
                                     0 ||
                                     row.quantity > 0) && (
                                     <div
-                                      className="absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto opacity-100"
+                                      className={`absolute z-[9999] text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto opacity-100 ${
+                                        persistentQuantityTooltips.has(row.id)
+                                          ? "bg-blue-800 border-2 border-blue-400"
+                                          : "bg-gray-800"
+                                      }`}
                                       style={{
                                         top: "100%",
                                         left: "50%",
@@ -2506,13 +2542,22 @@ export default function GazeObservationApp() {
                                       {(isObserving ||
                                         isPumpAssessmentActive) && (
                                         <div className="mt-2 pt-1 border-t border-gray-600 text-center text-gray-400 text-xs">
-                                          Hover over entries to delete • Click ×
-                                          to clear all
+                                          {persistentQuantityTooltips.has(
+                                            row.id,
+                                          )
+                                            ? "Click anywhere to close • Hover entries to delete • Click × to clear all"
+                                            : "Click to keep open • Hover entries to delete • Click × to clear all"}
                                         </div>
                                       )}
 
                                       {/* Arrow pointer */}
-                                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                                      <div
+                                        className={`absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent ${
+                                          persistentQuantityTooltips.has(row.id)
+                                            ? "border-b-blue-800"
+                                            : "border-b-gray-800"
+                                        }`}
+                                      ></div>
                                     </div>
                                   )}
                               </td>
