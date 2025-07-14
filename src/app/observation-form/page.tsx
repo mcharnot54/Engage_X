@@ -1768,6 +1768,7 @@ export default function GazeObservationApp() {
                               value={standard}
                               onChange={(e) => {
                                 setStandard(e.target.value);
+                                setIsExplicitStandardSelection(true);
                                 setShowStandardDropdown(false);
                               }}
                               className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
