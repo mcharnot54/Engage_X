@@ -2370,7 +2370,7 @@ export default function GazeObservationApp() {
                                     0 ||
                                     row.quantity > 0) && (
                                     <div
-                                      className="absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto"
+                                      className="absolute z-[9999] bg-gray-800 text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto opacity-100"
                                       style={{
                                         top: "100%",
                                         left: "50%",
