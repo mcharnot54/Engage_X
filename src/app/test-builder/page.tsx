@@ -35,6 +35,29 @@ export default function TestBuilderPage() {
       setContentTest(content);
       console.log("Content search result:", content);
 
+      // Test responsive configuration
+      console.log("Testing responsive configuration...");
+      const responsive = {
+        isInitialized: !!builder.apiKey,
+        breakpoints: {
+          mobile: 480,
+          tablet: 768,
+          desktop: 1024,
+        },
+        currentDevice:
+          typeof window !== "undefined"
+            ? window.innerWidth <= 480
+              ? "mobile"
+              : window.innerWidth <= 768
+                ? "tablet"
+                : "desktop"
+            : "unknown",
+        viewportWidth: typeof window !== "undefined" ? window.innerWidth : 0,
+        userAttributes: builder.userAttributes || {},
+      };
+      setResponsiveTest(responsive);
+      console.log("Responsive test result:", responsive);
+
       setLoading(false);
     };
 
