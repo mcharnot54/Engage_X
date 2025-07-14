@@ -1839,7 +1839,7 @@ export default function GazeObservationApp() {
                     }
                   }}
                   disabled={isObserving}
-                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70"
+                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 h-12"
                 >
                   <option value="">Select Observation Reason</option>
                   {observationReasons.map((reason) => (
