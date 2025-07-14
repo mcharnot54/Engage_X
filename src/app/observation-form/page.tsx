@@ -3320,6 +3320,148 @@ export default function GazeObservationApp() {
                   </div>
                 )}
 
+              {/* Previous Version Notes */}
+              {selectedStandardData.versions &&
+                selectedStandardData.versions.length > 1 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Previous Version Notes
+                    </h3>
+                    {(() => {
+                      const sortedVersions = [
+                        ...selectedStandardData.versions!,
+                      ].sort((a, b) => b.version - a.version);
+                      const previousVersion = sortedVersions[1];
+
+                      return (
+                        <div className="space-y-4">
+                          {/* Previous Version */}
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <h4 className="font-medium text-gray-800 mb-2">
+                              Version {previousVersion.version} Notes
+                            </h4>
+                            <p className="text-sm text-gray-600 mb-2">
+                              <strong>Date:</strong>{" "}
+                              {new Date(
+                                previousVersion.createdAt,
+                              ).toLocaleDateString()}
+                            </p>
+                            {previousVersion.versionNotes ? (
+                              <div className="text-sm text-gray-700">
+                                <strong>Notes:</strong>
+                                <div className="mt-1 whitespace-pre-wrap bg-white p-2 rounded border">
+                                  {previousVersion.versionNotes}
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500 italic">
+                                No notes available for this version.
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Changes Summary */}
+                          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                            <h4 className="font-medium text-orange-800 mb-2">
+                              What Changed in Current Version
+                            </h4>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex items-start gap-2">
+                                <span className="text-orange-600 font-medium">
+                                  •
+                                </span>
+                                <span className="text-orange-700">
+                                  Standard details may have been modified
+                                </span>
+                              </div>
+                              {selectedStandardData.uomEntries &&
+                                selectedStandardData.uomEntries.length > 0 && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-orange-600 font-medium">
+                                      •
+                                    </span>
+                                    <span className="text-orange-700">
+                                      UOM entries updated (
+                                      {selectedStandardData.uomEntries.length}{" "}
+                                      total entries)
+                                    </span>
+                                  </div>
+                                )}
+                              {selectedStandardData.bestPractices &&
+                                selectedStandardData.bestPractices.length >
+                                  0 && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-orange-600 font-medium">
+                                      •
+                                    </span>
+                                    <span className="text-orange-700">
+                                      Best practices modified (
+                                      {
+                                        selectedStandardData.bestPractices
+                                          .length
+                                      }{" "}
+                                      practices)
+                                    </span>
+                                  </div>
+                                )}
+                              {selectedStandardData.processOpportunities &&
+                                selectedStandardData.processOpportunities
+                                  .length > 0 && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-orange-600 font-medium">
+                                      •
+                                    </span>
+                                    <span className="text-orange-700">
+                                      Process opportunities updated (
+                                      {
+                                        selectedStandardData
+                                          .processOpportunities.length
+                                      }{" "}
+                                      opportunities)
+                                    </span>
+                                  </div>
+                                )}
+                            </div>
+                          </div>
+
+                          {/* Version History List */}
+                          {sortedVersions.length > 2 && (
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                              <h4 className="font-medium text-gray-800 mb-2">
+                                All Versions ({sortedVersions.length} total)
+                              </h4>
+                              <div className="space-y-1 max-h-32 overflow-y-auto">
+                                {sortedVersions.map((version, index) => (
+                                  <div
+                                    key={version.id}
+                                    className="flex justify-between items-center text-sm"
+                                  >
+                                    <span
+                                      className={`font-medium ${
+                                        index === 0
+                                          ? "text-blue-600"
+                                          : "text-gray-600"
+                                      }`}
+                                    >
+                                      Version {version.version}{" "}
+                                      {index === 0 && "(Current)"}
+                                    </span>
+                                    <span className="text-gray-500">
+                                      {new Date(
+                                        version.createdAt,
+                                      ).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
               {/* Close Button */}
               <div className="flex justify-end pt-4 border-t border-gray-200">
                 <button
