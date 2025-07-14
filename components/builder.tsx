@@ -152,5 +152,5 @@ export default function BuilderContentComponent(props: {
         ? undefined
         : content;
 
-  return <BuilderComponent model={model} content={safeContent} />;
+  return <BuilderComponent model={model} content={safeContent as any} />;
 }

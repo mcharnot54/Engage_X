@@ -716,13 +716,24 @@ export default function Standards() {
     setProcessOpportunities(newOpportunities);
   };
 
-  const handleEditStandard = (standard: Standard) => {
+  const handleEditStandard = async (standard: Standard) => {
     setEditingStandard(standard);
 
     // Populate form with current standard data
-    setSelectedOrganization(
-      standard.facility.organization?.id?.toString() || "",
-    );
+    const organizationId = standard.facility.organization?.id?.toString() || "";
+    setSelectedOrganization(organizationId);
+
+    // Load dependent data
+    if (organizationId) {
+      await loadFacilities(Number(organizationId));
+    }
+    if (standard.facilityId) {
+      await loadDepartments(standard.facilityId);
+    }
+    if (standard.departmentId) {
+      await loadAreas(standard.departmentId);
+    }
+
     setSelectedFacility(standard.facilityId.toString());
     setSelectedDepartment(standard.departmentId.toString());
     setSelectedArea(standard.areaId.toString());
@@ -792,6 +803,7 @@ export default function Standards() {
             bestPractices: validBestPractices,
             processOpportunities: validProcessOpportunities,
             uomEntries: uomData,
+            notes: standardNotes.trim(),
             versionNotes: editVersionNotes,
             createdBy: "current_user", // You can replace this with actual user data
           },
@@ -1810,8 +1822,43 @@ export default function Standards() {
                     />
                   </div>
 
+                  {/* Standard Notes */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Standard Notes <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      placeholder="Enter notes and comments for this standard..."
+                      value={standardNotes}
+                      onChange={(e) => setStandardNotes(e.target.value)}
+                      disabled={isLoading}
+                      rows={4}
+                      className="w-full p-3 rounded-md border border-gray-300 bg-white disabled:opacity-50 resize-vertical"
+                      required
+                    />
+                  </div>
+
                   {/* Location Selection */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Organization
+                      </label>
+                      <select
+                        value={selectedOrganization}
+                        onChange={(e) =>
+                          setSelectedOrganization(e.target.value)
+                        }
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Organization</option>
+                        {organizations.map((organization) => (
+                          <option key={organization.id} value={organization.id}>
+                            {organization.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Facility
@@ -1819,7 +1866,8 @@ export default function Standards() {
                       <select
                         value={selectedFacility}
                         onChange={(e) => setSelectedFacility(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        disabled={!selectedOrganization}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="">Select Facility</option>
                         {facilities.map((facility) => (
@@ -1836,7 +1884,8 @@ export default function Standards() {
                       <select
                         value={selectedDepartment}
                         onChange={(e) => setSelectedDepartment(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        disabled={!selectedFacility}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="">Select Department</option>
                         {departments.map((department) => (
@@ -1853,7 +1902,8 @@ export default function Standards() {
                       <select
                         value={selectedArea}
                         onChange={(e) => setSelectedArea(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        disabled={!selectedDepartment}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="">Select Area</option>
                         {areas.map((area) => (
@@ -1917,6 +1967,103 @@ export default function Standards() {
                               }
                               className="w-full p-2 rounded-md border border-gray-300 bg-white"
                             />
+                          </div>
+
+                          {/* Tag Management */}
+                          <div className="space-y-3">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Tags (for dynamic grouping)
+                            </label>
+
+                            {/* Existing Tags */}
+                            <div className="flex flex-wrap gap-2 min-h-[32px]">
+                              {(entry.tags || []).map((tag, tagIndex) => (
+                                <span
+                                  key={tagIndex}
+                                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                                >
+                                  {tag}
+                                  <button
+                                    onClick={() =>
+                                      removeTagFromUomEntry(entry.id, tag)
+                                    }
+                                    disabled={isLoading}
+                                    className="ml-1 text-blue-500 hover:text-blue-700 disabled:opacity-50"
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              ))}
+                              {(entry.tags || []).length === 0 && (
+                                <span className="text-gray-400 text-sm italic">
+                                  No tags assigned
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Add Tag Input */}
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                placeholder="Add tag (e.g., Assembly, Quality, Packaging)"
+                                disabled={isLoading}
+                                className="flex-1 p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    const target = e.target as HTMLInputElement;
+                                    addTagToUomEntry(
+                                      entry.id,
+                                      target.value.trim(),
+                                    );
+                                    target.value = "";
+                                  }
+                                }}
+                              />
+                              <button
+                                onClick={(e) => {
+                                  const input = e.currentTarget
+                                    .previousElementSibling as HTMLInputElement;
+                                  addTagToUomEntry(
+                                    entry.id,
+                                    input.value.trim(),
+                                  );
+                                  input.value = "";
+                                }}
+                                disabled={isLoading}
+                                className="px-3 py-2 bg-blue-500 text-white border-none rounded-md cursor-pointer disabled:opacity-50"
+                              >
+                                Add
+                              </button>
+                            </div>
+
+                            {/* Existing Tags Suggestions */}
+                            {getAllExistingTags().length > 0 && (
+                              <div className="space-y-2">
+                                <span className="text-xs text-gray-600">
+                                  Existing tags (click to add):
+                                </span>
+                                <div className="flex flex-wrap gap-1">
+                                  {getAllExistingTags()
+                                    .filter(
+                                      (tag) =>
+                                        !(entry.tags || []).includes(tag),
+                                    )
+                                    .map((tag) => (
+                                      <button
+                                        key={tag}
+                                        onClick={() =>
+                                          addTagToUomEntry(entry.id, tag)
+                                        }
+                                        disabled={isLoading}
+                                        className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs border border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+                                      >
+                                        + {tag}
+                                      </button>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}

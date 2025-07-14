@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { UserProfile } from "./UserProfile";
 
 interface SidebarMenuItem {
   label: string;
@@ -31,6 +32,40 @@ export function Sidebar({
   className = "",
 }: SidebarProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [showUserProfileModal, setShowUserProfileModal] = useState(false);
+
+  // Default admin user - Mark Charnot as System Administrator
+  const [currentUser, setCurrentUser] = useState({
+    id: "admin-001",
+    name: "Mark Charnot",
+    email: "mark.charnot@company.com",
+    employeeId: "EMP001",
+    department: "Administration",
+    role: "System Administrator",
+    phoneNumber: "(555) 123-4567",
+    profilePicture:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=96&h=96&fit=crop&crop=face",
+    isActive: true,
+  });
+
+  const handleUserProfileSave = async (userData: any) => {
+    try {
+      // Here you would typically save to your API
+      // For now, we'll just update the local state
+      setCurrentUser(userData);
+      console.log("User profile updated:", userData);
+
+      // You could add an API call here:
+      // const response = await fetch('/api/users/profile', {
+      //   method: 'PUT',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(userData)
+      // });
+    } catch (error) {
+      console.error("Error saving user profile:", error);
+      throw error;
+    }
+  };
 
   return (
     <div
@@ -148,33 +183,49 @@ export function Sidebar({
           className={`${!isSidebarCollapsed ? "border-t border-gray-200" : ""} pt-4`}
         >
           <div
-            className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "gap-3"} mb-3`}
+            className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "gap-3"} mb-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors`}
+            onClick={() => setShowUserProfileModal(true)}
           >
             <div
               className={`${isSidebarCollapsed ? "w-8 h-8" : "w-12 h-12"} rounded-full bg-red-100 flex items-center justify-center overflow-hidden`}
             >
-              <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=96&h=96&fit=crop&crop=face"
-                alt="User Profile"
-                className="w-full h-full object-cover"
-              />
+              {currentUser.profilePicture ? (
+                <img
+                  src={currentUser.profilePicture}
+                  alt="User Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-lg font-semibold text-red-600">
+                  {currentUser.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
+                </span>
+              )}
             </div>
             {!isSidebarCollapsed && (
               <div className="flex-1">
                 <div className="font-semibold text-gray-800 text-sm">
-                  John Smith
+                  {currentUser.name}
                 </div>
-                <a
-                  href="/profile"
-                  className="text-xs text-red-600 hover:text-red-800 transition-colors cursor-pointer"
-                >
-                  View Profile
-                </a>
+                <div className="text-xs text-red-600 hover:text-red-800 transition-colors">
+                  {currentUser.role}
+                </div>
               </div>
             )}
           </div>
         </div>
       )}
+
+      {/* User Profile Modal */}
+      <UserProfile
+        isOpen={showUserProfileModal}
+        onClose={() => setShowUserProfileModal(false)}
+        userData={currentUser}
+        onSave={handleUserProfileSave}
+      />
     </div>
   );
 }

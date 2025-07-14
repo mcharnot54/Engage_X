@@ -6,8 +6,9 @@ import {
   Builder,
   BuilderComponent,
   useIsPreviewing,
-  type BuilderContent,
 } from "@builder.io/react";
+
+import type { BuilderContent } from "@builder.io/sdk";
 
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -97,7 +98,7 @@ export default function BuilderContent(props: {
   return (
     <BuilderComponent
       model={model}
-      content={content || undefined} /* never pass null */
+      content={content as any} /* Type assertion for compatibility */
     />
   );
 }
