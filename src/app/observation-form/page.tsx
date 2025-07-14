@@ -534,6 +534,7 @@ export default function GazeObservationApp() {
     setHighlightedTagGroup(new Set());
     setActiveRowIds(new Set());
     setIsDynamicGroupingActive(false);
+    setIsExplicitStandardSelection(false);
   };
 
   const getSelectedStandardDisplay = () => {
