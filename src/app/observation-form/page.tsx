@@ -828,7 +828,7 @@ export default function GazeObservationApp() {
     }));
   };
 
-  const calculateTotalSams = () => {
+  const calculateTotalSams = useCallback(() => {
     const total = rows.reduce(
       (sum, row) =>
         sum +
@@ -836,7 +836,7 @@ export default function GazeObservationApp() {
       0,
     );
     setTotalSams(total);
-  };
+  }, [rows, submittedQuantities]);
 
   // Delay timer functionality
   const startDelay = () => {
