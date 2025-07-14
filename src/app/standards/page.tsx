@@ -716,13 +716,24 @@ export default function Standards() {
     setProcessOpportunities(newOpportunities);
   };
 
-  const handleEditStandard = (standard: Standard) => {
+  const handleEditStandard = async (standard: Standard) => {
     setEditingStandard(standard);
 
     // Populate form with current standard data
-    setSelectedOrganization(
-      standard.facility.organization?.id?.toString() || "",
-    );
+    const organizationId = standard.facility.organization?.id?.toString() || "";
+    setSelectedOrganization(organizationId);
+
+    // Load dependent data
+    if (organizationId) {
+      await loadFacilities(Number(organizationId));
+    }
+    if (standard.facilityId) {
+      await loadDepartments(standard.facilityId);
+    }
+    if (standard.departmentId) {
+      await loadAreas(standard.departmentId);
+    }
+
     setSelectedFacility(standard.facilityId.toString());
     setSelectedDepartment(standard.departmentId.toString());
     setSelectedArea(standard.areaId.toString());
