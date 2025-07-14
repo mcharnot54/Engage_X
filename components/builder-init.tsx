@@ -6,8 +6,9 @@ import {
   Builder,
   BuilderComponent,
   useIsPreviewing,
-  type BuilderContent,
 } from "@builder.io/react";
+
+import type { BuilderContent } from "@builder.io/sdk";
 
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
