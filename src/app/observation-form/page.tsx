@@ -2990,128 +2990,68 @@ export default function GazeObservationApp() {
               >
                 ×
               </button>
-              <h2 className="text-2xl mb-6 text-red-600">
-                {observationReason === "performance" &&
-                  "Performance Review Instructions"}
-                {observationReason === "training" &&
-                  "Training Assessment Instructions"}
-                {observationReason === "incident" &&
-                  "Incident Follow-up Instructions"}
-                {observationReason === "routine" &&
-                  "Routine Check Instructions"}
-              </h2>
+              {(() => {
+                const reason = observationReasons.find(
+                  (r) => r.name === observationReason,
+                );
+                return (
+                  <>
+                    <h2 className="text-2xl mb-6 text-red-600">
+                      {reason?.name || observationReason}
+                    </h2>
 
-              <div className="flex flex-col gap-6">
-                {observationReason === "performance" && (
-                  <div>
-                    <h3 className="text-lg mb-4">Purpose:</h3>
-                    <ul className="pl-5 leading-relaxed">
-                      <li>
-                        Evaluate current performance levels against established
-                        standards
-                      </li>
-                      <li>
-                        Identify areas of excellence and opportunities for
-                        improvement
-                      </li>
-                      <li>Document performance trends and patterns</li>
-                      <li>Provide basis for coaching and development plans</li>
-                    </ul>
-                    <h3 className="text-lg my-4">
-                      Leader Interaction Guidelines:
-                    </h3>
-                    <ul className="pl-5 leading-relaxed">
-                      <li>
-                        Begin with a brief explanation of the observation
-                        purpose
-                      </li>
-                      <li>
-                        Maintain a neutral, professional demeanor throughout
-                      </li>
-                      <li>
-                        Take detailed notes on specific behaviors and actions
-                      </li>
-                      <li>
-                        Schedule immediate follow-up discussion to share
-                        feedback
-                      </li>
-                      <li>Focus on objective data and specific examples</li>
-                    </ul>
-                  </div>
-                )}
+                    <div className="flex flex-col gap-6">
+                      {reason?.description && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                            Description:
+                          </h3>
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <p className="text-gray-700 leading-relaxed">
+                              {reason.description}
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                {observationReason === "training" && (
-                  <div>
-                    <h3 className="text-lg mb-4">Purpose:</h3>
-                    <ul className="pl-5 leading-relaxed">
-                      <li>Assess understanding and application of training</li>
-                      <li>Identify knowledge gaps or skill deficiencies</li>
-                      <li>Validate training effectiveness</li>
-                      <li>Determine need for additional support or practice</li>
-                    </ul>
-                    <h3 className="text-lg my-4">
-                      Leader Interaction Guidelines:
-                    </h3>
-                    <ul className="pl-5 leading-relaxed">
-                      <li>Create a supportive, learning-focused environment</li>
-                      <li>
-                        Ask questions to gauge understanding of procedures
-                      </li>
-                      <li>
-                        Provide immediate coaching when opportunities arise
-                      </li>
-                      <li>Document specific training needs identified</li>
-                      <li>Encourage questions and open dialogue</li>
-                    </ul>
-                  </div>
-                )}
+                      {reason?.purpose && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4 text-blue-800">
+                            Purpose:
+                          </h3>
+                          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                            <div className="text-blue-700 leading-relaxed whitespace-pre-wrap">
+                              {reason.purpose}
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
-                {observationReason === "incident" && (
-                  <div>
-                    <h3 className="text-lg mb-4">Purpose:</h3>
-                    <ul className="pl-5 leading-relaxed">
-                      <li>Verify corrective actions have been implemented</li>
-                      <li>Ensure safe work practices are being followed</li>
-                      <li>Monitor for recurring issues or concerns</li>
-                      <li>Provide additional support if needed</li>
-                    </ul>
-                    <h3 className="text-lg my-4">
-                      Leader Interaction Guidelines:
-                    </h3>
-                    <ul className="pl-5 leading-relaxed">
-                      <li>Approach with empathy and understanding</li>
-                      <li>Focus on safety and procedural compliance</li>
-                      <li>Document adherence to corrective actions</li>
-                      <li>Address any concerns or barriers immediately</li>
-                      <li>Reinforce positive behaviors observed</li>
-                    </ul>
-                  </div>
-                )}
+                      {reason?.leaderActionGuidelines && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4 text-green-800">
+                            Leader Action Guidelines:
+                          </h3>
+                          <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                            <div className="text-green-700 leading-relaxed whitespace-pre-wrap">
+                              {reason.leaderActionGuidelines}
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
-                {observationReason === "routine" && (
-                  <div>
-                    <h3 className="text-lg mb-4">Purpose:</h3>
-                    <ul className="pl-5 leading-relaxed">
-                      <li>Maintain regular oversight of operations</li>
-                      <li>Identify emerging trends or issues</li>
-                      <li>Ensure consistent application of standards</li>
-                      <li>Recognize excellent performance</li>
-                    </ul>
-                    <h3 className="text-lg my-4">
-                      Leader Interaction Guidelines:
-                    </h3>
-                    <ul className="pl-5 leading-relaxed">
-                      <li>Maintain routine, non-intrusive observation</li>
-                      <li>Document both positive and improvement areas</li>
-                      <li>Use opportunity for informal coaching</li>
-                      <li>
-                        Build rapport and trust through regular interaction
-                      </li>
-                      <li>Celebrate achievements and progress</li>
-                    </ul>
-                  </div>
-                )}
-              </div>
+                      {!reason && (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500 italic">
+                            No detailed information available for this
+                            observation reason.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
