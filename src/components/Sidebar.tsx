@@ -32,6 +32,40 @@ export function Sidebar({
   className = "",
 }: SidebarProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [showUserProfileModal, setShowUserProfileModal] = useState(false);
+
+  // Default admin user - Mark Charnot as System Administrator
+  const [currentUser, setCurrentUser] = useState({
+    id: "admin-001",
+    name: "Mark Charnot",
+    email: "mark.charnot@company.com",
+    employeeId: "EMP001",
+    department: "Administration",
+    role: "System Administrator",
+    phoneNumber: "(555) 123-4567",
+    profilePicture:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=96&h=96&fit=crop&crop=face",
+    isActive: true,
+  });
+
+  const handleUserProfileSave = async (userData: any) => {
+    try {
+      // Here you would typically save to your API
+      // For now, we'll just update the local state
+      setCurrentUser(userData);
+      console.log("User profile updated:", userData);
+
+      // You could add an API call here:
+      // const response = await fetch('/api/users/profile', {
+      //   method: 'PUT',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(userData)
+      // });
+    } catch (error) {
+      console.error("Error saving user profile:", error);
+      throw error;
+    }
+  };
 
   return (
     <div
