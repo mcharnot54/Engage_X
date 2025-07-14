@@ -1746,7 +1746,7 @@ export default function GazeObservationApp() {
                       !isObserving &&
                       setShowEmployeeDropdown(!showEmployeeDropdown)
                     }
-                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 cursor-pointer flex justify-between items-center ${
+                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 cursor-pointer flex justify-between items-center h-12 ${
                       isObserving
                         ? "opacity-70 cursor-not-allowed"
                         : "hover:bg-gray-50"
