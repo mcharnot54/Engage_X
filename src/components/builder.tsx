@@ -4,8 +4,7 @@
 import {
   builder,
   BuilderComponent,
-  useIsPreviewing,
-  type BuilderContent, // ← add this
+  type BuilderContent,
 } from "@builder.io/react";
 import { useEffect, useState } from "react";
 
@@ -14,6 +13,29 @@ if (typeof window !== "undefined" && !builder.apiKey) {
   const key = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
   if (key) {
     builder.init(key);
+
+    // Configure responsive breakpoints for tablet/mobile views
+    const { Builder } = require("@builder.io/react");
+    Builder.set({
+      canTrack: false,
+      env: process.env.NODE_ENV === "production" ? "production" : "development",
+      hideDefaultBuilderBlocks: ["Image"],
+      customBreakpoints: {
+        mobile: 480,
+        tablet: 768,
+        desktop: 1024,
+      },
+    });
+
+    // Set device attributes based on screen size
+    builder.setUserAttributes({
+      device:
+        window.innerWidth < 480
+          ? "mobile"
+          : window.innerWidth < 768
+            ? "tablet"
+            : "desktop",
+    });
   }
 }
 

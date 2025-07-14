@@ -8,10 +8,13 @@ import {
   searchBuilderContent,
   testBuilderConnection,
 } from "../../../lib/builder-utils";
+import { builder, Builder } from "@builder.io/react";
+import "../../../lib/builder-config";
 
 export default function TestBuilderPage() {
   const [connectionTest, setConnectionTest] = useState<any>(null);
   const [contentTest, setContentTest] = useState<any>(null);
+  const [responsiveTest, setResponsiveTest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,6 +34,29 @@ export default function TestBuilderPage() {
       );
       setContentTest(content);
       console.log("Content search result:", content);
+
+      // Test responsive configuration
+      console.log("Testing responsive configuration...");
+      const responsive = {
+        isInitialized: !!builder.apiKey,
+        breakpoints: {
+          mobile: 480,
+          tablet: 768,
+          desktop: 1024,
+        },
+        currentDevice:
+          typeof window !== "undefined"
+            ? window.innerWidth <= 480
+              ? "mobile"
+              : window.innerWidth <= 768
+                ? "tablet"
+                : "desktop"
+            : "unknown",
+        viewportWidth: typeof window !== "undefined" ? window.innerWidth : 0,
+        userAttributes: builder.userAttributes || {},
+      };
+      setResponsiveTest(responsive);
+      console.log("Responsive test result:", responsive);
 
       setLoading(false);
     };
@@ -123,6 +149,47 @@ export default function TestBuilderPage() {
               <strong>Error:</strong> {contentTest.error}
             </p>
           )}
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">
+          Responsive Configuration Test
+        </h2>
+        <div
+          className={`p-4 rounded-lg ${responsiveTest?.isInitialized ? "bg-green-100" : "bg-red-100"}`}
+        >
+          <p className="mb-2">
+            <strong>Builder Initialized:</strong>{" "}
+            <span
+              className={
+                responsiveTest?.isInitialized
+                  ? "text-green-600"
+                  : "text-red-600"
+              }
+            >
+              {responsiveTest?.isInitialized ? "✓ Yes" : "✗ No"}
+            </span>
+          </p>
+          <p className="mb-2">
+            <strong>Current Device:</strong> {responsiveTest?.currentDevice}
+          </p>
+          <p className="mb-2">
+            <strong>Viewport Width:</strong> {responsiveTest?.viewportWidth}px
+          </p>
+          <p className="mb-2">
+            <strong>Breakpoints:</strong> Mobile ≤{" "}
+            {responsiveTest?.breakpoints?.mobile}px, Tablet ≤{" "}
+            {responsiveTest?.breakpoints?.tablet}px, Desktop &gt;{" "}
+            {responsiveTest?.breakpoints?.desktop}px
+          </p>
+          {responsiveTest?.userAttributes &&
+            Object.keys(responsiveTest.userAttributes).length > 0 && (
+              <p className="mb-2">
+                <strong>User Attributes:</strong>{" "}
+                {JSON.stringify(responsiveTest.userAttributes)}
+              </p>
+            )}
         </div>
       </div>
 

@@ -37,3 +37,41 @@ img:not([alt]) {
     outline: 2px dashed orange !important;
   }
 }
+
+/* Builder.io responsive breakpoints support */
+.builder-content,
+.builder-component {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Ensure proper responsive behavior in Builder.io editor */
+@media (max-width: 480px) {
+  .builder-content {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 768px) and (min-width: 481px) {
+  .builder-content {
+    padding: 0 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .builder-content {
+    padding: 0 32px;
+  }
+}
+
+/* Override any Builder.io styles that might interfere with responsive design */
+.builder-component-wrap {
+  width: 100% !important;
+}
+
+/* Ensure iframe responsiveness in Builder.io editor */
+iframe[src*="builder.io"] {
+  width: 100%;
+  height: 100vh;
+  border: none;
+}

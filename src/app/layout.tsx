@@ -36,6 +36,13 @@ export const metadata: Metadata = {
   description: "PhoenixPGS Observation Management System",
 };
 
+export function generateViewport() {
+  return {
+    width: "device-width",
+    initialScale: 1.0,
+  };
+}
+
 export default function RootLayout({
   children,
 }: {

@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  builder,
-  Builder,
-  BuilderComponent,
-  useIsPreviewing,
-} from "@builder.io/react";
+import { builder, Builder, BuilderComponent } from "@builder.io/react";
 
 import type { BuilderContent } from "@builder.io/sdk";
 
@@ -20,6 +15,30 @@ const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
 
 if (apiKey) {
   builder.init(apiKey);
+
+  // Configure responsive breakpoints for tablet/mobile views
+  Builder.set({
+    canTrack: false,
+    env: process.env.NODE_ENV === "production" ? "production" : "development",
+    hideDefaultBuilderBlocks: ["Image"],
+    customBreakpoints: {
+      mobile: 480,
+      tablet: 768,
+      desktop: 1024,
+    },
+  });
+
+  // Set device attributes based on screen size
+  if (typeof window !== "undefined") {
+    builder.setUserAttributes({
+      device:
+        window.innerWidth < 480
+          ? "mobile"
+          : window.innerWidth < 768
+            ? "tablet"
+            : "desktop",
+    });
+  }
 } else {
   console.warn(
     "NEXT_PUBLIC_BUILDER_API_KEY is not defined — Builder content will not load.",
