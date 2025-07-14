@@ -8,6 +8,8 @@ import {
   searchBuilderContent,
   testBuilderConnection,
 } from "../../../lib/builder-utils";
+import { builder, Builder } from "@builder.io/react";
+import "../../../lib/builder-config";
 
 export default function TestBuilderPage() {
   const [connectionTest, setConnectionTest] = useState<any>(null);
