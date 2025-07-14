@@ -652,10 +652,8 @@ export default function GazeObservationApp() {
         setBestPracticesChecked([]);
         setProcessAdherenceChecked([]);
 
-        // Automatically show standard notes popup if notes exist
-        if (data.notes && data.notes.trim() && !isObserving) {
-          setShowStandardNotes(true);
-        }
+        // Note: Standard notes popup is now only shown when standard is explicitly selected,
+        // not when loading for employee performance data
       }
     } catch (error) {
       console.error("Error loading standard details:", error);
@@ -1389,11 +1387,13 @@ export default function GazeObservationApp() {
 
       if (response.ok) {
         const data = await response.json();
-        const teamMembers = data.users.map((user: any) => ({
-          id: user.id,
-          name: user.name,
-          employeeId: user.employeeId || user.id,
-        }));
+        const teamMembers = data.users.map(
+          (user: { id: string; name: string; employeeId?: string }) => ({
+            id: user.id,
+            name: user.name,
+            employeeId: user.employeeId || user.id,
+          }),
+        );
 
         // If no team members found, add some fallback demo employees
         if (teamMembers.length === 0) {

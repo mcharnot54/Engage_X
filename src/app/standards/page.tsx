@@ -723,20 +723,24 @@ export default function Standards() {
     const organizationId = standard.facility.organization?.id?.toString() || "";
     setSelectedOrganization(organizationId);
 
-    // Load dependent data
+    // Load dependent data in sequence and wait for each to complete
     if (organizationId) {
       await loadFacilities(Number(organizationId));
-    }
-    if (standard.facilityId) {
-      await loadDepartments(standard.facilityId);
-    }
-    if (standard.departmentId) {
-      await loadAreas(standard.departmentId);
+      // Set facility selection after facilities are loaded
+      setSelectedFacility(standard.facilityId.toString());
     }
 
-    setSelectedFacility(standard.facilityId.toString());
-    setSelectedDepartment(standard.departmentId.toString());
-    setSelectedArea(standard.areaId.toString());
+    if (standard.facilityId) {
+      await loadDepartments(standard.facilityId);
+      // Set department selection after departments are loaded
+      setSelectedDepartment(standard.departmentId.toString());
+    }
+
+    if (standard.departmentId) {
+      await loadAreas(standard.departmentId);
+      // Set area selection after areas are loaded
+      setSelectedArea(standard.areaId.toString());
+    }
     setStandardName(standard.name);
     setStandardNotes(standard.notes || "");
     setBestPractices(

@@ -346,6 +346,7 @@ export async function createStandardVersion(
     areaId?: number;
     bestPractices?: string[];
     processOpportunities?: string[];
+    notes?: string;
     versionNotes?: string;
     createdBy?: string;
     uomEntries?: {
@@ -399,6 +400,7 @@ export async function createStandardVersion(
         bestPractices: data.bestPractices || originalStandard.bestPractices,
         processOpportunities:
           data.processOpportunities || originalStandard.processOpportunities,
+        notes: data.notes || originalStandard.notes,
         version: newVersion,
         baseStandardId: baseId,
         isCurrentVersion: true,
