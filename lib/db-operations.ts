@@ -511,6 +511,17 @@ export async function createUser(data: {
   isActive?: boolean;
   externalSource?: string;
   lastSyncAt?: Date;
+  startDate?: Date;
+  isNewEmployee?: boolean;
+  newEmployeePeriodDays?: number;
+  observationGoalPerDay?: number;
+  observationGoalPerWeek?: number;
+  observationGoalPerMonth?: number;
+  observationGoalPerQuarter?: number;
+  observationGoalPerYear?: number;
+  observationReceiveGoalPeriod?: string;
+  observationReceiveGoalCount?: number;
+  userType?: string;
 }) {
   return prisma.user.create({
     data,
@@ -537,6 +548,17 @@ export async function updateUser(
     isActive?: boolean;
     externalSource?: string;
     lastSyncAt?: Date;
+    startDate?: Date;
+    isNewEmployee?: boolean;
+    newEmployeePeriodDays?: number;
+    observationGoalPerDay?: number;
+    observationGoalPerWeek?: number;
+    observationGoalPerMonth?: number;
+    observationGoalPerQuarter?: number;
+    observationGoalPerYear?: number;
+    observationReceiveGoalPeriod?: string;
+    observationReceiveGoalCount?: number;
+    userType?: string;
   },
 ) {
   return prisma.user.update({

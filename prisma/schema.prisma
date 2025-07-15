@@ -8,23 +8,36 @@ datasource db {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  employeeId     String        @unique
-  name           String
-  email          String?
-  department     String?
-  role           String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  roleId         String?
-  employeeNumber String?
-  externalSource String?
-  isActive       Boolean       @default(true)
-  lastSyncAt     DateTime?
-  organizationid Int?
-  observations   Observation[]
-  user_roles     UserRole[]
-  roles          Role?         @relation(fields: [roleId], references: [id])
+  id                            String                @id @default(cuid())
+  employeeId                    String                @unique
+  name                          String
+  email                         String?
+  department                    String?
+  role                          String?
+  createdAt                     DateTime              @default(now())
+  updatedAt                     DateTime              @updatedAt
+  roleId                        String?
+  employeeNumber                String?
+  externalSource                String?
+  isActive                      Boolean               @default(true)
+  lastSyncAt                    DateTime?
+  organizationid                Int?
+  startDate                     DateTime?
+  isNewEmployee                 Boolean               @default(false)
+  newEmployeePeriodDays         Int?                  @default(90)
+  observationGoalPerDay         Int?                  @default(0)
+  observationGoalPerWeek        Int?                  @default(0)
+  observationGoalPerMonth       Int?                  @default(0)
+  observationGoalPerQuarter     Int?                  @default(0)
+  observationGoalPerYear        Int?                  @default(0)
+  observationReceiveGoalPeriod  String?               @default("month")
+  observationReceiveGoalCount   Int?                  @default(4)
+  userType                      String?               @default("Team Member")
+  observations                  Observation[]
+  user_roles                    UserRole[]
+  roles                         Role?                 @relation(fields: [roleId], references: [id])
+  scheduledObservations         ScheduledObservation[]
+  createdScheduledObservations  ScheduledObservation[] @relation("CreatedBy")
 
   @@map("users")
 }
@@ -100,13 +113,14 @@ model Standard {
   versionNotes         String?
   createdBy            String?
   notes                String        @default("No notes provided")
-  observations         Observation[]
-  area                 Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  baseStandard         Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id])
-  versions             Standard[]    @relation("StandardVersions")
-  department           Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  facility             Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
-  uomEntries           UomEntry[]
+    observations           Observation[]
+  scheduledObservations  ScheduledObservation[]
+  area                   Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  baseStandard           Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id])
+  versions               Standard[]    @relation("StandardVersions")
+  department             Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  facility               Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  uomEntries             UomEntry[]
 
   @@map("standards")
 }
@@ -252,4 +266,23 @@ model ObservationReason {
   externalApiUrl          String?
 
   @@map("observation_reasons")
+}
+
+model ScheduledObservation {
+  id            String   @id @default(cuid())
+  userId        String
+  standardId    Int
+  scheduledDate DateTime
+  scheduledTime String
+  notes         String?
+  isCompleted   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  standard      Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  creator       User     @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("scheduled_observations")
 }
