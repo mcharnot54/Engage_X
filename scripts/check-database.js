@@ -19,7 +19,7 @@ async function checkDatabase() {
         _count: {
           select: {
             rolePermissions: true,
-            userRoles: true,
+            user_roles: true,
           },
         },
       },
@@ -27,7 +27,7 @@ async function checkDatabase() {
     console.log(`\n🎭 Roles: ${roles.length}`);
     roles.forEach((role) => {
       console.log(
-        `  - ${role.name} (${role.description || "No description"}) - ${role._count.rolePermissions} permissions, ${role._count.userRoles} users`,
+        `  - ${role.name} (${role.description || "No description"}) - ${role._count.rolePermissions} permissions, ${role._count.user_roles} users`,
       );
     });
 
@@ -35,7 +35,7 @@ async function checkDatabase() {
     const permissions = await prisma.permission.findMany();
     console.log(`\n🔐 Permissions: ${permissions.length}`);
     permissions.slice(0, 10).forEach((perm) => {
-      console.log(`  - ${perm.name} (${perm.resource}.${perm.action})`);
+      console.log(`  - ${perm.name} (${perm.module}.${perm.action})`);
     });
     if (permissions.length > 10) {
       console.log(`  ... and ${permissions.length - 10} more`);
@@ -53,16 +53,16 @@ async function checkDatabase() {
     // Check users
     const users = await prisma.user.findMany({
       include: {
-        userRoles: {
+        user_roles: {
           include: {
-            role: true,
+            roles: true,
           },
         },
       },
     });
     console.log(`\n👥 Users: ${users.length}`);
     users.forEach((user) => {
-      const roleNames = user.userRoles.map((ur) => ur.role.name).join(", ");
+      const roleNames = user.user_roles.map((ur) => ur.roles.name).join(", ");
       console.log(
         `  - ${user.name} (${user.employeeId}) - Roles: ${roleNames || "None"}`,
       );
@@ -75,6 +75,12 @@ async function checkDatabase() {
     // Check standards
     const standards = await prisma.standard.findMany();
     console.log(`📋 Standards: ${standards.length}`);
+
+    // Check goals
+    const goals = await prisma.goal.findMany();
+    console.log(`🎯 Goals: ${goals.length}`);
+
+    console.log("\n✅ Database check completed successfully!");
   } catch (error) {
     console.error("❌ Error checking database:", error);
   } finally {
