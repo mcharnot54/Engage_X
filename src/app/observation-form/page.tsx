@@ -2456,18 +2456,15 @@ export default function GazeObservationApp() {
 
                                   {/* Clear All Button - only show if there are quantities to clear */}
                                   {(row.quantity > 0 ||
-                                    (submittedQuantities[row.id] || 0) > 0) &&
-                                    (isObserving || isPumpAssessmentActive) && (
-                                      <button
-                                        onClick={() =>
-                                          clearAllQuantities(row.id)
-                                        }
-                                        className="ml-1 p-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors w-5 h-5 flex items-center justify-center text-xs"
-                                        title="Clear all quantities"
-                                      >
-                                        ×
-                                      </button>
-                                    )}
+                                    (submittedQuantities[row.id] || 0) > 0) && (
+                                    <button
+                                      onClick={() => clearAllQuantities(row.id)}
+                                      className="ml-1 p-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors w-5 h-5 flex items-center justify-center text-xs"
+                                      title="Clear all quantities"
+                                    >
+                                      ×
+                                    </button>
+                                  )}
                                 </div>
 
                                 {/* Hover/Persistent Tooltip */}
