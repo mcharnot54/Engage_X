@@ -3218,6 +3218,123 @@ export default function GazeObservationApp() {
         </div>
       )}
 
+      {/* Observation Details Modal */}
+      {showObservationDetailsModal && selectedObservationDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              {/* Header with close button */}
+              <div className="flex justify-between items-center mb-4 border-b border-gray-200 pb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Observation Details
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowObservationDetailsModal(false);
+                    setSelectedObservationDetails(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none"
+                  title="Close"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Observation information */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Date
+                    </label>
+                    <div className="text-sm text-gray-900">
+                      {new Date(
+                        selectedObservationDetails.date,
+                      ).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Standard
+                    </label>
+                    <div className="text-sm text-gray-900">
+                      {selectedObservationDetails.standardName}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Observed Performance
+                    </label>
+                    <div className="text-sm text-gray-900">
+                      {selectedObservationDetails.observedPerf}%
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Grade Factor Performance
+                    </label>
+                    <div className="text-sm text-gray-900">
+                      {selectedObservationDetails.gradeFactorPerf}%
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comments section */}
+                {selectedObservationDetails.comments && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Comments
+                    </label>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <div className="text-sm text-gray-800">
+                        {selectedObservationDetails.comments}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Analysis section */}
+                {selectedObservationDetails.aiNotes && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      AI Analysis
+                    </label>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <div className="text-sm text-gray-800">
+                        {selectedObservationDetails.aiNotes}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Empty state */}
+                {!selectedObservationDetails.comments &&
+                  !selectedObservationDetails.aiNotes && (
+                    <div className="text-center py-8">
+                      <div className="text-gray-400 italic">
+                        No comments or analysis available for this observation.
+                      </div>
+                    </div>
+                  )}
+              </div>
+
+              {/* Close button */}
+              <div className="flex justify-end pt-6 border-t border-gray-200 mt-6">
+                <button
+                  onClick={() => {
+                    setShowObservationDetailsModal(false);
+                    setSelectedObservationDetails(null);
+                  }}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Standard Notes Modal */}
       {showStandardNotes && selectedStandardData && (
         <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center">
