@@ -8,6 +8,7 @@ import "./globals.css";
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 export const revalidate = false;
+export const fetchCache = "force-no-store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
