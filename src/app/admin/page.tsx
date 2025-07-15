@@ -95,6 +95,7 @@ function AdminContent() {
               items: [
                 { label: "Users", href: "/admin/users" },
                 { label: "Roles & Permissions", href: "/admin/roles" },
+                { label: "Goals", href: "/admin/goals" },
                 { label: "Observations", href: "/admin/observations" },
               ],
             },
