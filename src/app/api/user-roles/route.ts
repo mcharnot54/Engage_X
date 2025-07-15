@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     const userRole = await createUserRole({
       userId,
-      roleId,
+      roleId: roleId.toString(),
       organizationId: organizationId || undefined,
     });
 
