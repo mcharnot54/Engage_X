@@ -786,8 +786,6 @@ export default function GazeObservationApp() {
 
   // Delete individual submitted quantity entry
   const deleteQuantityEntry = (rowId: number, entryIndex: number) => {
-    if (!isObserving && !isPumpAssessmentActive) return;
-
     const history = quantitySubmissionHistory[rowId] || [];
     if (entryIndex >= 0 && entryIndex < history.length) {
       const entryToDelete = history[entryIndex];
@@ -1002,7 +1000,7 @@ export default function GazeObservationApp() {
       `${trendAnalysis}${specificFeedback}\n\n` +
       `🎯 PUMP ASSESSMENT: Grade Factor ${pumpGradeFactor}%\n${pumpFeedback}\n\n` +
       `✅ BEST PRACTICES: ${practicesFeedback}\n\n` +
-      `��️ PROCESS OPTIMIZATION: ${processFeedback}\n\n` +
+      `����️ PROCESS OPTIMIZATION: ${processFeedback}\n\n` +
       `NEXT STEPS: ` +
       (observedPerf >= 100
         ? `Continue excellent performance standards. Consider advanced technique refinement and knowledge sharing opportunities.`
