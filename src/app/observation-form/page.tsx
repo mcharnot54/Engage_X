@@ -2523,19 +2523,18 @@ export default function GazeObservationApp() {
                                                   • {entry.amount} at{" "}
                                                   {entry.timestamp}
                                                 </span>
-                                                                                                <button
-                                                    onClick={() =>
-                                                      deleteQuantityEntry(
-                                                        row.id,
-                                                        index,
-                                                      )
-                                                    }
-                                                    className="ml-2 p-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100"
-                                                    title="Delete this entry"
-                                                  >
-                                                    ×
-                                                  </button>
-                                                )}
+                                                <button
+                                                  onClick={() =>
+                                                    deleteQuantityEntry(
+                                                      row.id,
+                                                      index,
+                                                    )
+                                                  }
+                                                  className="ml-2 p-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100"
+                                                  title="Delete this entry"
+                                                >
+                                                  ×
+                                                </button>
                                               </div>
                                             ))}
                                           </div>
