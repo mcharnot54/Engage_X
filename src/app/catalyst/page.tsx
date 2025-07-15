@@ -18,6 +18,22 @@ type TeamMember = {
   startDate: string;
 };
 
+type Standard = {
+  id: number;
+  name: string;
+  facility: { name: string };
+  department: { name: string };
+  area: { name: string };
+};
+
+type ObservationReason = {
+  id: string;
+  name: string;
+  description?: string;
+  purpose?: string;
+  leaderActionGuidelines?: string;
+};
+
 type GoalMetrics = {
   totalObservations: number;
   goalObservations: number;
@@ -61,13 +77,41 @@ export default function CatalystPage() {
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
   const [selectedStandard, setSelectedStandard] = useState<string>("");
+  const [selectedObservationReason, setSelectedObservationReason] =
+    useState<string>("");
   const [schedulerNotes, setSchedulerNotes] = useState<string>("");
+
+  // Standards and observation reasons from database
+  const [standards, setStandards] = useState<Standard[]>([]);
+  const [observationReasons, setObservationReasons] = useState<
+    ObservationReason[]
+  >([]);
+
+  // Multi-level standard selection state
+  const [showStandardDropdown, setShowStandardDropdown] = useState(false);
+  const [selectedFacility, setSelectedFacility] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
+
+  // Employee search state
+  const [employees, setEmployees] = useState<
+    Array<{
+      id: string;
+      name: string;
+      employeeId: string;
+    }>
+  >([]);
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
 
   // Load initial data
   useEffect(() => {
     loadGoalMetrics();
     loadPerformanceMetrics();
     loadTeamMembers();
+    loadStandards();
+    loadObservationReasons();
+    loadEmployees();
   }, []);
 
   // Filter team members by department
@@ -122,7 +166,7 @@ export default function CatalystPage() {
       // Get current user ID (for now using a default supervisor)
       const currentUserId = "admin-001"; // This should come from auth context
       const response = await fetch(
-        `/api/catalyst/performance?userId=${currentUserId}&period=month`,
+        `/api/catalyst/supervisor-performance?supervisorId=${currentUserId}&period=month`,
       );
 
       if (response.ok) {
@@ -329,9 +373,10 @@ END:VCALENDAR`;
       !selectedDate ||
       !selectedTime ||
       !selectedEmployee ||
-      !selectedStandard
+      !selectedStandard ||
+      !selectedObservationReason
     ) {
-      alert("Please fill in all required fields");
+      alert("Please fill in all required fields including observation reason");
       return;
     }
 
@@ -347,6 +392,7 @@ END:VCALENDAR`;
           scheduledDate: selectedDate,
           scheduledTime: selectedTime,
           notes: schedulerNotes,
+          observationReason: selectedObservationReason,
           createdBy: "admin-001", // This should come from auth context
         }),
       });
@@ -370,8 +416,148 @@ END:VCALENDAR`;
     setSelectedTime("");
     setSelectedEmployee("");
     setSelectedStandard("");
+    setSelectedObservationReason("");
     setSchedulerNotes("");
+    setSelectedFacility("");
+    setSelectedDepartment("");
+    setSelectedArea("");
+    setEmployeeSearch("");
   };
+
+  // Database loading functions
+  const loadStandards = async () => {
+    try {
+      const response = await fetch("/api/standards");
+      if (response.ok) {
+        const data = await response.json();
+        setStandards(Array.isArray(data) ? data : data.data || []);
+      }
+    } catch (error) {
+      console.error("Error loading standards:", error);
+    }
+  };
+
+  const loadObservationReasons = async () => {
+    try {
+      const response = await fetch("/api/observation-reasons");
+      if (response.ok) {
+        const data = await response.json();
+        setObservationReasons(data);
+      }
+    } catch (error) {
+      console.error("Error loading observation reasons:", error);
+    }
+  };
+
+  const loadEmployees = async () => {
+    try {
+      const response = await fetch("/api/users-tenant?role=Team Member");
+      if (response.ok) {
+        const data = await response.json();
+        const teamMembers = data.users.map(
+          (user: { id: string; name: string; employeeId?: string }) => ({
+            id: user.id,
+            name: user.name,
+            employeeId: user.employeeId || user.id,
+          }),
+        );
+        setEmployees(teamMembers);
+      } else {
+        // Fallback to demo employees if API fails
+        const fallbackEmployees = [
+          { id: "emp001", name: "John Smith", employeeId: "emp001" },
+          { id: "emp002", name: "Sarah Johnson", employeeId: "emp002" },
+          { id: "emp003", name: "Michael Brown", employeeId: "emp003" },
+          { id: "emp004", name: "Lisa Davis", employeeId: "emp004" },
+          { id: "emp005", name: "Robert Wilson", employeeId: "emp005" },
+        ];
+        setEmployees(fallbackEmployees);
+      }
+    } catch (error) {
+      console.error("Error loading employees:", error);
+    }
+  };
+
+  // Helper functions for multi-level dropdown
+  const getUniqueFacilities = () => {
+    return standards
+      .map((std) => ({ name: std.facility.name, id: std.facility.name }))
+      .filter(
+        (facility, index, arr) =>
+          arr.findIndex((f) => f.name === facility.name) === index,
+      );
+  };
+
+  const getUniqueDepartments = (facility?: string) => {
+    return standards
+      .filter((std) => !facility || std.facility.name === facility)
+      .map((std) => ({ name: std.department.name, id: std.department.name }))
+      .filter(
+        (dept, index, arr) =>
+          arr.findIndex((d) => d.name === dept.name) === index,
+      );
+  };
+
+  const getUniqueAreas = (facility?: string, department?: string) => {
+    return standards
+      .filter(
+        (std) =>
+          (!facility || std.facility.name === facility) &&
+          (!department || std.department.name === department),
+      )
+      .map((std) => ({ name: std.area.name, id: std.area.name }))
+      .filter(
+        (area, index, arr) =>
+          arr.findIndex((a) => a.name === area.name) === index,
+      );
+  };
+
+  const getFilteredStandards = () => {
+    return standards.filter(
+      (std) =>
+        (!selectedFacility || std.facility.name === selectedFacility) &&
+        (!selectedDepartment || std.department.name === selectedDepartment) &&
+        (!selectedArea || std.area.name === selectedArea),
+    );
+  };
+
+  const getSelectedStandardDisplay = () => {
+    if (selectedStandard && standards.length > 0) {
+      const selectedStd = standards.find(
+        (s) => s.id === Number(selectedStandard),
+      );
+      if (selectedStd) {
+        return `${selectedStd.name} (${selectedStd.facility.name} / ${selectedStd.department.name} / ${selectedStd.area.name})`;
+      }
+    }
+    return "Select Standard";
+  };
+
+  const resetStandardSelection = () => {
+    setSelectedStandard("");
+    setSelectedFacility("");
+    setSelectedDepartment("");
+    setSelectedArea("");
+    setShowStandardDropdown(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showStandardDropdown && !target.closest(".standard-dropdown")) {
+        setShowStandardDropdown(false);
+      }
+      if (showEmployeeDropdown && !target.closest(".employee-dropdown")) {
+        setShowEmployeeDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showStandardDropdown, showEmployeeDropdown]);
 
   return (
     <div className="font-poppins text-black bg-gray-100 min-h-screen overflow-x-hidden">
@@ -506,7 +692,7 @@ END:VCALENDAR`;
               </div>
 
               {showScheduler && (
-                <div className="bg-white p-4 rounded-lg border">
+                <div className="bg-white p-4 rounded-lg border standard-dropdown">
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -530,38 +716,266 @@ END:VCALENDAR`;
                         className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    <div>
+                    <div className="relative employee-dropdown">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Team Member
+                        Select Employee
                       </label>
-                      <select
-                        value={selectedEmployee}
-                        onChange={(e) => setSelectedEmployee(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      <div
+                        onClick={() =>
+                          setShowEmployeeDropdown(!showEmployeeDropdown)
+                        }
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer flex justify-between items-center bg-white hover:bg-gray-50"
                       >
-                        <option value="">Select Team Member</option>
-                        {teamMembers.map((member) => (
-                          <option key={member.id} value={member.id}>
-                            {member.name} ({member.employeeId})
-                          </option>
-                        ))}
-                      </select>
+                        <span
+                          className={
+                            selectedEmployee ? "text-black" : "text-gray-500"
+                          }
+                        >
+                          {selectedEmployee
+                            ? employees.find(
+                                (emp) => emp.id === selectedEmployee,
+                              )?.name +
+                              ` (${employees.find((emp) => emp.id === selectedEmployee)?.employeeId})`
+                            : "Select Employee"}
+                        </span>
+                        <span
+                          className={`transform transition-transform ${showEmployeeDropdown ? "rotate-180" : ""}`}
+                        >
+                          ▼
+                        </span>
+                      </div>
+
+                      {showEmployeeDropdown && (
+                        <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                          <div className="p-3">
+                            <input
+                              type="text"
+                              placeholder="Search by name or employee ID..."
+                              value={employeeSearch}
+                              onChange={(e) =>
+                                setEmployeeSearch(e.target.value)
+                              }
+                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+                          <div className="max-h-48 overflow-y-auto">
+                            {employees
+                              .filter(
+                                (employee) =>
+                                  employeeSearch === "" ||
+                                  employee.name
+                                    .toLowerCase()
+                                    .includes(employeeSearch.toLowerCase()) ||
+                                  employee.employeeId
+                                    .toLowerCase()
+                                    .includes(employeeSearch.toLowerCase()),
+                              )
+                              .map((employee) => (
+                                <div
+                                  key={employee.id}
+                                  onClick={() => {
+                                    setSelectedEmployee(employee.id);
+                                    setShowEmployeeDropdown(false);
+                                    setEmployeeSearch("");
+                                  }}
+                                  className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                >
+                                  <div className="font-medium">
+                                    {employee.name}
+                                  </div>
+                                  <div className="text-sm text-gray-600">
+                                    {employee.employeeId}
+                                  </div>
+                                </div>
+                              ))}
+                            {employees.filter(
+                              (employee) =>
+                                employeeSearch === "" ||
+                                employee.name
+                                  .toLowerCase()
+                                  .includes(employeeSearch.toLowerCase()) ||
+                                employee.employeeId
+                                  .toLowerCase()
+                                  .includes(employeeSearch.toLowerCase()),
+                            ).length === 0 && (
+                              <div className="p-3 text-gray-500 text-center">
+                                No employees found
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div>
+                    <div className="relative">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Standard
+                        Select Standard
                       </label>
-                      <select
-                        value={selectedStandard}
-                        onChange={(e) => setSelectedStandard(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      <button
+                        onClick={() =>
+                          setShowStandardDropdown(!showStandardDropdown)
+                        }
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-left flex justify-between items-center hover:bg-gray-50 transition-colors bg-white"
                       >
-                        <option value="">Select Standard</option>
-                        <option value="Standard A">Standard A</option>
-                        <option value="Standard B">Standard B</option>
-                        <option value="Standard C">Standard C</option>
-                      </select>
+                        <span
+                          className={
+                            selectedStandard ? "text-black" : "text-gray-500"
+                          }
+                        >
+                          {getSelectedStandardDisplay()}
+                        </span>
+                        <span
+                          className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+                        >
+                          ▼
+                        </span>
+                      </button>
+
+                      {showStandardDropdown && (
+                        <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                          <div className="p-4 space-y-4">
+                            {/* Facility Selection */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                1. Select Facility
+                              </label>
+                              <select
+                                value={selectedFacility}
+                                onChange={(e) => {
+                                  setSelectedFacility(e.target.value);
+                                  setSelectedDepartment("");
+                                  setSelectedArea("");
+                                  setSelectedStandard("");
+                                }}
+                                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              >
+                                <option value="">Choose Facility</option>
+                                {getUniqueFacilities().map((facility) => (
+                                  <option
+                                    key={facility.id}
+                                    value={facility.name}
+                                  >
+                                    {facility.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Department Selection */}
+                            {selectedFacility && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  2. Select Department
+                                </label>
+                                <select
+                                  value={selectedDepartment}
+                                  onChange={(e) => {
+                                    setSelectedDepartment(e.target.value);
+                                    setSelectedArea("");
+                                    setSelectedStandard("");
+                                  }}
+                                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                  <option value="">Choose Department</option>
+                                  {getUniqueDepartments(selectedFacility).map(
+                                    (dept) => (
+                                      <option key={dept.id} value={dept.name}>
+                                        {dept.name}
+                                      </option>
+                                    ),
+                                  )}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Area Selection */}
+                            {selectedDepartment && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  3. Select Area
+                                </label>
+                                <select
+                                  value={selectedArea}
+                                  onChange={(e) => {
+                                    setSelectedArea(e.target.value);
+                                    setSelectedStandard("");
+                                  }}
+                                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                  <option value="">Choose Area</option>
+                                  {getUniqueAreas(
+                                    selectedFacility,
+                                    selectedDepartment,
+                                  ).map((area) => (
+                                    <option key={area.id} value={area.name}>
+                                      {area.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Standard Selection */}
+                            {selectedArea && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  4. Select Standard
+                                </label>
+                                <select
+                                  value={selectedStandard}
+                                  onChange={(e) => {
+                                    setSelectedStandard(e.target.value);
+                                    setShowStandardDropdown(false);
+                                  }}
+                                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                  <option value="">Choose Standard</option>
+                                  {getFilteredStandards().map((std) => (
+                                    <option key={std.id} value={std.id}>
+                                      {std.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-between pt-3 border-t border-gray-200">
+                              <button
+                                onClick={resetStandardSelection}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
+                              >
+                                Clear Selection
+                              </button>
+                              <button
+                                onClick={() => setShowStandardDropdown(false)}
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                              >
+                                Close
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Observation Reason
+                    </label>
+                    <select
+                      value={selectedObservationReason}
+                      onChange={(e) =>
+                        setSelectedObservationReason(e.target.value)
+                      }
+                      className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Observation Reason</option>
+                      {observationReasons.map((reason) => (
+                        <option key={reason.id} value={reason.name}>
+                          {reason.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">

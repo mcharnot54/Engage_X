@@ -9,6 +9,7 @@ interface User {
   name: string;
   email?: string;
   department?: string;
+  departments?: string[];
   role?: string;
   roleId?: string;
   isActive?: boolean;
@@ -26,6 +27,17 @@ interface Organization {
   id: number;
   name: string;
   code: string;
+}
+
+interface Department {
+  id: number;
+  name: string;
+  facility?: {
+    name: string;
+    organization?: {
+      name: string;
+    };
+  };
 }
 
 interface UserManagementModalProps {
@@ -49,12 +61,15 @@ export function UserManagementModal({
     name: "",
     email: "",
     department: "",
+    departments: [],
     roleId: "",
     organizationid: undefined,
     isActive: true,
   });
   const [roles, setRoles] = useState<Role[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -62,7 +77,10 @@ export function UserManagementModal({
     if (isOpen) {
       fetchRoles();
       fetchOrganizations();
+      fetchDepartments();
       if (user && mode === "edit") {
+        const userDepartments =
+          user.departments || (user.department ? [user.department] : []);
         setFormData({
           id: user.id,
           employeeId: user.employeeId,
@@ -70,10 +88,12 @@ export function UserManagementModal({
           name: user.name,
           email: user.email || "",
           department: user.department || "",
+          departments: userDepartments,
           roleId: user.roleId || "",
           organizationid: user.organizationid || undefined,
           isActive: user.isActive !== false,
         });
+        setSelectedDepartments(userDepartments);
       } else {
         setFormData({
           employeeId: "",
@@ -81,10 +101,12 @@ export function UserManagementModal({
           name: "",
           email: "",
           department: "",
+          departments: [],
           roleId: "",
           organizationid: undefined,
           isActive: true,
         });
+        setSelectedDepartments([]);
       }
       setErrors({});
     }
@@ -112,6 +134,27 @@ export function UserManagementModal({
     } catch (error) {
       console.error("Error fetching organizations:", error);
     }
+  };
+
+  const fetchDepartments = async () => {
+    try {
+      const response = await fetch("/api/departments");
+      if (response.ok) {
+        const data = await response.json();
+        setDepartments(data);
+      }
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
+
+  const handleDepartmentChange = (departmentName: string, checked: boolean) => {
+    const updatedDepartments = checked
+      ? [...selectedDepartments, departmentName]
+      : selectedDepartments.filter((d) => d !== departmentName);
+
+    setSelectedDepartments(updatedDepartments);
+    setFormData({ ...formData, departments: updatedDepartments });
   };
 
   const validateForm = () => {
@@ -260,17 +303,49 @@ export function UserManagementModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Department
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Departments (Select multiple)
               </label>
-              <input
-                type="text"
-                value={formData.department}
-                onChange={(e) =>
-                  setFormData({ ...formData, department: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
+              <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md p-3 bg-gray-50">
+                {departments.length === 0 ? (
+                  <p className="text-gray-500 text-sm">
+                    Loading departments...
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {departments.map((dept) => (
+                      <label key={dept.id} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedDepartments.includes(dept.name)}
+                          onChange={(e) =>
+                            handleDepartmentChange(dept.name, e.target.checked)
+                          }
+                          className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                          {dept.name}
+                          {dept.facility && (
+                            <span className="text-gray-500">
+                              {" "}
+                              • {dept.facility.name}
+                              {dept.facility.organization &&
+                                ` • ${dept.facility.organization.name}`}
+                            </span>
+                          )}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selectedDepartments.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600">
+                    Selected: {selectedDepartments.join(", ")}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>
