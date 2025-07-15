@@ -942,21 +942,21 @@ export async function getRecentObservations(limit: number = 10) {
 // User Role operations
 export async function getUserRoles(filters?: {
   userId?: string;
-  roleId?: number;
+  roleId?: string;
   organizationId?: number;
 }) {
   return prisma.userRole.findMany({
     where: {
-      userId: filters?.userId,
-      roleId: filters?.roleId,
-      organizationId: filters?.organizationId,
+      userid: filters?.userId,
+      roleid: filters?.roleId,
+      organizationid: filters?.organizationId,
     },
     include: {
-      user: true,
-      role: true,
-      organization: true,
+      users: true,
+      roles: true,
+      organizations: true,
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdat: "desc" },
   });
 }
 
