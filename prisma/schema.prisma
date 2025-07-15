@@ -8,23 +8,36 @@ datasource db {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  employeeId     String        @unique
-  name           String
-  email          String?
-  department     String?
-  role           String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  roleId         String?
-  employeeNumber String?
-  externalSource String?
-  isActive       Boolean       @default(true)
-  lastSyncAt     DateTime?
-  organizationid Int?
-  observations   Observation[]
-  user_roles     UserRole[]
-  roles          Role?         @relation(fields: [roleId], references: [id])
+  id                            String                @id @default(cuid())
+  employeeId                    String                @unique
+  name                          String
+  email                         String?
+  department                    String?
+  role                          String?
+  createdAt                     DateTime              @default(now())
+  updatedAt                     DateTime              @updatedAt
+  roleId                        String?
+  employeeNumber                String?
+  externalSource                String?
+  isActive                      Boolean               @default(true)
+  lastSyncAt                    DateTime?
+  organizationid                Int?
+  startDate                     DateTime?
+  isNewEmployee                 Boolean               @default(false)
+  newEmployeePeriodDays         Int?                  @default(90)
+  observationGoalPerDay         Int?                  @default(0)
+  observationGoalPerWeek        Int?                  @default(0)
+  observationGoalPerMonth       Int?                  @default(0)
+  observationGoalPerQuarter     Int?                  @default(0)
+  observationGoalPerYear        Int?                  @default(0)
+  observationReceiveGoalPeriod  String?               @default("month")
+  observationReceiveGoalCount   Int?                  @default(4)
+  userType                      String?               @default("Team Member")
+  observations                  Observation[]
+  user_roles                    UserRole[]
+  roles                         Role?                 @relation(fields: [roleId], references: [id])
+  scheduledObservations         ScheduledObservation[]
+  createdScheduledObservations  ScheduledObservation[] @relation("CreatedBy")
 
   @@map("users")
 }
