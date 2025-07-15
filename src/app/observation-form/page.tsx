@@ -3382,49 +3382,91 @@ export default function GazeObservationApp() {
                 </div>
               </div>
 
-              {/* Version History (if available) */}
-              {selectedStandardData.versions &&
-                selectedStandardData.versions.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">
-                      Recent Version Changes
-                    </h3>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      {(() => {
-                        const latestVersion = selectedStandardData.versions![0];
-                        const previousVersion =
-                          selectedStandardData.versions![1];
-
-                        return (
-                          <div>
-                            <h4 className="font-medium text-yellow-800 mb-2">
-                              Latest Change (Version {latestVersion.version})
-                            </h4>
-                            <p className="text-sm text-yellow-700 mb-2">
-                              <strong>Date:</strong>{" "}
-                              {new Date(
-                                latestVersion.createdAt,
-                              ).toLocaleDateString()}
-                            </p>
-                            {latestVersion.versionNotes && (
-                              <div className="text-sm text-yellow-800">
-                                <strong>Change Notes:</strong>
-                                <div className="mt-1 whitespace-pre-wrap">
-                                  {latestVersion.versionNotes}
-                                </div>
-                              </div>
-                            )}
-                            {!latestVersion.versionNotes && (
-                              <p className="text-sm text-yellow-600 italic">
-                                No change notes available for this version.
-                              </p>
-                            )}
+              {/* Version History */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">
+                  Version Information
+                </h3>
+                {selectedStandardData.versions &&
+                selectedStandardData.versions.length > 0 ? (
+                  <div className="space-y-4">
+                    {/* Current Version Info */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-800 mb-2">
+                        Current Version (
+                        {selectedStandardData.versions[0].version})
+                      </h4>
+                      <p className="text-sm text-blue-700 mb-2">
+                        <strong>Date:</strong>{" "}
+                        {new Date(
+                          selectedStandardData.versions[0].createdAt,
+                        ).toLocaleDateString()}
+                      </p>
+                      {selectedStandardData.versions[0].versionNotes && (
+                        <div className="text-sm text-blue-800">
+                          <strong>Version Notes:</strong>
+                          <div className="mt-1 whitespace-pre-wrap bg-white p-2 rounded border">
+                            {selectedStandardData.versions[0].versionNotes}
                           </div>
-                        );
-                      })()}
+                        </div>
+                      )}
+                      {!selectedStandardData.versions[0].versionNotes && (
+                        <p className="text-sm text-blue-600 italic">
+                          No version notes available for current version.
+                        </p>
+                      )}
                     </div>
+
+                    {/* Previous Versions */}
+                    {selectedStandardData.versions.length > 1 && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <h4 className="font-medium text-yellow-800 mb-3">
+                          Previous Versions (
+                          {selectedStandardData.versions.length - 1} total)
+                        </h4>
+                        <div className="space-y-3 max-h-60 overflow-y-auto">
+                          {selectedStandardData.versions
+                            .slice(1)
+                            .map((version, index) => (
+                              <div
+                                key={version.id}
+                                className="bg-white p-3 rounded border border-yellow-300"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <h5 className="font-medium text-yellow-900">
+                                    Version {version.version}
+                                  </h5>
+                                  <span className="text-xs text-yellow-600">
+                                    {new Date(
+                                      version.createdAt,
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                {version.versionNotes ? (
+                                  <div className="text-sm text-yellow-800">
+                                    <div className="whitespace-pre-wrap">
+                                      {version.versionNotes}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-yellow-600 italic">
+                                    No notes for this version.
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p className="text-sm text-gray-600">
+                      No version history available for this standard.
+                    </p>
                   </div>
                 )}
+              </div>
 
               {/* Previous Version Notes */}
               {selectedStandardData.versions &&
