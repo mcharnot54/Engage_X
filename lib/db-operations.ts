@@ -962,15 +962,19 @@ export async function getUserRoles(filters?: {
 
 export async function createUserRole(data: {
   userId: string;
-  roleId: number;
+  roleId: string;
   organizationId?: number;
 }) {
   return prisma.userRole.create({
-    data,
+    data: {
+      userid: data.userId,
+      roleid: data.roleId,
+      organizationid: data.organizationId,
+    },
     include: {
-      user: true,
-      role: true,
-      organization: true,
+      users: true,
+      roles: true,
+      organizations: true,
     },
   });
 }
