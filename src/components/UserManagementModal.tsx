@@ -9,6 +9,7 @@ interface User {
   name: string;
   email?: string;
   department?: string;
+  departments?: string[];
   role?: string;
   roleId?: string;
   isActive?: boolean;
@@ -26,6 +27,17 @@ interface Organization {
   id: number;
   name: string;
   code: string;
+}
+
+interface Department {
+  id: number;
+  name: string;
+  facility?: {
+    name: string;
+    organization?: {
+      name: string;
+    };
+  };
 }
 
 interface UserManagementModalProps {
@@ -49,12 +61,15 @@ export function UserManagementModal({
     name: "",
     email: "",
     department: "",
+    departments: [],
     roleId: "",
     organizationid: undefined,
     isActive: true,
   });
   const [roles, setRoles] = useState<Role[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -62,7 +77,10 @@ export function UserManagementModal({
     if (isOpen) {
       fetchRoles();
       fetchOrganizations();
+      fetchDepartments();
       if (user && mode === "edit") {
+        const userDepartments =
+          user.departments || (user.department ? [user.department] : []);
         setFormData({
           id: user.id,
           employeeId: user.employeeId,
@@ -70,10 +88,12 @@ export function UserManagementModal({
           name: user.name,
           email: user.email || "",
           department: user.department || "",
+          departments: userDepartments,
           roleId: user.roleId || "",
           organizationid: user.organizationid || undefined,
           isActive: user.isActive !== false,
         });
+        setSelectedDepartments(userDepartments);
       } else {
         setFormData({
           employeeId: "",
@@ -81,10 +101,12 @@ export function UserManagementModal({
           name: "",
           email: "",
           department: "",
+          departments: [],
           roleId: "",
           organizationid: undefined,
           isActive: true,
         });
+        setSelectedDepartments([]);
       }
       setErrors({});
     }
@@ -112,6 +134,27 @@ export function UserManagementModal({
     } catch (error) {
       console.error("Error fetching organizations:", error);
     }
+  };
+
+  const fetchDepartments = async () => {
+    try {
+      const response = await fetch("/api/departments");
+      if (response.ok) {
+        const data = await response.json();
+        setDepartments(data);
+      }
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
+
+  const handleDepartmentChange = (departmentName: string, checked: boolean) => {
+    const updatedDepartments = checked
+      ? [...selectedDepartments, departmentName]
+      : selectedDepartments.filter((d) => d !== departmentName);
+
+    setSelectedDepartments(updatedDepartments);
+    setFormData({ ...formData, departments: updatedDepartments });
   };
 
   const validateForm = () => {
