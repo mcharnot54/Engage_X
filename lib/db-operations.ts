@@ -1026,6 +1026,7 @@ export async function deleteDelayReason(id: number) {
 // Observation Reason operations
 export async function getObservationReasons() {
   return prisma.observationReason.findMany({
+    where: { isActive: true },
     orderBy: { name: "asc" },
   });
 }
