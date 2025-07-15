@@ -113,13 +113,14 @@ model Standard {
   versionNotes         String?
   createdBy            String?
   notes                String        @default("No notes provided")
-  observations         Observation[]
-  area                 Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  baseStandard         Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id])
-  versions             Standard[]    @relation("StandardVersions")
-  department           Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  facility             Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
-  uomEntries           UomEntry[]
+    observations           Observation[]
+  scheduledObservations  ScheduledObservation[]
+  area                   Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  baseStandard           Standard?     @relation("StandardVersions", fields: [baseStandardId], references: [id])
+  versions               Standard[]    @relation("StandardVersions")
+  department             Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  facility               Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  uomEntries             UomEntry[]
 
   @@map("standards")
 }
