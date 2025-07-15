@@ -14,11 +14,6 @@ const nextConfig = {
   async generateBuildId() {
     return "build-" + Date.now();
   },
-
-  // Disable static page generation to avoid Builder.io SSG conflicts
-  experimental: {
-    gzipSize: false,
-  },
 };
 
 module.exports = nextConfig;
