@@ -2935,7 +2935,7 @@ export default function GazeObservationApp() {
                   : employeeId === "emp002"
                     ? "Sarah Johnson"
                     : "Michael Brown"}
-                's Performance History
+                &apos;s Performance History
               </h2>
 
               {(() => {
