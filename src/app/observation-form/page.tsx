@@ -2566,9 +2566,17 @@ export default function GazeObservationApp() {
 
                                       {/* Instructions */}
                                       <div className="mt-2 pt-1 border-t border-gray-600 text-center text-gray-400 text-xs">
-                                        {persistentQuantityTooltips.has(row.id)
-                                          ? "Click anywhere to close • Hover entries to delete • Click × to clear all"
-                                          : "Click to keep open • Hover entries to delete • Click × to clear all"}
+                                        {isFinalized
+                                          ? persistentQuantityTooltips.has(
+                                              row.id,
+                                            )
+                                            ? "Click anywhere to close • Observation finalized"
+                                            : "Observation finalized - values locked"
+                                          : persistentQuantityTooltips.has(
+                                                row.id,
+                                              )
+                                            ? "Click anywhere to close • Hover entries to delete • Click × to clear all"
+                                            : "Click to keep open • Hover entries to delete • Click × to clear all"}
                                       </div>
 
                                       {/* Arrow pointer */}
