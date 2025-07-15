@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 
+// Force dynamic rendering to prevent SSG issues
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = false;
+
 export default function Custom500() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
