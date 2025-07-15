@@ -2330,7 +2330,9 @@ export default function GazeObservationApp() {
                                     min="0"
                                     value={tempQuantities[row.id] || 0}
                                     disabled={
-                                      !isObserving && !isPumpAssessmentActive
+                                      (!isObserving &&
+                                        !isPumpAssessmentActive) ||
+                                      isFinalized
                                     }
                                     onChange={(e) =>
                                       updateTempQuantity(
