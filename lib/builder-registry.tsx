@@ -5,15 +5,16 @@ import { builder, Builder } from "@builder.io/react";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 
+// Temporarily disable Builder.io initialization to debug build issues
 // Initialize Builder only on client side
-if (typeof window !== "undefined") {
-  const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY;
-  if (apiKey) {
-    builder.init(apiKey);
-  } else {
-    console.warn("NEXT_PUBLIC_BUILDER_API_KEY is not defined.");
-  }
-}
+// if (typeof window !== 'undefined') {
+//   const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY
+//   if (apiKey) {
+//     builder.init(apiKey)
+//   } else {
+//     console.warn("NEXT_PUBLIC_BUILDER_API_KEY is not defined.")
+//   }
+// }
 
 /**
  * Register custom components
