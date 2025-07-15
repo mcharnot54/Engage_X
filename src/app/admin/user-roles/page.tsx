@@ -16,10 +16,9 @@ interface User {
 }
 
 interface Role {
-  id: number;
+  id: string;
   name: string;
   description?: string;
-  organizationId?: number;
 }
 
 interface Organization {
@@ -30,13 +29,13 @@ interface Organization {
 
 interface UserRole {
   id: number;
-  userId: string;
-  roleId: number;
-  organizationId?: number;
-  createdAt: string;
-  user: User;
-  role: Role;
-  organization?: Organization;
+  userid: string;
+  roleid: string;
+  organizationid?: number;
+  createdat: string;
+  users: User;
+  roles: Role;
+  organizations?: Organization;
 }
 
 export default function UserRolesAdminPage() {
@@ -321,7 +320,7 @@ export default function UserRolesAdminPage() {
                 >
                   <option value="all">All Roles</option>
                   {roles.map((role) => (
-                    <option key={role.id} value={role.id.toString()}>
+                    <option key={role.id} value={role.id}>
                       {role.name}
                     </option>
                   ))}
@@ -492,7 +491,7 @@ export default function UserRolesAdminPage() {
                     >
                       <option value="">Select a role</option>
                       {roles.map((role) => (
-                        <option key={role.id} value={role.id.toString()}>
+                        <option key={role.id} value={role.id}>
                           {role.name}
                         </option>
                       ))}

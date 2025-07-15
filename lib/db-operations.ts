@@ -288,6 +288,12 @@ export async function getStandardById(id: number) {
       department: true,
       area: true,
       uomEntries: true,
+      versions: {
+        orderBy: { version: "desc" },
+        include: {
+          uomEntries: true,
+        },
+      },
     },
   });
 }
@@ -942,35 +948,39 @@ export async function getRecentObservations(limit: number = 10) {
 // User Role operations
 export async function getUserRoles(filters?: {
   userId?: string;
-  roleId?: number;
+  roleId?: string;
   organizationId?: number;
 }) {
   return prisma.userRole.findMany({
     where: {
-      userId: filters?.userId,
-      roleId: filters?.roleId,
-      organizationId: filters?.organizationId,
+      userid: filters?.userId,
+      roleid: filters?.roleId,
+      organizationid: filters?.organizationId,
     },
     include: {
-      user: true,
-      role: true,
-      organization: true,
+      users: true,
+      roles: true,
+      organizations: true,
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdat: "desc" },
   });
 }
 
 export async function createUserRole(data: {
   userId: string;
-  roleId: number;
+  roleId: string;
   organizationId?: number;
 }) {
   return prisma.userRole.create({
-    data,
+    data: {
+      userid: data.userId,
+      roleid: data.roleId,
+      organizationid: data.organizationId,
+    },
     include: {
-      user: true,
-      role: true,
-      organization: true,
+      users: true,
+      roles: true,
+      organizations: true,
     },
   });
 }
@@ -984,6 +994,7 @@ export async function deleteUserRole(id: number) {
 // Delay Reason operations
 export async function getDelayReasons() {
   return prisma.delayReason.findMany({
+    where: { isActive: true },
     orderBy: { name: "asc" },
   });
 }
@@ -1021,6 +1032,7 @@ export async function deleteDelayReason(id: number) {
 // Observation Reason operations
 export async function getObservationReasons() {
   return prisma.observationReason.findMany({
+    where: { isActive: true },
     orderBy: { name: "asc" },
   });
 }

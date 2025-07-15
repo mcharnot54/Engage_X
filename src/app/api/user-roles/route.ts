@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     const userRoles = await getUserRoles({
       userId: userId || undefined,
-      roleId: roleId ? parseInt(roleId) : undefined,
+      roleId: roleId || undefined,
       organizationId: organizationId ? parseInt(organizationId) : undefined,
     });
 
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     const userRole = await createUserRole({
       userId,
-      roleId,
+      roleId: roleId.toString(),
       organizationId: organizationId || undefined,
     });
 
