@@ -988,6 +988,7 @@ export async function deleteUserRole(id: number) {
 // Delay Reason operations
 export async function getDelayReasons() {
   return prisma.delayReason.findMany({
+    where: { isActive: true },
     orderBy: { name: "asc" },
   });
 }
