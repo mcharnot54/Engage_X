@@ -134,12 +134,16 @@ export default function UserRolesAdminPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         (userRole) =>
-          userRole.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          userRole.user.employeeId
+          userRole.users.name
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          userRole.role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          userRole.organization?.name
+          userRole.users.employeeId
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          userRole.roles.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          userRole.organizations?.name
             .toLowerCase()
             .includes(searchTerm.toLowerCase()),
       );
@@ -148,7 +152,7 @@ export default function UserRolesAdminPage() {
     // Role filter
     if (filterRole !== "all") {
       filtered = filtered.filter(
-        (userRole) => userRole.roleId.toString() === filterRole,
+        (userRole) => userRole.roleid.toString() === filterRole,
       );
     }
 
@@ -156,7 +160,7 @@ export default function UserRolesAdminPage() {
     if (filterOrganization !== "all") {
       filtered = filtered.filter(
         (userRole) =>
-          userRole.organizationId?.toString() === filterOrganization,
+          userRole.organizationid?.toString() === filterOrganization,
       );
     }
 
