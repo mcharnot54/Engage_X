@@ -166,7 +166,7 @@ export default function CatalystPage() {
       // Get current user ID (for now using a default supervisor)
       const currentUserId = "admin-001"; // This should come from auth context
       const response = await fetch(
-        `/api/catalyst/performance?userId=${currentUserId}&period=month`,
+        `/api/catalyst/supervisor-performance?supervisorId=${currentUserId}&period=month`,
       );
 
       if (response.ok) {
