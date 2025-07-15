@@ -2489,10 +2489,10 @@ export default function GazeObservationApp() {
                                     0 ||
                                     row.quantity > 0) && (
                                     <div
-                                      className={`absolute z-[9999] text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto opacity-100 ${
+                                      className={`absolute z-[9999] text-white text-xs rounded-lg p-3 shadow-xl min-w-56 pointer-events-auto ${
                                         persistentQuantityTooltips.has(row.id)
-                                          ? "bg-blue-800 border-2 border-blue-400"
-                                          : "bg-gray-800"
+                                          ? "bg-blue-800 border-2 border-blue-400 opacity-100"
+                                          : "bg-gray-800 opacity-100"
                                       }`}
                                       style={{
                                         top: "100%",
