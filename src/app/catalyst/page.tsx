@@ -420,7 +420,7 @@ END:VCALENDAR`;
     setSelectedObservationReason("");
     setSchedulerNotes("");
     setSelectedFacility("");
-    setSelectedDepartment("");
+    setSelectedStandardDepartment("");
     setSelectedArea("");
     setEmployeeSearch("");
   };
