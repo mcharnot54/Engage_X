@@ -266,3 +266,22 @@ model ObservationReason {
 
   @@map("observation_reasons")
 }
+
+model ScheduledObservation {
+  id            String   @id @default(cuid())
+  userId        String
+  standardId    Int
+  scheduledDate DateTime
+  scheduledTime String
+  notes         String?
+  isCompleted   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  standard      Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  creator       User     @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("scheduled_observations")
+}
