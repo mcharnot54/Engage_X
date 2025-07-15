@@ -164,6 +164,12 @@ export default function GazeObservationApp() {
     Record<string, PreviousObservation[]>
   >({});
 
+  // Observation details modal state
+  const [selectedObservationDetails, setSelectedObservationDetails] =
+    useState<PreviousObservation | null>(null);
+  const [showObservationDetailsModal, setShowObservationDetailsModal] =
+    useState(false);
+
   // Best practices and process adherence
   const [bestPracticesChecked, setBestPracticesChecked] = useState<string[]>(
     [],
