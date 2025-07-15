@@ -2380,7 +2380,9 @@ export default function GazeObservationApp() {
                                 <div className="flex items-center justify-center gap-2">
                                   <button
                                     disabled={
-                                      !isObserving && !isPumpAssessmentActive
+                                      (!isObserving &&
+                                        !isPumpAssessmentActive) ||
+                                      isFinalized
                                     }
                                     onClick={() =>
                                       updateQuantity(row.id, row.quantity - 1)
@@ -2394,7 +2396,9 @@ export default function GazeObservationApp() {
                                     min="0"
                                     value={row.quantity}
                                     disabled={
-                                      !isObserving && !isPumpAssessmentActive
+                                      (!isObserving &&
+                                        !isPumpAssessmentActive) ||
+                                      isFinalized
                                     }
                                     onChange={(e) =>
                                       updateQuantity(
@@ -2406,7 +2410,9 @@ export default function GazeObservationApp() {
                                   />
                                   <button
                                     disabled={
-                                      !isObserving && !isPumpAssessmentActive
+                                      (!isObserving &&
+                                        !isPumpAssessmentActive) ||
+                                      isFinalized
                                     }
                                     onClick={() =>
                                       updateQuantity(row.id, row.quantity + 1)
