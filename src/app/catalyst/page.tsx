@@ -844,7 +844,7 @@ END:VCALENDAR`;
                                 value={selectedFacility}
                                 onChange={(e) => {
                                   setSelectedFacility(e.target.value);
-                                  setSelectedDepartment("");
+                                  setSelectedStandardDepartment("");
                                   setSelectedArea("");
                                   setSelectedStandard("");
                                 }}
