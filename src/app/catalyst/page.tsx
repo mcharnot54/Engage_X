@@ -90,7 +90,8 @@ export default function CatalystPage() {
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedStandardDepartment, setSelectedStandardDepartment] =
+    useState("");
   const [selectedArea, setSelectedArea] = useState("");
 
   // Employee search state
