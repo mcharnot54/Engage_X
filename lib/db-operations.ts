@@ -288,6 +288,12 @@ export async function getStandardById(id: number) {
       department: true,
       area: true,
       uomEntries: true,
+      versions: {
+        orderBy: { version: "desc" },
+        include: {
+          uomEntries: true,
+        },
+      },
     },
   });
 }
