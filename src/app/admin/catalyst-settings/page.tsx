@@ -122,7 +122,7 @@ export default function CatalystSettingsPage() {
   const updateUserField = (
     userId: string,
     field: keyof EditingUser,
-    value: any,
+    value: string | number | boolean,
   ) => {
     setUsers(
       users.map((user) =>
