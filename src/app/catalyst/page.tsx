@@ -85,7 +85,28 @@ export default function CatalystPage() {
 
   const loadGoalMetrics = async () => {
     try {
-      // This would fetch from your API - for now using mock data
+      // Get current user ID (for now using a default supervisor)
+      const currentUserId = "admin-001"; // This should come from auth context
+      const response = await fetch(
+        `/api/catalyst/goals?userId=${currentUserId}&period=month`,
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setGoalMetrics(data);
+      } else {
+        // Fallback to mock data if API fails
+        const mockGoals = {
+          totalObservations: 75,
+          goalObservations: 100,
+          remainingObservations: 25,
+          completionPercentage: 75,
+        };
+        setGoalMetrics(mockGoals);
+      }
+    } catch (error) {
+      console.error("Error loading goal metrics:", error);
+      // Fallback to mock data
       const mockGoals = {
         totalObservations: 75,
         goalObservations: 100,
@@ -93,14 +114,33 @@ export default function CatalystPage() {
         completionPercentage: 75,
       };
       setGoalMetrics(mockGoals);
-    } catch (error) {
-      console.error("Error loading goal metrics:", error);
     }
   };
 
   const loadPerformanceMetrics = async () => {
     try {
-      // This would fetch from your API - for now using mock data
+      // Get current user ID (for now using a default supervisor)
+      const currentUserId = "admin-001"; // This should come from auth context
+      const response = await fetch(
+        `/api/catalyst/performance?userId=${currentUserId}&period=month`,
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setPerformanceMetrics(data);
+      } else {
+        // Fallback to mock data if API fails
+        const mockPerformance = {
+          averageGradeFactor: 94.2,
+          averageObservedPerformance: 97.1,
+          totalObservationsCompleted: 75,
+          trend: "up" as const,
+        };
+        setPerformanceMetrics(mockPerformance);
+      }
+    } catch (error) {
+      console.error("Error loading performance metrics:", error);
+      // Fallback to mock data
       const mockPerformance = {
         averageGradeFactor: 94.2,
         averageObservedPerformance: 97.1,
@@ -108,8 +148,6 @@ export default function CatalystPage() {
         trend: "up" as const,
       };
       setPerformanceMetrics(mockPerformance);
-    } catch (error) {
-      console.error("Error loading performance metrics:", error);
     }
   };
 
