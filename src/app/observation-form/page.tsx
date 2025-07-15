@@ -3382,7 +3382,7 @@ export default function GazeObservationApp() {
                 </div>
               </div>
 
-              {/* Version History */}
+                            {/* Version History */}
               <div>
                 <h3 className="text-lg font-semibold mb-4">
                   Version Information
@@ -3393,8 +3393,7 @@ export default function GazeObservationApp() {
                     {/* Current Version Info */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <h4 className="font-medium text-blue-800 mb-2">
-                        Current Version (
-                        {selectedStandardData.versions[0].version})
+                        Current Version ({selectedStandardData.versions[0].version})
                       </h4>
                       <p className="text-sm text-blue-700 mb-2">
                         <strong>Date:</strong>{" "}
@@ -3421,40 +3420,32 @@ export default function GazeObservationApp() {
                     {selectedStandardData.versions.length > 1 && (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <h4 className="font-medium text-yellow-800 mb-3">
-                          Previous Versions (
-                          {selectedStandardData.versions.length - 1} total)
+                          Previous Versions ({selectedStandardData.versions.length - 1} total)
                         </h4>
                         <div className="space-y-3 max-h-60 overflow-y-auto">
-                          {selectedStandardData.versions
-                            .slice(1)
-                            .map((version, index) => (
-                              <div
-                                key={version.id}
-                                className="bg-white p-3 rounded border border-yellow-300"
-                              >
-                                <div className="flex justify-between items-start mb-2">
-                                  <h5 className="font-medium text-yellow-900">
-                                    Version {version.version}
-                                  </h5>
-                                  <span className="text-xs text-yellow-600">
-                                    {new Date(
-                                      version.createdAt,
-                                    ).toLocaleDateString()}
-                                  </span>
-                                </div>
-                                {version.versionNotes ? (
-                                  <div className="text-sm text-yellow-800">
-                                    <div className="whitespace-pre-wrap">
-                                      {version.versionNotes}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-yellow-600 italic">
-                                    No notes for this version.
-                                  </p>
-                                )}
+                          {selectedStandardData.versions.slice(1).map((version, index) => (
+                            <div key={version.id} className="bg-white p-3 rounded border border-yellow-300">
+                              <div className="flex justify-between items-start mb-2">
+                                <h5 className="font-medium text-yellow-900">
+                                  Version {version.version}
+                                </h5>
+                                <span className="text-xs text-yellow-600">
+                                  {new Date(version.createdAt).toLocaleDateString()}
+                                </span>
                               </div>
-                            ))}
+                              {version.versionNotes ? (
+                                <div className="text-sm text-yellow-800">
+                                  <div className="whitespace-pre-wrap">
+                                    {version.versionNotes}
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-yellow-600 italic">
+                                  No notes for this version.
+                                </p>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -3465,71 +3456,71 @@ export default function GazeObservationApp() {
                       No version history available for this standard.
                     </p>
                   </div>
-                )}
-              </div>
+                )}</div>
 
-              {/* Previous Version Notes */}
+                            {/* Changes Summary */}
               {selectedStandardData.versions &&
                 selectedStandardData.versions.length > 1 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Previous Version Notes
+                      Summary of Changes From Previous Version
                     </h3>
-                    {(() => {
-                      const sortedVersions = [
-                        ...selectedStandardData.versions!,
-                      ].sort((a, b) => b.version - a.version);
-                      const previousVersion = sortedVersions[1];
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <div className="space-y-3 text-sm">
+                        <div className="flex items-start gap-2">
+                          <span className="text-orange-600 font-medium">•</span>
+                          <span className="text-orange-700">
+                            <strong>Version History:</strong> This standard has{" "}
+                            {selectedStandardData.versions.length} versions, showing evolution over time
+                          </span>
+                        </div>
 
-                      return (
-                        <div className="space-y-4">
-                          {/* Previous Version */}
-                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <h4 className="font-medium text-gray-800 mb-2">
-                              Version {previousVersion.version} Notes
-                            </h4>
-                            <p className="text-sm text-gray-600 mb-2">
-                              <strong>Date:</strong>{" "}
-                              {new Date(
-                                previousVersion.createdAt,
-                              ).toLocaleDateString()}
-                            </p>
-                            {previousVersion.versionNotes ? (
-                              <div className="text-sm text-gray-700">
-                                <strong>Notes:</strong>
-                                <div className="mt-1 whitespace-pre-wrap bg-white p-2 rounded border">
-                                  {previousVersion.versionNotes}
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="text-sm text-gray-500 italic">
-                                No notes available for this version.
-                              </p>
-                            )}
+                        <div className="flex items-start gap-2">
+                          <span className="text-orange-600 font-medium">•</span>
+                          <span className="text-orange-700">
+                            <strong>Current UOM Entries:</strong> {selectedStandardData.uomEntries?.length || 0} operations defined
+                          </span>
+                        </div>
+
+                        {selectedStandardData.versions[0].uomEntries &&
+                         selectedStandardData.versions.length > 1 &&
+                         selectedStandardData.versions[1].uomEntries && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-orange-600 font-medium">•</span>
+                            <span className="text-orange-700">
+                              <strong>UOM Changes:</strong> From {selectedStandardData.versions[1].uomEntries.length} to {selectedStandardData.versions[0].uomEntries.length} operations
+                              {selectedStandardData.versions[0].uomEntries.length > selectedStandardData.versions[1].uomEntries.length ?
+                                " (operations added)" :
+                                selectedStandardData.versions[0].uomEntries.length < selectedStandardData.versions[1].uomEntries.length ?
+                                " (operations removed)" :
+                                " (same count, possible modifications)"}
+                            </span>
                           </div>
+                        )}
 
-                          {/* Changes Summary */}
-                          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                            <h4 className="font-medium text-orange-800 mb-2">
-                              What Changed in Current Version
-                            </h4>
-                            <div className="space-y-2 text-sm">
-                              <div className="flex items-start gap-2">
-                                <span className="text-orange-600 font-medium">
-                                  •
-                                </span>
-                                <span className="text-orange-700">
-                                  Standard details may have been modified
-                                </span>
-                              </div>
-                              {selectedStandardData.uomEntries &&
-                                selectedStandardData.uomEntries.length > 0 && (
-                                  <div className="flex items-start gap-2">
-                                    <span className="text-orange-600 font-medium">
-                                      •
-                                    </span>
-                                    <span className="text-orange-700">
-                                      UOM entries updated (
+                        <div className="flex items-start gap-2">
+                          <span className="text-orange-600 font-medium">•</span>
+                          <span className="text-orange-700">
+                            <strong>Best Practices:</strong> {selectedStandardData.bestPractices?.length || 0} practices defined
+                          </span>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <span className="text-orange-600 font-medium">•</span>
+                          <span className="text-orange-700">
+                            <strong>Process Opportunities:</strong> {selectedStandardData.processOpportunities?.length || 0} improvement areas identified
+                          </span>
+                        </div>
+
+                        <div className="mt-3 pt-3 border-t border-orange-300">
+                          <p className="text-orange-800 font-medium text-xs">
+                            💡 Review version notes above to understand specific changes made between versions
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                                       {selectedStandardData.uomEntries.length}{" "}
                                       total entries)
                                     </span>
