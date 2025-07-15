@@ -16,10 +16,9 @@ interface User {
 }
 
 interface Role {
-  id: number;
+  id: string;
   name: string;
   description?: string;
-  organizationId?: number;
 }
 
 interface Organization {
