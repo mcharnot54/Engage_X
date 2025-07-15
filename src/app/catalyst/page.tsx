@@ -908,7 +908,7 @@ END:VCALENDAR`;
                                   <option value="">Choose Area</option>
                                   {getUniqueAreas(
                                     selectedFacility,
-                                    selectedDepartment,
+                                    selectedStandardDepartment,
                                   ).map((area) => (
                                     <option key={area.id} value={area.name}>
                                       {area.name}
