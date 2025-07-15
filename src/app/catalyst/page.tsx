@@ -538,7 +538,7 @@ END:VCALENDAR`;
   const resetStandardSelection = () => {
     setSelectedStandard("");
     setSelectedFacility("");
-    setSelectedDepartment("");
+    setSelectedStandardDepartment("");
     setSelectedArea("");
     setShowStandardDropdown(false);
   };
