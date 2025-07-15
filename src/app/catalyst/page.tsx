@@ -517,7 +517,8 @@ END:VCALENDAR`;
     return standards.filter(
       (std) =>
         (!selectedFacility || std.facility.name === selectedFacility) &&
-        (!selectedDepartment || std.department.name === selectedDepartment) &&
+        (!selectedStandardDepartment ||
+          std.department.name === selectedStandardDepartment) &&
         (!selectedArea || std.area.name === selectedArea),
     );
   };
