@@ -18,6 +18,22 @@ type TeamMember = {
   startDate: string;
 };
 
+type Standard = {
+  id: number;
+  name: string;
+  facility: { name: string };
+  department: { name: string };
+  area: { name: string };
+};
+
+type ObservationReason = {
+  id: string;
+  name: string;
+  description?: string;
+  purpose?: string;
+  leaderActionGuidelines?: string;
+};
+
 type GoalMetrics = {
   totalObservations: number;
   goalObservations: number;
@@ -61,13 +77,41 @@ export default function CatalystPage() {
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
   const [selectedStandard, setSelectedStandard] = useState<string>("");
+  const [selectedObservationReason, setSelectedObservationReason] =
+    useState<string>("");
   const [schedulerNotes, setSchedulerNotes] = useState<string>("");
+
+  // Standards and observation reasons from database
+  const [standards, setStandards] = useState<Standard[]>([]);
+  const [observationReasons, setObservationReasons] = useState<
+    ObservationReason[]
+  >([]);
+
+  // Multi-level standard selection state
+  const [showStandardDropdown, setShowStandardDropdown] = useState(false);
+  const [selectedFacility, setSelectedFacility] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
+
+  // Employee search state
+  const [employees, setEmployees] = useState<
+    Array<{
+      id: string;
+      name: string;
+      employeeId: string;
+    }>
+  >([]);
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
 
   // Load initial data
   useEffect(() => {
     loadGoalMetrics();
     loadPerformanceMetrics();
     loadTeamMembers();
+    loadStandards();
+    loadObservationReasons();
+    loadEmployees();
   }, []);
 
   // Filter team members by department
@@ -329,9 +373,10 @@ END:VCALENDAR`;
       !selectedDate ||
       !selectedTime ||
       !selectedEmployee ||
-      !selectedStandard
+      !selectedStandard ||
+      !selectedObservationReason
     ) {
-      alert("Please fill in all required fields");
+      alert("Please fill in all required fields including observation reason");
       return;
     }
 
@@ -347,6 +392,7 @@ END:VCALENDAR`;
           scheduledDate: selectedDate,
           scheduledTime: selectedTime,
           notes: schedulerNotes,
+          observationReason: selectedObservationReason,
           createdBy: "admin-001", // This should come from auth context
         }),
       });
@@ -370,7 +416,129 @@ END:VCALENDAR`;
     setSelectedTime("");
     setSelectedEmployee("");
     setSelectedStandard("");
+    setSelectedObservationReason("");
     setSchedulerNotes("");
+    setSelectedFacility("");
+    setSelectedDepartment("");
+    setSelectedArea("");
+    setEmployeeSearch("");
+  };
+
+  // Database loading functions
+  const loadStandards = async () => {
+    try {
+      const response = await fetch("/api/standards");
+      if (response.ok) {
+        const data = await response.json();
+        setStandards(Array.isArray(data) ? data : data.data || []);
+      }
+    } catch (error) {
+      console.error("Error loading standards:", error);
+    }
+  };
+
+  const loadObservationReasons = async () => {
+    try {
+      const response = await fetch("/api/observation-reasons");
+      if (response.ok) {
+        const data = await response.json();
+        setObservationReasons(data);
+      }
+    } catch (error) {
+      console.error("Error loading observation reasons:", error);
+    }
+  };
+
+  const loadEmployees = async () => {
+    try {
+      const response = await fetch("/api/users-tenant?role=Team Member");
+      if (response.ok) {
+        const data = await response.json();
+        const teamMembers = data.users.map(
+          (user: { id: string; name: string; employeeId?: string }) => ({
+            id: user.id,
+            name: user.name,
+            employeeId: user.employeeId || user.id,
+          }),
+        );
+        setEmployees(teamMembers);
+      } else {
+        // Fallback to demo employees if API fails
+        const fallbackEmployees = [
+          { id: "emp001", name: "John Smith", employeeId: "emp001" },
+          { id: "emp002", name: "Sarah Johnson", employeeId: "emp002" },
+          { id: "emp003", name: "Michael Brown", employeeId: "emp003" },
+          { id: "emp004", name: "Lisa Davis", employeeId: "emp004" },
+          { id: "emp005", name: "Robert Wilson", employeeId: "emp005" },
+        ];
+        setEmployees(fallbackEmployees);
+      }
+    } catch (error) {
+      console.error("Error loading employees:", error);
+    }
+  };
+
+  // Helper functions for multi-level dropdown
+  const getUniqueFacilities = () => {
+    return standards
+      .map((std) => ({ name: std.facility.name, id: std.facility.name }))
+      .filter(
+        (facility, index, arr) =>
+          arr.findIndex((f) => f.name === facility.name) === index,
+      );
+  };
+
+  const getUniqueDepartments = (facility?: string) => {
+    return standards
+      .filter((std) => !facility || std.facility.name === facility)
+      .map((std) => ({ name: std.department.name, id: std.department.name }))
+      .filter(
+        (dept, index, arr) =>
+          arr.findIndex((d) => d.name === dept.name) === index,
+      );
+  };
+
+  const getUniqueAreas = (facility?: string, department?: string) => {
+    return standards
+      .filter(
+        (std) =>
+          (!facility || std.facility.name === facility) &&
+          (!department || std.department.name === department),
+      )
+      .map((std) => ({ name: std.area.name, id: std.area.name }))
+      .filter(
+        (area, index, arr) =>
+          arr.findIndex((a) => a.name === area.name) === index,
+      );
+  };
+
+  const getFilteredStandards = () => {
+    return standards.filter(
+      (std) =>
+        (!selectedFacility || std.facility.name === selectedFacility) &&
+        (!selectedDepartment || std.department.name === selectedDepartment) &&
+        (!selectedArea || std.area.name === selectedArea),
+    );
+  };
+
+  const getSelectedStandardDisplay = () => {
+    if (selectedStandard && standards.length > 0) {
+      const selectedStd = standards.find(
+        (s) => s.id === Number(selectedStandard),
+      );
+      if (selectedStd) {
+        return `${selectedStd.name} (${selectedStd.facility.name} / ${selectedStd.department.name} / ${selectedStd.area.name})`;
+      }
+    }
+    return "Select Standard";
+  };
+
+  const resetStandardSelection = () => {
+    setSelectedStandard("");
+    setSelectedFacility("");
+    setSelectedDepartment("");
+    setSelectedArea("");
+    setShowStandardDropdown(false);
   };
 
   return (
