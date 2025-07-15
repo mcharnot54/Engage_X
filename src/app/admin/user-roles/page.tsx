@@ -30,13 +30,13 @@ interface Organization {
 
 interface UserRole {
   id: number;
-  userId: string;
-  roleId: number;
-  organizationId?: number;
-  createdAt: string;
-  user: User;
-  role: Role;
-  organization?: Organization;
+  userid: string;
+  roleid: string;
+  organizationid?: number;
+  createdat: string;
+  users: User;
+  roles: Role;
+  organizations?: Organization;
 }
 
 export default function UserRolesAdminPage() {
