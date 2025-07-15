@@ -16,6 +16,7 @@ interface User {
   name: string;
   email?: string;
   department?: string;
+  departments?: string[];
   role?: string;
   roleId?: string;
   isActive: boolean;
