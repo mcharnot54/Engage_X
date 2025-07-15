@@ -303,17 +303,49 @@ export function UserManagementModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Department
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Departments (Select multiple)
               </label>
-              <input
-                type="text"
-                value={formData.department}
-                onChange={(e) =>
-                  setFormData({ ...formData, department: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
+              <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md p-3 bg-gray-50">
+                {departments.length === 0 ? (
+                  <p className="text-gray-500 text-sm">
+                    Loading departments...
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {departments.map((dept) => (
+                      <label key={dept.id} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedDepartments.includes(dept.name)}
+                          onChange={(e) =>
+                            handleDepartmentChange(dept.name, e.target.checked)
+                          }
+                          className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                          {dept.name}
+                          {dept.facility && (
+                            <span className="text-gray-500">
+                              {" "}
+                              • {dept.facility.name}
+                              {dept.facility.organization &&
+                                ` • ${dept.facility.organization.name}`}
+                            </span>
+                          )}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selectedDepartments.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600">
+                    Selected: {selectedDepartments.join(", ")}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>
