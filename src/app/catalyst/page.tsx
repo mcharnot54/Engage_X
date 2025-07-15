@@ -869,9 +869,11 @@ END:VCALENDAR`;
                                   2. Select Department
                                 </label>
                                 <select
-                                  value={selectedDepartment}
+                                  value={selectedStandardDepartment}
                                   onChange={(e) => {
-                                    setSelectedDepartment(e.target.value);
+                                    setSelectedStandardDepartment(
+                                      e.target.value,
+                                    );
                                     setSelectedArea("");
                                     setSelectedStandard("");
                                   }}
