@@ -2353,7 +2353,9 @@ export default function GazeObservationApp() {
                                   />
                                   <button
                                     disabled={
-                                      !isObserving || !tempQuantities[row.id]
+                                      !isObserving ||
+                                      !tempQuantities[row.id] ||
+                                      isFinalized
                                     }
                                     onClick={() => submitTempQuantity(row.id)}
                                     className="p-1 rounded bg-green-500 text-white cursor-pointer disabled:opacity-50 disabled:bg-gray-300 hover:bg-green-600 flex items-center justify-center w-8 h-8"
