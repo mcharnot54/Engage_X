@@ -320,7 +320,7 @@ export default function UserRolesAdminPage() {
                 >
                   <option value="all">All Roles</option>
                   {roles.map((role) => (
-                    <option key={role.id} value={role.id.toString()}>
+                    <option key={role.id} value={role.id}>
                       {role.name}
                     </option>
                   ))}
