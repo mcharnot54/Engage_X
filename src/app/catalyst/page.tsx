@@ -153,7 +153,65 @@ export default function CatalystPage() {
 
   const loadTeamMembers = async () => {
     try {
-      // This would fetch from your API - for now using mock data
+      const response = await fetch("/api/catalyst/team-members");
+
+      if (response.ok) {
+        const data = await response.json();
+        setTeamMembers(data.teamMembers);
+        setDepartments(data.departments);
+      } else {
+        // Fallback to mock data if API fails
+        const mockTeamMembers: TeamMember[] = [
+          {
+            id: "1",
+            name: "John Smith",
+            employeeId: "EMP001",
+            department: "Manufacturing",
+            lastObservationDate: "2024-01-10",
+            daysSinceLastObservation: 5,
+            needsObservation: true,
+            observationGoal: 4,
+            completedObservations: 3,
+            isNewEmployee: false,
+            startDate: "2023-06-15",
+          },
+          {
+            id: "2",
+            name: "Sarah Johnson",
+            employeeId: "EMP002",
+            department: "Quality",
+            lastObservationDate: "2024-01-12",
+            daysSinceLastObservation: 3,
+            needsObservation: false,
+            observationGoal: 4,
+            completedObservations: 4,
+            isNewEmployee: false,
+            startDate: "2022-03-20",
+          },
+          {
+            id: "3",
+            name: "Michael Brown",
+            employeeId: "EMP003",
+            department: "Manufacturing",
+            lastObservationDate: null,
+            daysSinceLastObservation: 14,
+            needsObservation: true,
+            observationGoal: 8,
+            completedObservations: 1,
+            isNewEmployee: true,
+            startDate: "2024-01-01",
+          },
+        ];
+
+        setTeamMembers(mockTeamMembers);
+        const uniqueDepartments = [
+          ...new Set(mockTeamMembers.map((member) => member.department)),
+        ];
+        setDepartments(uniqueDepartments);
+      }
+    } catch (error) {
+      console.error("Error loading team members:", error);
+      // Fallback to mock data
       const mockTeamMembers: TeamMember[] = [
         {
           id: "1",
@@ -197,14 +255,10 @@ export default function CatalystPage() {
       ];
 
       setTeamMembers(mockTeamMembers);
-
-      // Extract unique departments
       const uniqueDepartments = [
         ...new Set(mockTeamMembers.map((member) => member.department)),
       ];
       setDepartments(uniqueDepartments);
-    } catch (error) {
-      console.error("Error loading team members:", error);
     }
   };
 
