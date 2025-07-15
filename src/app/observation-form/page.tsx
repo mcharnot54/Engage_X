@@ -2437,6 +2437,7 @@ export default function GazeObservationApp() {
                                 }}
                                 onClick={() => {
                                   if (
+                                    !isFinalized &&
                                     (isObserving || isPumpAssessmentActive) &&
                                     (quantitySubmissionHistory[row.id]?.length >
                                       0 ||
