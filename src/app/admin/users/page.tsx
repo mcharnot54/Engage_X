@@ -391,9 +391,26 @@ export default function UsersAdminPage() {
                             {user.department || "���"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {user.user_roles?.[0]?.roles?.name ||
-                              user.role ||
-                              "—"}
+                            {user.user_roles && user.user_roles.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {user.user_roles.map((userRole) => (
+                                  <span
+                                    key={userRole.id}
+                                    className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
+                                  >
+                                    {userRole.roles?.name}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : user.role ? (
+                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                {user.role}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 italic">
+                                No roles assigned
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {user.organization ? (
