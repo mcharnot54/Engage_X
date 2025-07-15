@@ -2230,7 +2230,7 @@ export default function GazeObservationApp() {
                         </tr>
                       </thead>
                       <tbody>
-                        {organizedRows.map((row, index) => {
+                        {organizedRows.map((row) => {
                           const isActive = activeRowIds.has(row.id);
                           const activeTags = getActiveTagsForRows(activeRowIds);
                           const hasActiveSharedTags =
