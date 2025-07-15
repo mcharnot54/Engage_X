@@ -402,10 +402,6 @@ export default function UsersAdminPage() {
                                   </span>
                                 ))}
                               </div>
-                            ) : user.role ? (
-                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                {user.role}
-                              </span>
                             ) : (
                               <span className="text-gray-400 italic">
                                 No roles assigned
