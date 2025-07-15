@@ -324,7 +324,7 @@ END:VCALENDAR`;
     }
   };
 
-  const scheduleObservation = () => {
+  const scheduleObservation = async () => {
     if (
       !selectedDate ||
       !selectedTime ||
@@ -335,18 +335,34 @@ END:VCALENDAR`;
       return;
     }
 
-    console.log("Scheduling observation:", {
-      date: selectedDate,
-      time: selectedTime,
-      employee: selectedEmployee,
-      standard: selectedStandard,
-      notes: schedulerNotes,
-    });
+    try {
+      const response = await fetch("/api/catalyst/scheduled-observations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: selectedEmployee,
+          standardId: selectedStandard,
+          scheduledDate: selectedDate,
+          scheduledTime: selectedTime,
+          notes: schedulerNotes,
+          createdBy: "admin-001", // This should come from auth context
+        }),
+      });
 
-    // Here you would save to your backend
-    alert("Observation scheduled successfully!");
-    setShowScheduler(false);
-    resetSchedulerForm();
+      if (response.ok) {
+        alert("Observation scheduled successfully!");
+        setShowScheduler(false);
+        resetSchedulerForm();
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to schedule observation: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error("Error scheduling observation:", error);
+      alert("Failed to schedule observation. Please try again.");
+    }
   };
 
   const resetSchedulerForm = () => {
