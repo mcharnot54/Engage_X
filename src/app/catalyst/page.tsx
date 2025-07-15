@@ -942,6 +942,25 @@ END:VCALENDAR`;
                   </div>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Observation Reason
+                    </label>
+                    <select
+                      value={selectedObservationReason}
+                      onChange={(e) =>
+                        setSelectedObservationReason(e.target.value)
+                      }
+                      className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Observation Reason</option>
+                      {observationReasons.map((reason) => (
+                        <option key={reason.id} value={reason.name}>
+                          {reason.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Notes
                     </label>
                     <textarea
