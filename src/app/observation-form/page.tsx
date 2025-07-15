@@ -2523,9 +2523,7 @@ export default function GazeObservationApp() {
                                                   • {entry.amount} at{" "}
                                                   {entry.timestamp}
                                                 </span>
-                                                {(isObserving ||
-                                                  isPumpAssessmentActive) && (
-                                                  <button
+                                                                                                <button
                                                     onClick={() =>
                                                       deleteQuantityEntry(
                                                         row.id,
