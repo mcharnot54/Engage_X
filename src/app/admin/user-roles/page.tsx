@@ -491,7 +491,7 @@ export default function UserRolesAdminPage() {
                     >
                       <option value="">Select a role</option>
                       {roles.map((role) => (
-                        <option key={role.id} value={role.id.toString()}>
+                        <option key={role.id} value={role.id}>
                           {role.name}
                         </option>
                       ))}
