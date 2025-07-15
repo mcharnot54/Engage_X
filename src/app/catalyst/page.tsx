@@ -892,7 +892,7 @@ END:VCALENDAR`;
                             )}
 
                             {/* Area Selection */}
-                            {selectedDepartment && (
+                            {selectedStandardDepartment && (
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                   3. Select Area
