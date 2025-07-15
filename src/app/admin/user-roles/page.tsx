@@ -134,12 +134,16 @@ export default function UserRolesAdminPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         (userRole) =>
-          userRole.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          userRole.user.employeeId
+          userRole.users.name
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          userRole.role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          userRole.organization?.name
+          userRole.users.employeeId
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          userRole.roles.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          userRole.organizations?.name
             .toLowerCase()
             .includes(searchTerm.toLowerCase()),
       );
@@ -148,7 +152,7 @@ export default function UserRolesAdminPage() {
     // Role filter
     if (filterRole !== "all") {
       filtered = filtered.filter(
-        (userRole) => userRole.roleId.toString() === filterRole,
+        (userRole) => userRole.roleid.toString() === filterRole,
       );
     }
 
@@ -156,7 +160,7 @@ export default function UserRolesAdminPage() {
     if (filterOrganization !== "all") {
       filtered = filtered.filter(
         (userRole) =>
-          userRole.organizationId?.toString() === filterOrganization,
+          userRole.organizationid?.toString() === filterOrganization,
       );
     }
 
@@ -401,24 +405,24 @@ export default function UserRolesAdminPage() {
                       {filteredUserRoles.map((userRole) => (
                         <tr key={userRole.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                            {userRole.user.name}
+                            {userRole.users.name}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {userRole.user.employeeId}
+                            {userRole.users.employeeId}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900">
                             <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                              {userRole.role.name}
+                              {userRole.roles.name}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {userRole.organization?.name || "—"}
+                            {userRole.organizations?.name || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {userRole.user.department || "—"}
+                            {userRole.users.department || "—"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {formatDate(userRole.createdAt)}
+                            {formatDate(userRole.createdat)}
                           </td>
                           <td className="px-4 py-3 text-sm">
                             <button
