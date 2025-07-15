@@ -33,11 +33,12 @@ model User {
   observationReceiveGoalPeriod  String?               @default("month")
   observationReceiveGoalCount   Int?                  @default(4)
   userType                      String?               @default("Team Member")
-  observations                  Observation[]
+    observations                  Observation[]
   user_roles                    UserRole[]
   roles                         Role?                 @relation(fields: [roleId], references: [id])
   scheduledObservations         ScheduledObservation[]
   createdScheduledObservations  ScheduledObservation[] @relation("CreatedBy")
+  goals                         Goal[]
 
   @@map("users")
 }
