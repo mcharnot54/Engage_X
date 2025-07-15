@@ -698,37 +698,246 @@ END:VCALENDAR`;
                         className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    <div>
+                    <div className="relative">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Team Member
+                        Select Employee
                       </label>
-                      <select
-                        value={selectedEmployee}
-                        onChange={(e) => setSelectedEmployee(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      <div
+                        onClick={() =>
+                          setShowEmployeeDropdown(!showEmployeeDropdown)
+                        }
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer flex justify-between items-center bg-white hover:bg-gray-50"
                       >
-                        <option value="">Select Team Member</option>
-                        {teamMembers.map((member) => (
-                          <option key={member.id} value={member.id}>
-                            {member.name} ({member.employeeId})
-                          </option>
-                        ))}
-                      </select>
+                        <span
+                          className={
+                            selectedEmployee ? "text-black" : "text-gray-500"
+                          }
+                        >
+                          {selectedEmployee
+                            ? employees.find(
+                                (emp) => emp.id === selectedEmployee,
+                              )?.name +
+                              ` (${employees.find((emp) => emp.id === selectedEmployee)?.employeeId})`
+                            : "Select Employee"}
+                        </span>
+                        <span
+                          className={`transform transition-transform ${showEmployeeDropdown ? "rotate-180" : ""}`}
+                        >
+                          ▼
+                        </span>
+                      </div>
+
+                      {showEmployeeDropdown && (
+                        <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                          <div className="p-3">
+                            <input
+                              type="text"
+                              placeholder="Search by name or employee ID..."
+                              value={employeeSearch}
+                              onChange={(e) =>
+                                setEmployeeSearch(e.target.value)
+                              }
+                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+                          <div className="max-h-48 overflow-y-auto">
+                            {employees
+                              .filter(
+                                (employee) =>
+                                  employeeSearch === "" ||
+                                  employee.name
+                                    .toLowerCase()
+                                    .includes(employeeSearch.toLowerCase()) ||
+                                  employee.employeeId
+                                    .toLowerCase()
+                                    .includes(employeeSearch.toLowerCase()),
+                              )
+                              .map((employee) => (
+                                <div
+                                  key={employee.id}
+                                  onClick={() => {
+                                    setSelectedEmployee(employee.id);
+                                    setShowEmployeeDropdown(false);
+                                    setEmployeeSearch("");
+                                  }}
+                                  className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                >
+                                  <div className="font-medium">
+                                    {employee.name}
+                                  </div>
+                                  <div className="text-sm text-gray-600">
+                                    {employee.employeeId}
+                                  </div>
+                                </div>
+                              ))}
+                            {employees.filter(
+                              (employee) =>
+                                employeeSearch === "" ||
+                                employee.name
+                                  .toLowerCase()
+                                  .includes(employeeSearch.toLowerCase()) ||
+                                employee.employeeId
+                                  .toLowerCase()
+                                  .includes(employeeSearch.toLowerCase()),
+                            ).length === 0 && (
+                              <div className="p-3 text-gray-500 text-center">
+                                No employees found
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div>
+                    <div className="relative">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Standard
+                        Select Standard
                       </label>
-                      <select
-                        value={selectedStandard}
-                        onChange={(e) => setSelectedStandard(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      <button
+                        onClick={() =>
+                          setShowStandardDropdown(!showStandardDropdown)
+                        }
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-left flex justify-between items-center hover:bg-gray-50 transition-colors bg-white"
                       >
-                        <option value="">Select Standard</option>
-                        <option value="Standard A">Standard A</option>
-                        <option value="Standard B">Standard B</option>
-                        <option value="Standard C">Standard C</option>
-                      </select>
+                        <span
+                          className={
+                            selectedStandard ? "text-black" : "text-gray-500"
+                          }
+                        >
+                          {getSelectedStandardDisplay()}
+                        </span>
+                        <span
+                          className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+                        >
+                          ▼
+                        </span>
+                      </button>
+
+                      {showStandardDropdown && (
+                        <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
+                          <div className="p-4 space-y-4">
+                            {/* Facility Selection */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                1. Select Facility
+                              </label>
+                              <select
+                                value={selectedFacility}
+                                onChange={(e) => {
+                                  setSelectedFacility(e.target.value);
+                                  setSelectedDepartment("");
+                                  setSelectedArea("");
+                                  setSelectedStandard("");
+                                }}
+                                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              >
+                                <option value="">Choose Facility</option>
+                                {getUniqueFacilities().map((facility) => (
+                                  <option
+                                    key={facility.id}
+                                    value={facility.name}
+                                  >
+                                    {facility.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Department Selection */}
+                            {selectedFacility && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  2. Select Department
+                                </label>
+                                <select
+                                  value={selectedDepartment}
+                                  onChange={(e) => {
+                                    setSelectedDepartment(e.target.value);
+                                    setSelectedArea("");
+                                    setSelectedStandard("");
+                                  }}
+                                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                  <option value="">Choose Department</option>
+                                  {getUniqueDepartments(selectedFacility).map(
+                                    (dept) => (
+                                      <option key={dept.id} value={dept.name}>
+                                        {dept.name}
+                                      </option>
+                                    ),
+                                  )}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Area Selection */}
+                            {selectedDepartment && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  3. Select Area
+                                </label>
+                                <select
+                                  value={selectedArea}
+                                  onChange={(e) => {
+                                    setSelectedArea(e.target.value);
+                                    setSelectedStandard("");
+                                  }}
+                                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                  <option value="">Choose Area</option>
+                                  {getUniqueAreas(
+                                    selectedFacility,
+                                    selectedDepartment,
+                                  ).map((area) => (
+                                    <option key={area.id} value={area.name}>
+                                      {area.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Standard Selection */}
+                            {selectedArea && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  4. Select Standard
+                                </label>
+                                <select
+                                  value={selectedStandard}
+                                  onChange={(e) => {
+                                    setSelectedStandard(e.target.value);
+                                    setShowStandardDropdown(false);
+                                  }}
+                                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                  <option value="">Choose Standard</option>
+                                  {getFilteredStandards().map((std) => (
+                                    <option key={std.id} value={std.id}>
+                                      {std.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-between pt-3 border-t border-gray-200">
+                              <button
+                                onClick={resetStandardSelection}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
+                              >
+                                Clear Selection
+                              </button>
+                              <button
+                                onClick={() => setShowStandardDropdown(false)}
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                              >
+                                Close
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="mb-4">
