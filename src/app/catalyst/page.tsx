@@ -541,6 +541,24 @@ END:VCALENDAR`;
     setShowStandardDropdown(false);
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showStandardDropdown && !target.closest(".standard-dropdown")) {
+        setShowStandardDropdown(false);
+      }
+      if (showEmployeeDropdown && !target.closest(".employee-dropdown")) {
+        setShowEmployeeDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showStandardDropdown, showEmployeeDropdown]);
+
   return (
     <div className="font-poppins text-black bg-gray-100 min-h-screen overflow-x-hidden">
       <Banner
@@ -674,7 +692,7 @@ END:VCALENDAR`;
               </div>
 
               {showScheduler && (
-                <div className="bg-white p-4 rounded-lg border">
+                <div className="bg-white p-4 rounded-lg border standard-dropdown">
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -698,7 +716,7 @@ END:VCALENDAR`;
                         className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    <div className="relative">
+                    <div className="relative employee-dropdown">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Select Employee
                       </label>
