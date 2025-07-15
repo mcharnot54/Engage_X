@@ -3,6 +3,11 @@
 import { useEffect } from "react";
 import Link from "next/link";
 
+// Force dynamic rendering to prevent SSG issues
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = false;
+
 export default function Error({
   error,
   reset,

@@ -90,7 +90,8 @@ export default function CatalystPage() {
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedStandardDepartment, setSelectedStandardDepartment] =
+    useState("");
   const [selectedArea, setSelectedArea] = useState("");
 
   // Employee search state
@@ -419,7 +420,7 @@ END:VCALENDAR`;
     setSelectedObservationReason("");
     setSchedulerNotes("");
     setSelectedFacility("");
-    setSelectedDepartment("");
+    setSelectedStandardDepartment("");
     setSelectedArea("");
     setEmployeeSearch("");
   };
@@ -516,7 +517,8 @@ END:VCALENDAR`;
     return standards.filter(
       (std) =>
         (!selectedFacility || std.facility.name === selectedFacility) &&
-        (!selectedDepartment || std.department.name === selectedDepartment) &&
+        (!selectedStandardDepartment ||
+          std.department.name === selectedStandardDepartment) &&
         (!selectedArea || std.area.name === selectedArea),
     );
   };
@@ -536,7 +538,7 @@ END:VCALENDAR`;
   const resetStandardSelection = () => {
     setSelectedStandard("");
     setSelectedFacility("");
-    setSelectedDepartment("");
+    setSelectedStandardDepartment("");
     setSelectedArea("");
     setShowStandardDropdown(false);
   };
@@ -842,7 +844,7 @@ END:VCALENDAR`;
                                 value={selectedFacility}
                                 onChange={(e) => {
                                   setSelectedFacility(e.target.value);
-                                  setSelectedDepartment("");
+                                  setSelectedStandardDepartment("");
                                   setSelectedArea("");
                                   setSelectedStandard("");
                                 }}
@@ -867,9 +869,11 @@ END:VCALENDAR`;
                                   2. Select Department
                                 </label>
                                 <select
-                                  value={selectedDepartment}
+                                  value={selectedStandardDepartment}
                                   onChange={(e) => {
-                                    setSelectedDepartment(e.target.value);
+                                    setSelectedStandardDepartment(
+                                      e.target.value,
+                                    );
                                     setSelectedArea("");
                                     setSelectedStandard("");
                                   }}
@@ -888,7 +892,7 @@ END:VCALENDAR`;
                             )}
 
                             {/* Area Selection */}
-                            {selectedDepartment && (
+                            {selectedStandardDepartment && (
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                   3. Select Area
@@ -904,7 +908,7 @@ END:VCALENDAR`;
                                   <option value="">Choose Area</option>
                                   {getUniqueAreas(
                                     selectedFacility,
-                                    selectedDepartment,
+                                    selectedStandardDepartment,
                                   ).map((area) => (
                                     <option key={area.id} value={area.name}>
                                       {area.name}

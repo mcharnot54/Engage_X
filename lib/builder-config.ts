@@ -73,7 +73,5 @@ export function initializeBuilderWithResponsive() {
   isInitialized = true;
 }
 
-// Auto-initialize when this module is imported
-if (typeof window !== "undefined") {
-  initializeBuilderWithResponsive();
-}
+// Note: Don't auto-initialize to prevent SSG issues
+// Components should call initializeBuilderWithResponsive() explicitly
