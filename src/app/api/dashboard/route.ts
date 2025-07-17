@@ -154,7 +154,70 @@ export async function GET() {
     // Recent observations (limited to 10 most recent)
     const recentObservations = observations.slice(0, 10);
 
+    // Calculate average pump score
+    const pumpScoreSum = observations.reduce(
+      (sum, obs) => sum + obs.pumpScore,
+      0,
+    );
+    const averagePumpScore =
+      totalObservations > 0 ? pumpScoreSum / totalObservations : 0;
+
+    // Transform data to match reporting page expectations
+    const transformedObservations = observations.map((obs) => ({
+      id: obs.id,
+      userId: obs.userId,
+      user: {
+        id: obs.user.id,
+        name: obs.user.name,
+        employeeId: obs.user.employeeId || obs.user.id,
+        department: obs.user.department || "N/A",
+      },
+      standardId: obs.standardId,
+      standard: {
+        id: obs.standard.id,
+        name: obs.standard.name,
+        facility: { name: obs.standard.facility?.name || "N/A" },
+        department: { name: obs.standard.department?.name || "N/A" },
+        area: { name: obs.standard.area?.name || "N/A" },
+      },
+      observedPerformance: obs.observedPerformance,
+      pumpScore: obs.pumpScore,
+      pace: obs.pace,
+      utilization: obs.utilization,
+      methods: obs.methods,
+      timeObserved: obs.timeObserved,
+      totalSams: obs.totalSams,
+      comments: obs.comments,
+      supervisorSignature: obs.supervisorSignature,
+      createdAt: obs.createdAt.toISOString(),
+    }));
+
+    const transformedUsers = users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      employeeId: user.employeeId || user.id,
+      department: user.department || "N/A",
+    }));
+
+    const transformedStandards = standards.map((standard) => ({
+      id: standard.id,
+      name: standard.name,
+      facility: { name: standard.facility?.name || "N/A" },
+      department: { name: standard.department?.name || "N/A" },
+      area: { name: standard.area?.name || "N/A" },
+    }));
+
     const dashboardData = {
+      observations: transformedObservations,
+      users: transformedUsers,
+      standards: transformedStandards,
+      summary: {
+        totalObservations,
+        avgObservedPerformance: averagePerformance,
+        avgPumpScore: averagePumpScore,
+        totalUsers,
+        totalStandards,
+      },
       stats: {
         totalObservations,
         totalOrganizations,
@@ -175,12 +238,10 @@ export async function GET() {
       facilities,
       departments,
       areas,
-      standards,
-      users,
       uomEntries,
       observationData,
       performanceData,
-      summary: {
+      additionalSummary: {
         organizationsWithFacilities: organizations.filter(
           (org) => org.facilities.length > 0,
         ).length,
