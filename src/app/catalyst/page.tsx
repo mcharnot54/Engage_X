@@ -1265,8 +1265,21 @@ END:VCALENDAR`;
                                     .includes(employeeSearch.toLowerCase()) ||
                                   employee.employeeId
                                     .toLowerCase()
-                                    .includes(employeeSearch.toLowerCase()),
+                                    .includes(employeeSearch.toLowerCase()) ||
+                                  (employee.department &&
+                                    employee.department
+                                      .toLowerCase()
+                                      .includes(employeeSearch.toLowerCase())),
                               )
+                              .sort((a, b) => {
+                                // Sort by department first, then by name
+                                if (a.department !== b.department) {
+                                  return (a.department || "").localeCompare(
+                                    b.department || "",
+                                  );
+                                }
+                                return a.name.localeCompare(b.name);
+                              })
                               .map((employee) => (
                                 <div
                                   key={employee.id}
@@ -1277,11 +1290,18 @@ END:VCALENDAR`;
                                   }}
                                   className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
                                 >
-                                  <div className="font-medium">
-                                    {employee.name}
-                                  </div>
-                                  <div className="text-sm text-gray-600">
-                                    {employee.employeeId}
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <div className="font-medium">
+                                        {employee.name}
+                                      </div>
+                                      <div className="text-sm text-gray-600">
+                                        ID: {employee.employeeId}
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                      {employee.department || "Unknown"}
+                                    </div>
                                   </div>
                                 </div>
                               ))}
@@ -1293,10 +1313,17 @@ END:VCALENDAR`;
                                   .includes(employeeSearch.toLowerCase()) ||
                                 employee.employeeId
                                   .toLowerCase()
-                                  .includes(employeeSearch.toLowerCase()),
+                                  .includes(employeeSearch.toLowerCase()) ||
+                                (employee.department &&
+                                  employee.department
+                                    .toLowerCase()
+                                    .includes(employeeSearch.toLowerCase())),
                             ).length === 0 && (
                               <div className="p-3 text-gray-500 text-center">
-                                No employees found
+                                <div>No employees found</div>
+                                <div className="text-xs mt-1">
+                                  Search by name, ID, or department
+                                </div>
                               </div>
                             )}
                           </div>
