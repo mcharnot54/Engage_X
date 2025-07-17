@@ -39,6 +39,22 @@ type GoalMetrics = {
   goalObservations: number;
   remainingObservations: number;
   completionPercentage: number;
+  period: string;
+  periodStart: string;
+};
+
+type GoalSettings = {
+  goalType: "daily" | "weekly" | "monthly" | "quarterly" | "annual";
+  goalValue: number;
+  calculatedAnnualGoal: number;
+};
+
+type GoalAttainmentData = {
+  period: string;
+  target: number;
+  actual: number;
+  percentage: number;
+  date: string;
 };
 
 type PerformanceMetrics = {
@@ -54,7 +70,20 @@ export default function CatalystPage() {
     goalObservations: 100,
     remainingObservations: 100,
     completionPercentage: 0,
+    period: "monthly",
+    periodStart: new Date().toISOString(),
   });
+
+  const [goalSettings, setGoalSettings] = useState<GoalSettings>({
+    goalType: "monthly",
+    goalValue: 20,
+    calculatedAnnualGoal: 260,
+  });
+
+  const [goalAttainmentHistory, setGoalAttainmentHistory] = useState<
+    GoalAttainmentData[]
+  >([]);
+  const [showGoalSettings, setShowGoalSettings] = useState(false);
 
   const [performanceMetrics, setPerformanceMetrics] =
     useState<PerformanceMetrics>({
@@ -113,7 +142,13 @@ export default function CatalystPage() {
     loadStandards();
     loadObservationReasons();
     loadEmployees();
+    loadGoalAttainmentHistory();
   }, []);
+
+  // Reload goals when settings change
+  useEffect(() => {
+    loadGoalMetrics();
+  }, [goalSettings]);
 
   // Filter team members by department
   useEffect(() => {
@@ -128,24 +163,86 @@ export default function CatalystPage() {
     }
   }, [selectedDepartment, teamMembers]);
 
+  const calculateWorkDaysPerYear = () => {
+    // 52 weeks per year, 5 work days per week
+    return 52 * 5;
+  };
+
+  const calculateGoalFromSettings = (goalType: string, goalValue: number) => {
+    const workDaysPerYear = calculateWorkDaysPerYear();
+
+    switch (goalType) {
+      case "daily":
+        return goalValue * workDaysPerYear;
+      case "weekly":
+        return goalValue * 52;
+      case "monthly":
+        return goalValue * 12;
+      case "quarterly":
+        return goalValue * 4;
+      case "annual":
+        return goalValue;
+      default:
+        return goalValue;
+    }
+  };
+
+  const getPeriodForGoalType = (goalType: string) => {
+    switch (goalType) {
+      case "daily":
+        return "day";
+      case "weekly":
+        return "week";
+      case "monthly":
+        return "month";
+      case "quarterly":
+        return "quarter";
+      case "annual":
+        return "year";
+      default:
+        return "month";
+    }
+  };
+
   const loadGoalMetrics = async () => {
     try {
       // Get current user ID (for now using a default supervisor)
       const currentUserId = "admin-001"; // This should come from auth context
+      const period = getPeriodForGoalType(goalSettings.goalType);
       const response = await fetch(
-        `/api/catalyst/goals?userId=${currentUserId}&period=month`,
+        `/api/catalyst/goals?userId=${currentUserId}&period=${period}`,
       );
 
       if (response.ok) {
         const data = await response.json();
-        setGoalMetrics(data);
+        // Update goal target based on current settings
+        const adjustedData = {
+          ...data,
+          goalObservations: goalSettings.goalValue,
+          remainingObservations: Math.max(
+            0,
+            goalSettings.goalValue - data.totalObservations,
+          ),
+          completionPercentage:
+            goalSettings.goalValue > 0
+              ? Math.round(
+                  (data.totalObservations / goalSettings.goalValue) * 100,
+                )
+              : 0,
+        };
+        setGoalMetrics(adjustedData);
       } else {
         // Fallback to mock data if API fails
         const mockGoals = {
-          totalObservations: 75,
-          goalObservations: 100,
-          remainingObservations: 25,
-          completionPercentage: 75,
+          totalObservations: 15,
+          goalObservations: goalSettings.goalValue,
+          remainingObservations: Math.max(0, goalSettings.goalValue - 15),
+          completionPercentage:
+            goalSettings.goalValue > 0
+              ? Math.round((15 / goalSettings.goalValue) * 100)
+              : 0,
+          period: period,
+          periodStart: new Date().toISOString(),
         };
         setGoalMetrics(mockGoals);
       }
@@ -153,10 +250,15 @@ export default function CatalystPage() {
       console.error("Error loading goal metrics:", error);
       // Fallback to mock data
       const mockGoals = {
-        totalObservations: 75,
-        goalObservations: 100,
-        remainingObservations: 25,
-        completionPercentage: 75,
+        totalObservations: 15,
+        goalObservations: goalSettings.goalValue,
+        remainingObservations: Math.max(0, goalSettings.goalValue - 15),
+        completionPercentage:
+          goalSettings.goalValue > 0
+            ? Math.round((15 / goalSettings.goalValue) * 100)
+            : 0,
+        period: getPeriodForGoalType(goalSettings.goalType),
+        periodStart: new Date().toISOString(),
       };
       setGoalMetrics(mockGoals);
     }
@@ -452,31 +554,199 @@ END:VCALENDAR`;
 
   const loadEmployees = async () => {
     try {
-      const response = await fetch("/api/users-tenant?role=Team Member");
+      // Load all users, not just team members, but filter for those who can be observed
+      const response = await fetch("/api/users-tenant");
       if (response.ok) {
         const data = await response.json();
-        const teamMembers = data.users.map(
-          (user: { id: string; name: string; employeeId?: string }) => ({
-            id: user.id,
-            name: user.name,
-            employeeId: user.employeeId || user.id,
-          }),
-        );
-        setEmployees(teamMembers);
+        const allUsers = data.users
+          .filter(
+            (user: { userType?: string; isActive?: boolean }) =>
+              user.isActive !== false &&
+              (!user.userType ||
+                user.userType === "Team Member" ||
+                user.userType === "Employee"),
+          )
+          .map(
+            (user: {
+              id: string;
+              name: string;
+              employeeId?: string;
+              department?: string;
+            }) => ({
+              id: user.id,
+              name: user.name,
+              employeeId: user.employeeId || user.id,
+              department: user.department || "Unknown",
+            }),
+          );
+        setEmployees(allUsers);
       } else {
         // Fallback to demo employees if API fails
         const fallbackEmployees = [
-          { id: "emp001", name: "John Smith", employeeId: "emp001" },
-          { id: "emp002", name: "Sarah Johnson", employeeId: "emp002" },
-          { id: "emp003", name: "Michael Brown", employeeId: "emp003" },
-          { id: "emp004", name: "Lisa Davis", employeeId: "emp004" },
-          { id: "emp005", name: "Robert Wilson", employeeId: "emp005" },
+          {
+            id: "emp001",
+            name: "John Smith",
+            employeeId: "emp001",
+            department: "Manufacturing",
+          },
+          {
+            id: "emp002",
+            name: "Sarah Johnson",
+            employeeId: "emp002",
+            department: "Quality",
+          },
+          {
+            id: "emp003",
+            name: "Michael Brown",
+            employeeId: "emp003",
+            department: "Manufacturing",
+          },
+          {
+            id: "emp004",
+            name: "Lisa Davis",
+            employeeId: "emp004",
+            department: "Operations",
+          },
+          {
+            id: "emp005",
+            name: "Robert Wilson",
+            employeeId: "emp005",
+            department: "Maintenance",
+          },
+          {
+            id: "emp006",
+            name: "Jennifer Martinez",
+            employeeId: "emp006",
+            department: "Quality",
+          },
+          {
+            id: "emp007",
+            name: "David Lee",
+            employeeId: "emp007",
+            department: "Manufacturing",
+          },
+          {
+            id: "emp008",
+            name: "Amanda Taylor",
+            employeeId: "emp008",
+            department: "Operations",
+          },
         ];
         setEmployees(fallbackEmployees);
       }
     } catch (error) {
       console.error("Error loading employees:", error);
+      // Use fallback data
+      const fallbackEmployees = [
+        {
+          id: "emp001",
+          name: "John Smith",
+          employeeId: "emp001",
+          department: "Manufacturing",
+        },
+        {
+          id: "emp002",
+          name: "Sarah Johnson",
+          employeeId: "emp002",
+          department: "Quality",
+        },
+        {
+          id: "emp003",
+          name: "Michael Brown",
+          employeeId: "emp003",
+          department: "Manufacturing",
+        },
+        {
+          id: "emp004",
+          name: "Lisa Davis",
+          employeeId: "emp004",
+          department: "Operations",
+        },
+        {
+          id: "emp005",
+          name: "Robert Wilson",
+          employeeId: "emp005",
+          department: "Maintenance",
+        },
+      ];
+      setEmployees(fallbackEmployees);
     }
+  };
+
+  const loadGoalAttainmentHistory = async () => {
+    try {
+      // Mock historical data for now - in practice this would come from the API
+      const mockHistory: GoalAttainmentData[] = [];
+      const currentDate = new Date();
+
+      // Generate last 12 periods of data based on goal type
+      for (let i = 11; i >= 0; i--) {
+        const periodDate = new Date(currentDate);
+        let periodLabel = "";
+
+        switch (goalSettings.goalType) {
+          case "daily":
+            periodDate.setDate(periodDate.getDate() - i);
+            periodLabel = periodDate.toLocaleDateString();
+            break;
+          case "weekly":
+            periodDate.setDate(periodDate.getDate() - i * 7);
+            periodLabel = `Week of ${periodDate.toLocaleDateString()}`;
+            break;
+          case "monthly":
+            periodDate.setMonth(periodDate.getMonth() - i);
+            periodLabel = periodDate.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+            });
+            break;
+          case "quarterly":
+            periodDate.setMonth(periodDate.getMonth() - i * 3);
+            const quarter = Math.floor(periodDate.getMonth() / 3) + 1;
+            periodLabel = `Q${quarter} ${periodDate.getFullYear()}`;
+            break;
+          case "annual":
+            periodDate.setFullYear(periodDate.getFullYear() - i);
+            periodLabel = periodDate.getFullYear().toString();
+            break;
+        }
+
+        // Simulate performance data with some variance
+        const basePerformance = 0.75 + Math.random() * 0.4; // 75-115% performance
+        const actual = Math.floor(goalSettings.goalValue * basePerformance);
+        const percentage = Math.round((actual / goalSettings.goalValue) * 100);
+
+        mockHistory.push({
+          period: periodLabel,
+          target: goalSettings.goalValue,
+          actual: actual,
+          percentage: percentage,
+          date: periodDate.toISOString(),
+        });
+      }
+
+      setGoalAttainmentHistory(mockHistory);
+    } catch (error) {
+      console.error("Error loading goal attainment history:", error);
+    }
+  };
+
+  const updateGoalSettings = async (newSettings: Partial<GoalSettings>) => {
+    const updatedSettings = { ...goalSettings, ...newSettings };
+
+    // Calculate annual goal based on new settings
+    updatedSettings.calculatedAnnualGoal = calculateGoalFromSettings(
+      updatedSettings.goalType,
+      updatedSettings.goalValue,
+    );
+
+    setGoalSettings(updatedSettings);
+    setShowGoalSettings(false);
+
+    // Reload attainment history with new settings
+    setTimeout(() => {
+      loadGoalAttainmentHistory();
+    }, 100);
   };
 
   // Helper functions for multi-level dropdown
@@ -592,9 +862,87 @@ END:VCALENDAR`;
               </h1>
             </div>
 
-            {/* Goal Count Section */}
+            {/* Goal Settings and Progress Section */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-              <h3 className="text-lg font-semibold mb-4">Goal Progress</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Goal Progress</h3>
+                <div className="flex items-center gap-4">
+                  <div className="text-sm text-gray-600">
+                    Current Goal: {goalSettings.goalValue}{" "}
+                    {goalSettings.goalType} | Annual Equivalent:{" "}
+                    {goalSettings.calculatedAnnualGoal}
+                  </div>
+                  <button
+                    onClick={() => setShowGoalSettings(!showGoalSettings)}
+                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                  >
+                    Goal Settings
+                  </button>
+                </div>
+              </div>
+
+              {/* Goal Settings Panel */}
+              {showGoalSettings && (
+                <div className="bg-white p-4 rounded-lg border mb-4">
+                  <h4 className="font-semibold mb-3">
+                    Configure Observation Goals
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Goal Type
+                      </label>
+                      <select
+                        value={goalSettings.goalType}
+                        onChange={(e) =>
+                          updateGoalSettings({
+                            goalType: e.target
+                              .value as GoalSettings["goalType"],
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="annual">Annual</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Goal Value
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={goalSettings.goalValue}
+                        onChange={(e) =>
+                          updateGoalSettings({
+                            goalValue: parseInt(e.target.value) || 1,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-3 p-3 bg-blue-50 rounded">
+                    <p className="text-sm text-blue-800">
+                      <strong>Work Day Calculation:</strong> Based on 5 work
+                      days per week, 52 weeks per year (260 work days annually)
+                    </p>
+                    <p className="text-sm text-blue-600 mt-1">
+                      Annual Goal Equivalent:{" "}
+                      {calculateGoalFromSettings(
+                        goalSettings.goalType,
+                        goalSettings.goalValue,
+                      )}{" "}
+                      observations/year
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-4 gap-4">
                 <div className="bg-white p-4 rounded-lg border">
                   <div className="text-2xl font-bold text-blue-600">
@@ -608,7 +956,9 @@ END:VCALENDAR`;
                   <div className="text-2xl font-bold text-green-600">
                     {goalMetrics.goalObservations}
                   </div>
-                  <div className="text-sm text-gray-600">Goal Target</div>
+                  <div className="text-sm text-gray-600">
+                    Goal Target ({goalSettings.goalType})
+                  </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border">
                   <div className="text-2xl font-bold text-orange-600">
@@ -629,8 +979,153 @@ END:VCALENDAR`;
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
                     className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                    style={{ width: `${goalMetrics.completionPercentage}%` }}
+                    style={{
+                      width: `${Math.min(100, goalMetrics.completionPercentage)}%`,
+                    }}
                   ></div>
+                </div>
+                <div className="flex justify-between text-xs text-gray-600 mt-1">
+                  <span>0</span>
+                  <span>{goalMetrics.goalObservations}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Goal Attainment Report Section */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">
+                Goal Attainment Report
+              </h3>
+              <div className="bg-white rounded-lg border overflow-hidden">
+                <div className="p-4 border-b bg-gray-50">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">
+                      Historical Performance -{" "}
+                      {goalSettings.goalType.charAt(0).toUpperCase() +
+                        goalSettings.goalType.slice(1)}{" "}
+                      Goals
+                    </h4>
+                    <div className="text-sm text-gray-600">
+                      Target: {goalSettings.goalValue} observations per{" "}
+                      {goalSettings.goalType.slice(0, -2) ||
+                        goalSettings.goalType}
+                    </div>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Period
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Target
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Actual
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Achievement %
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {goalAttainmentHistory.slice(-8).map((period, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {period.period}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {period.target}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {period.actual}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <span
+                              className={`font-semibold ${
+                                period.percentage >= 100
+                                  ? "text-green-600"
+                                  : period.percentage >= 80
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
+                              }`}
+                            >
+                              {period.percentage}%
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`px-2 py-1 text-xs rounded ${
+                                period.percentage >= 100
+                                  ? "bg-green-100 text-green-800"
+                                  : period.percentage >= 80
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {period.percentage >= 100
+                                ? "Achieved"
+                                : period.percentage >= 80
+                                  ? "Near Target"
+                                  : "Below Target"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="p-4 bg-gray-50 border-t">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-lg font-bold text-green-600">
+                        {
+                          goalAttainmentHistory.filter(
+                            (p) => p.percentage >= 100,
+                          ).length
+                        }
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Periods Achieved
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-blue-600">
+                        {goalAttainmentHistory.length > 0
+                          ? Math.round(
+                              goalAttainmentHistory.reduce(
+                                (sum, p) => sum + p.percentage,
+                                0,
+                              ) / goalAttainmentHistory.length,
+                            )
+                          : 0}
+                        %
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Average Achievement
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-orange-600">
+                        {goalAttainmentHistory.length > 0
+                          ? (
+                              (goalAttainmentHistory.filter(
+                                (p) => p.percentage >= 100,
+                              ).length /
+                                goalAttainmentHistory.length) *
+                              100
+                            ).toFixed(0)
+                          : 0}
+                        %
+                      </div>
+                      <div className="text-sm text-gray-600">Success Rate</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -734,11 +1229,15 @@ END:VCALENDAR`;
                           }
                         >
                           {selectedEmployee
-                            ? employees.find(
-                                (emp) => emp.id === selectedEmployee,
-                              )?.name +
-                              ` (${employees.find((emp) => emp.id === selectedEmployee)?.employeeId})`
-                            : "Select Employee"}
+                            ? (() => {
+                                const emp = employees.find(
+                                  (e) => e.id === selectedEmployee,
+                                );
+                                return emp
+                                  ? `${emp.name} (${emp.employeeId}) - ${emp.department || "Unknown"}`
+                                  : "Unknown Employee";
+                              })()
+                            : "Select Employee (All employees available for observation)"}
                         </span>
                         <span
                           className={`transform transition-transform ${showEmployeeDropdown ? "rotate-180" : ""}`}
@@ -752,7 +1251,7 @@ END:VCALENDAR`;
                           <div className="p-3">
                             <input
                               type="text"
-                              placeholder="Search by name or employee ID..."
+                              placeholder="Search by name, employee ID, or department..."
                               value={employeeSearch}
                               onChange={(e) =>
                                 setEmployeeSearch(e.target.value)
@@ -770,8 +1269,21 @@ END:VCALENDAR`;
                                     .includes(employeeSearch.toLowerCase()) ||
                                   employee.employeeId
                                     .toLowerCase()
-                                    .includes(employeeSearch.toLowerCase()),
+                                    .includes(employeeSearch.toLowerCase()) ||
+                                  (employee.department &&
+                                    employee.department
+                                      .toLowerCase()
+                                      .includes(employeeSearch.toLowerCase())),
                               )
+                              .sort((a, b) => {
+                                // Sort by department first, then by name
+                                if (a.department !== b.department) {
+                                  return (a.department || "").localeCompare(
+                                    b.department || "",
+                                  );
+                                }
+                                return a.name.localeCompare(b.name);
+                              })
                               .map((employee) => (
                                 <div
                                   key={employee.id}
@@ -782,11 +1294,18 @@ END:VCALENDAR`;
                                   }}
                                   className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
                                 >
-                                  <div className="font-medium">
-                                    {employee.name}
-                                  </div>
-                                  <div className="text-sm text-gray-600">
-                                    {employee.employeeId}
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <div className="font-medium">
+                                        {employee.name}
+                                      </div>
+                                      <div className="text-sm text-gray-600">
+                                        ID: {employee.employeeId}
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                      {employee.department || "Unknown"}
+                                    </div>
                                   </div>
                                 </div>
                               ))}
@@ -798,10 +1317,17 @@ END:VCALENDAR`;
                                   .includes(employeeSearch.toLowerCase()) ||
                                 employee.employeeId
                                   .toLowerCase()
-                                  .includes(employeeSearch.toLowerCase()),
+                                  .includes(employeeSearch.toLowerCase()) ||
+                                (employee.department &&
+                                  employee.department
+                                    .toLowerCase()
+                                    .includes(employeeSearch.toLowerCase())),
                             ).length === 0 && (
                               <div className="p-3 text-gray-500 text-center">
-                                No employees found
+                                <div>No employees found</div>
+                                <div className="text-xs mt-1">
+                                  Search by name, ID, or department
+                                </div>
                               </div>
                             )}
                           </div>
