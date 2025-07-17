@@ -1229,11 +1229,15 @@ END:VCALENDAR`;
                           }
                         >
                           {selectedEmployee
-                            ? employees.find(
-                                (emp) => emp.id === selectedEmployee,
-                              )?.name +
-                              ` (${employees.find((emp) => emp.id === selectedEmployee)?.employeeId})`
-                            : "Select Employee"}
+                            ? (() => {
+                                const emp = employees.find(
+                                  (e) => e.id === selectedEmployee,
+                                );
+                                return emp
+                                  ? `${emp.name} (${emp.employeeId}) - ${emp.department || "Unknown"}`
+                                  : "Unknown Employee";
+                              })()
+                            : "Select Employee (All employees available for observation)"}
                         </span>
                         <span
                           className={`transform transition-transform ${showEmployeeDropdown ? "rotate-180" : ""}`}
@@ -1247,7 +1251,7 @@ END:VCALENDAR`;
                           <div className="p-3">
                             <input
                               type="text"
-                              placeholder="Search by name or employee ID..."
+                              placeholder="Search by name, employee ID, or department..."
                               value={employeeSearch}
                               onChange={(e) =>
                                 setEmployeeSearch(e.target.value)
