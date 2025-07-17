@@ -39,6 +39,22 @@ type GoalMetrics = {
   goalObservations: number;
   remainingObservations: number;
   completionPercentage: number;
+  period: string;
+  periodStart: string;
+};
+
+type GoalSettings = {
+  goalType: "daily" | "weekly" | "monthly" | "quarterly" | "annual";
+  goalValue: number;
+  calculatedAnnualGoal: number;
+};
+
+type GoalAttainmentData = {
+  period: string;
+  target: number;
+  actual: number;
+  percentage: number;
+  date: string;
 };
 
 type PerformanceMetrics = {
@@ -54,7 +70,20 @@ export default function CatalystPage() {
     goalObservations: 100,
     remainingObservations: 100,
     completionPercentage: 0,
+    period: "monthly",
+    periodStart: new Date().toISOString(),
   });
+
+  const [goalSettings, setGoalSettings] = useState<GoalSettings>({
+    goalType: "monthly",
+    goalValue: 20,
+    calculatedAnnualGoal: 260,
+  });
+
+  const [goalAttainmentHistory, setGoalAttainmentHistory] = useState<
+    GoalAttainmentData[]
+  >([]);
+  const [showGoalSettings, setShowGoalSettings] = useState(false);
 
   const [performanceMetrics, setPerformanceMetrics] =
     useState<PerformanceMetrics>({
@@ -113,7 +142,13 @@ export default function CatalystPage() {
     loadStandards();
     loadObservationReasons();
     loadEmployees();
+    loadGoalAttainmentHistory();
   }, []);
+
+  // Reload goals when settings change
+  useEffect(() => {
+    loadGoalMetrics();
+  }, [goalSettings]);
 
   // Filter team members by department
   useEffect(() => {
@@ -128,24 +163,86 @@ export default function CatalystPage() {
     }
   }, [selectedDepartment, teamMembers]);
 
+  const calculateWorkDaysPerYear = () => {
+    // 52 weeks per year, 5 work days per week
+    return 52 * 5;
+  };
+
+  const calculateGoalFromSettings = (goalType: string, goalValue: number) => {
+    const workDaysPerYear = calculateWorkDaysPerYear();
+
+    switch (goalType) {
+      case "daily":
+        return goalValue * workDaysPerYear;
+      case "weekly":
+        return goalValue * 52;
+      case "monthly":
+        return goalValue * 12;
+      case "quarterly":
+        return goalValue * 4;
+      case "annual":
+        return goalValue;
+      default:
+        return goalValue;
+    }
+  };
+
+  const getPeriodForGoalType = (goalType: string) => {
+    switch (goalType) {
+      case "daily":
+        return "day";
+      case "weekly":
+        return "week";
+      case "monthly":
+        return "month";
+      case "quarterly":
+        return "quarter";
+      case "annual":
+        return "year";
+      default:
+        return "month";
+    }
+  };
+
   const loadGoalMetrics = async () => {
     try {
       // Get current user ID (for now using a default supervisor)
       const currentUserId = "admin-001"; // This should come from auth context
+      const period = getPeriodForGoalType(goalSettings.goalType);
       const response = await fetch(
-        `/api/catalyst/goals?userId=${currentUserId}&period=month`,
+        `/api/catalyst/goals?userId=${currentUserId}&period=${period}`,
       );
 
       if (response.ok) {
         const data = await response.json();
-        setGoalMetrics(data);
+        // Update goal target based on current settings
+        const adjustedData = {
+          ...data,
+          goalObservations: goalSettings.goalValue,
+          remainingObservations: Math.max(
+            0,
+            goalSettings.goalValue - data.totalObservations,
+          ),
+          completionPercentage:
+            goalSettings.goalValue > 0
+              ? Math.round(
+                  (data.totalObservations / goalSettings.goalValue) * 100,
+                )
+              : 0,
+        };
+        setGoalMetrics(adjustedData);
       } else {
         // Fallback to mock data if API fails
         const mockGoals = {
-          totalObservations: 75,
-          goalObservations: 100,
-          remainingObservations: 25,
-          completionPercentage: 75,
+          totalObservations: 15,
+          goalObservations: goalSettings.goalValue,
+          remainingObservations: Math.max(0, goalSettings.goalValue - 15),
+          completionPercentage:
+            goalSettings.goalValue > 0
+              ? Math.round((15 / goalSettings.goalValue) * 100)
+              : 0,
+          period: period,
+          periodStart: new Date().toISOString(),
         };
         setGoalMetrics(mockGoals);
       }
@@ -153,10 +250,15 @@ export default function CatalystPage() {
       console.error("Error loading goal metrics:", error);
       // Fallback to mock data
       const mockGoals = {
-        totalObservations: 75,
-        goalObservations: 100,
-        remainingObservations: 25,
-        completionPercentage: 75,
+        totalObservations: 15,
+        goalObservations: goalSettings.goalValue,
+        remainingObservations: Math.max(0, goalSettings.goalValue - 15),
+        completionPercentage:
+          goalSettings.goalValue > 0
+            ? Math.round((15 / goalSettings.goalValue) * 100)
+            : 0,
+        period: getPeriodForGoalType(goalSettings.goalType),
+        periodStart: new Date().toISOString(),
       };
       setGoalMetrics(mockGoals);
     }
