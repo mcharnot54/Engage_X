@@ -862,9 +862,87 @@ END:VCALENDAR`;
               </h1>
             </div>
 
-            {/* Goal Count Section */}
+            {/* Goal Settings and Progress Section */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
-              <h3 className="text-lg font-semibold mb-4">Goal Progress</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Goal Progress</h3>
+                <div className="flex items-center gap-4">
+                  <div className="text-sm text-gray-600">
+                    Current Goal: {goalSettings.goalValue}{" "}
+                    {goalSettings.goalType} | Annual Equivalent:{" "}
+                    {goalSettings.calculatedAnnualGoal}
+                  </div>
+                  <button
+                    onClick={() => setShowGoalSettings(!showGoalSettings)}
+                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                  >
+                    Goal Settings
+                  </button>
+                </div>
+              </div>
+
+              {/* Goal Settings Panel */}
+              {showGoalSettings && (
+                <div className="bg-white p-4 rounded-lg border mb-4">
+                  <h4 className="font-semibold mb-3">
+                    Configure Observation Goals
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Goal Type
+                      </label>
+                      <select
+                        value={goalSettings.goalType}
+                        onChange={(e) =>
+                          updateGoalSettings({
+                            goalType: e.target
+                              .value as GoalSettings["goalType"],
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="annual">Annual</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Goal Value
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={goalSettings.goalValue}
+                        onChange={(e) =>
+                          updateGoalSettings({
+                            goalValue: parseInt(e.target.value) || 1,
+                          })
+                        }
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-3 p-3 bg-blue-50 rounded">
+                    <p className="text-sm text-blue-800">
+                      <strong>Work Day Calculation:</strong> Based on 5 work
+                      days per week, 52 weeks per year (260 work days annually)
+                    </p>
+                    <p className="text-sm text-blue-600 mt-1">
+                      Annual Goal Equivalent:{" "}
+                      {calculateGoalFromSettings(
+                        goalSettings.goalType,
+                        goalSettings.goalValue,
+                      )}{" "}
+                      observations/year
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-4 gap-4">
                 <div className="bg-white p-4 rounded-lg border">
                   <div className="text-2xl font-bold text-blue-600">
@@ -878,7 +956,9 @@ END:VCALENDAR`;
                   <div className="text-2xl font-bold text-green-600">
                     {goalMetrics.goalObservations}
                   </div>
-                  <div className="text-sm text-gray-600">Goal Target</div>
+                  <div className="text-sm text-gray-600">
+                    Goal Target ({goalSettings.goalType})
+                  </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border">
                   <div className="text-2xl font-bold text-orange-600">
@@ -899,8 +979,153 @@ END:VCALENDAR`;
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
                     className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                    style={{ width: `${goalMetrics.completionPercentage}%` }}
+                    style={{
+                      width: `${Math.min(100, goalMetrics.completionPercentage)}%`,
+                    }}
                   ></div>
+                </div>
+                <div className="flex justify-between text-xs text-gray-600 mt-1">
+                  <span>0</span>
+                  <span>{goalMetrics.goalObservations}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Goal Attainment Report Section */}
+            <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
+              <h3 className="text-lg font-semibold mb-4">
+                Goal Attainment Report
+              </h3>
+              <div className="bg-white rounded-lg border overflow-hidden">
+                <div className="p-4 border-b bg-gray-50">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">
+                      Historical Performance -{" "}
+                      {goalSettings.goalType.charAt(0).toUpperCase() +
+                        goalSettings.goalType.slice(1)}{" "}
+                      Goals
+                    </h4>
+                    <div className="text-sm text-gray-600">
+                      Target: {goalSettings.goalValue} observations per{" "}
+                      {goalSettings.goalType.slice(0, -2) ||
+                        goalSettings.goalType}
+                    </div>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Period
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Target
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Actual
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Achievement %
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {goalAttainmentHistory.slice(-8).map((period, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {period.period}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {period.target}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {period.actual}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <span
+                              className={`font-semibold ${
+                                period.percentage >= 100
+                                  ? "text-green-600"
+                                  : period.percentage >= 80
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
+                              }`}
+                            >
+                              {period.percentage}%
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`px-2 py-1 text-xs rounded ${
+                                period.percentage >= 100
+                                  ? "bg-green-100 text-green-800"
+                                  : period.percentage >= 80
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {period.percentage >= 100
+                                ? "Achieved"
+                                : period.percentage >= 80
+                                  ? "Near Target"
+                                  : "Below Target"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="p-4 bg-gray-50 border-t">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-lg font-bold text-green-600">
+                        {
+                          goalAttainmentHistory.filter(
+                            (p) => p.percentage >= 100,
+                          ).length
+                        }
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Periods Achieved
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-blue-600">
+                        {goalAttainmentHistory.length > 0
+                          ? Math.round(
+                              goalAttainmentHistory.reduce(
+                                (sum, p) => sum + p.percentage,
+                                0,
+                              ) / goalAttainmentHistory.length,
+                            )
+                          : 0}
+                        %
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Average Achievement
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-orange-600">
+                        {goalAttainmentHistory.length > 0
+                          ? (
+                              (goalAttainmentHistory.filter(
+                                (p) => p.percentage >= 100,
+                              ).length /
+                                goalAttainmentHistory.length) *
+                              100
+                            ).toFixed(0)
+                          : 0}
+                        %
+                      </div>
+                      <div className="text-sm text-gray-600">Success Rate</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
