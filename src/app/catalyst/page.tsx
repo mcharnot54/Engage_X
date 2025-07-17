@@ -554,31 +554,199 @@ END:VCALENDAR`;
 
   const loadEmployees = async () => {
     try {
-      const response = await fetch("/api/users-tenant?role=Team Member");
+      // Load all users, not just team members, but filter for those who can be observed
+      const response = await fetch("/api/users-tenant");
       if (response.ok) {
         const data = await response.json();
-        const teamMembers = data.users.map(
-          (user: { id: string; name: string; employeeId?: string }) => ({
-            id: user.id,
-            name: user.name,
-            employeeId: user.employeeId || user.id,
-          }),
-        );
-        setEmployees(teamMembers);
+        const allUsers = data.users
+          .filter(
+            (user: { userType?: string; isActive?: boolean }) =>
+              user.isActive !== false &&
+              (!user.userType ||
+                user.userType === "Team Member" ||
+                user.userType === "Employee"),
+          )
+          .map(
+            (user: {
+              id: string;
+              name: string;
+              employeeId?: string;
+              department?: string;
+            }) => ({
+              id: user.id,
+              name: user.name,
+              employeeId: user.employeeId || user.id,
+              department: user.department || "Unknown",
+            }),
+          );
+        setEmployees(allUsers);
       } else {
         // Fallback to demo employees if API fails
         const fallbackEmployees = [
-          { id: "emp001", name: "John Smith", employeeId: "emp001" },
-          { id: "emp002", name: "Sarah Johnson", employeeId: "emp002" },
-          { id: "emp003", name: "Michael Brown", employeeId: "emp003" },
-          { id: "emp004", name: "Lisa Davis", employeeId: "emp004" },
-          { id: "emp005", name: "Robert Wilson", employeeId: "emp005" },
+          {
+            id: "emp001",
+            name: "John Smith",
+            employeeId: "emp001",
+            department: "Manufacturing",
+          },
+          {
+            id: "emp002",
+            name: "Sarah Johnson",
+            employeeId: "emp002",
+            department: "Quality",
+          },
+          {
+            id: "emp003",
+            name: "Michael Brown",
+            employeeId: "emp003",
+            department: "Manufacturing",
+          },
+          {
+            id: "emp004",
+            name: "Lisa Davis",
+            employeeId: "emp004",
+            department: "Operations",
+          },
+          {
+            id: "emp005",
+            name: "Robert Wilson",
+            employeeId: "emp005",
+            department: "Maintenance",
+          },
+          {
+            id: "emp006",
+            name: "Jennifer Martinez",
+            employeeId: "emp006",
+            department: "Quality",
+          },
+          {
+            id: "emp007",
+            name: "David Lee",
+            employeeId: "emp007",
+            department: "Manufacturing",
+          },
+          {
+            id: "emp008",
+            name: "Amanda Taylor",
+            employeeId: "emp008",
+            department: "Operations",
+          },
         ];
         setEmployees(fallbackEmployees);
       }
     } catch (error) {
       console.error("Error loading employees:", error);
+      // Use fallback data
+      const fallbackEmployees = [
+        {
+          id: "emp001",
+          name: "John Smith",
+          employeeId: "emp001",
+          department: "Manufacturing",
+        },
+        {
+          id: "emp002",
+          name: "Sarah Johnson",
+          employeeId: "emp002",
+          department: "Quality",
+        },
+        {
+          id: "emp003",
+          name: "Michael Brown",
+          employeeId: "emp003",
+          department: "Manufacturing",
+        },
+        {
+          id: "emp004",
+          name: "Lisa Davis",
+          employeeId: "emp004",
+          department: "Operations",
+        },
+        {
+          id: "emp005",
+          name: "Robert Wilson",
+          employeeId: "emp005",
+          department: "Maintenance",
+        },
+      ];
+      setEmployees(fallbackEmployees);
     }
+  };
+
+  const loadGoalAttainmentHistory = async () => {
+    try {
+      // Mock historical data for now - in practice this would come from the API
+      const mockHistory: GoalAttainmentData[] = [];
+      const currentDate = new Date();
+
+      // Generate last 12 periods of data based on goal type
+      for (let i = 11; i >= 0; i--) {
+        const periodDate = new Date(currentDate);
+        let periodLabel = "";
+
+        switch (goalSettings.goalType) {
+          case "daily":
+            periodDate.setDate(periodDate.getDate() - i);
+            periodLabel = periodDate.toLocaleDateString();
+            break;
+          case "weekly":
+            periodDate.setDate(periodDate.getDate() - i * 7);
+            periodLabel = `Week of ${periodDate.toLocaleDateString()}`;
+            break;
+          case "monthly":
+            periodDate.setMonth(periodDate.getMonth() - i);
+            periodLabel = periodDate.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+            });
+            break;
+          case "quarterly":
+            periodDate.setMonth(periodDate.getMonth() - i * 3);
+            const quarter = Math.floor(periodDate.getMonth() / 3) + 1;
+            periodLabel = `Q${quarter} ${periodDate.getFullYear()}`;
+            break;
+          case "annual":
+            periodDate.setFullYear(periodDate.getFullYear() - i);
+            periodLabel = periodDate.getFullYear().toString();
+            break;
+        }
+
+        // Simulate performance data with some variance
+        const basePerformance = 0.75 + Math.random() * 0.4; // 75-115% performance
+        const actual = Math.floor(goalSettings.goalValue * basePerformance);
+        const percentage = Math.round((actual / goalSettings.goalValue) * 100);
+
+        mockHistory.push({
+          period: periodLabel,
+          target: goalSettings.goalValue,
+          actual: actual,
+          percentage: percentage,
+          date: periodDate.toISOString(),
+        });
+      }
+
+      setGoalAttainmentHistory(mockHistory);
+    } catch (error) {
+      console.error("Error loading goal attainment history:", error);
+    }
+  };
+
+  const updateGoalSettings = async (newSettings: Partial<GoalSettings>) => {
+    const updatedSettings = { ...goalSettings, ...newSettings };
+
+    // Calculate annual goal based on new settings
+    updatedSettings.calculatedAnnualGoal = calculateGoalFromSettings(
+      updatedSettings.goalType,
+      updatedSettings.goalValue,
+    );
+
+    setGoalSettings(updatedSettings);
+    setShowGoalSettings(false);
+
+    // Reload attainment history with new settings
+    setTimeout(() => {
+      loadGoalAttainmentHistory();
+    }, 100);
   };
 
   // Helper functions for multi-level dropdown
