@@ -199,13 +199,32 @@ export async function GET() {
       department: user.department || "N/A",
     }));
 
-    const transformedStandards = standards.map((standard) => ({
-      id: standard.id,
-      name: standard.name,
-      facility: { name: standard.facility?.name || "N/A" },
-      department: { name: standard.department?.name || "N/A" },
-      area: { name: standard.area?.name || "N/A" },
-    }));
+    // Aggregate standards data with observation counts and average performance
+    const standardsWithAggregatedData = standards.map((standard) => {
+      const standardObservations = observations.filter(obs => obs.standardId === standard.id);
+      const avgObservedPerformance = standardObservations.length > 0
+        ? standardObservations.reduce((sum, obs) => sum + obs.observedPerformance, 0) / standardObservations.length
+        : 0;
+      const avgPumpScore = standardObservations.length > 0
+        ? standardObservations.reduce((sum, obs) => sum + obs.pumpScore, 0) / standardObservations.length
+        : 0;
+
+      return {
+        id: standard.id,
+        name: standard.name,
+        facility: { name: standard.facility?.name || "N/A" },
+        department: { name: standard.department?.name || "N/A" },
+        area: { name: standard.area?.name || "N/A" },
+        observationCount: standardObservations.length,
+        avgObservedPerformance: Math.round(avgObservedPerformance * 10) / 10,
+        avgPumpScore: Math.round(avgPumpScore * 10) / 10,
+        lastObservationDate: standardObservations.length > 0
+          ? standardObservations.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+          : null,
+      };
+    }).filter(standard => standard.observationCount > 0); // Only include standards with observations
+
+    const transformedStandards = standardsWithAggregatedData;
 
     const dashboardData = {
       observations: transformedObservations,
