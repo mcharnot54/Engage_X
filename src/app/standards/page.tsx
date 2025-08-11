@@ -1226,7 +1226,10 @@ export default function Standards() {
                 <div className="relative">
                   <select
                     value={selectedStandard}
-                    onChange={(e) => setSelectedStandard(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedStandard(e.target.value);
+                      standardMemory.setValue(e.target.value);
+                    }}
                     disabled={isLoading}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                   >
