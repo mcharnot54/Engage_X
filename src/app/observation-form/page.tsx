@@ -1915,31 +1915,38 @@ export default function GazeObservationApp() {
                 </div>
                 {/* Dynamic Employee Dropdown with Search */}
                 <div className="relative employee-dropdown">
-                  <div
-                    onClick={() =>
-                      !isObserving &&
-                      setShowEmployeeDropdown(!showEmployeeDropdown)
-                    }
-                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 cursor-pointer flex justify-between items-center h-12 ${
-                      isObserving
-                        ? "opacity-70 cursor-not-allowed"
-                        : "hover:bg-gray-50"
-                    }`}
-                  >
-                    <span
-                      className={employeeId ? "text-black" : "text-gray-500"}
+                  <div className="relative">
+                    <div
+                      onClick={() =>
+                        !isObserving &&
+                        setShowEmployeeDropdown(!showEmployeeDropdown)
+                      }
+                      className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 cursor-pointer flex justify-between items-center h-12 ${
+                        isObserving
+                          ? "opacity-70 cursor-not-allowed"
+                          : "hover:bg-gray-50"
+                      } ${employeeId ? 'border-green-400 bg-green-50' : ''}`}
                     >
-                      {employeeId
-                        ? employees.find((emp) => emp.employeeId === employeeId)
-                            ?.name +
-                          ` (${employees.find((emp) => emp.employeeId === employeeId)?.employeeId})`
-                        : "Select Employee"}
-                    </span>
-                    <span
-                      className={`transform transition-transform ${showEmployeeDropdown ? "rotate-180" : ""}`}
-                    >
-                      ▼
-                    </span>
+                      <span
+                        className={employeeId ? "text-black" : "text-gray-500"}
+                      >
+                        {employeeId
+                          ? employees.find((emp) => emp.employeeId === employeeId)
+                              ?.name +
+                            ` (${employees.find((emp) => emp.employeeId === employeeId)?.employeeId})`
+                          : "Select Employee"}
+                      </span>
+                      <span
+                        className={`transform transition-transform ${showEmployeeDropdown ? "rotate-180" : ""}`}
+                      >
+                        ▼
+                      </span>
+                    </div>
+                    {employeeId && (
+                      <div className="absolute -top-2 left-2 text-xs text-green-600 bg-white px-1">
+                        💾 Remembered
+                      </div>
+                    )}
                   </div>
 
                   {showEmployeeDropdown && (
