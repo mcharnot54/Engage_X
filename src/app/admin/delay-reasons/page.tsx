@@ -175,6 +175,7 @@ export default function DelayReasonsAdminPage() {
               items: [
                 { label: "Users", href: "/admin/users" },
                 { label: "Roles & Permissions", href: "/admin/roles" },
+                { label: "User Role Assignments", href: "/admin/user-roles" },
                 { label: "Observations", href: "/admin/observations" },
               ],
             },
