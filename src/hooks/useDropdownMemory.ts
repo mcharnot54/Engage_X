@@ -32,7 +32,9 @@ export function useDropdownMemory({
   // Function to update value and save to localStorage
   const updateValue = (newValue: string) => {
     setValue(newValue);
-    
+
+    if (disableAutosave) return;
+
     try {
       if (!excludeValues.includes(newValue)) {
         localStorage.setItem(`dropdown_${key}`, newValue);
