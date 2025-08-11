@@ -145,6 +145,14 @@ export default function CatalystPage() {
     loadObservationReasons();
     loadEmployees();
     loadGoalAttainmentHistory();
+
+    // Set up auto-refresh for goal metrics every 30 seconds
+    const refreshInterval = setInterval(() => {
+      loadGoalMetrics();
+      loadPerformanceMetrics();
+    }, 30000);
+
+    return () => clearInterval(refreshInterval);
   }, []);
 
   // Reload goals when settings change
