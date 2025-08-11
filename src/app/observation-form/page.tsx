@@ -153,7 +153,8 @@ export default function GazeObservationApp() {
   // Delay tracking with timer functionality
   const [isDelayActive, setIsDelayActive] = useState(false);
   const [delayStartTime, setDelayStartTime] = useState<number | null>(null);
-  const [delayReason, setDelayReason] = useState("");
+  const delayReasonMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'delayReason') });
+  const [delayReason, setDelayReason] = useState(delayReasonMemory.value);
   const [delays, setDelays] = useState<Delay[]>([]);
   const [delayReasons, setDelayReasons] = useState<
     { id: string; name: string; description?: string }[]
