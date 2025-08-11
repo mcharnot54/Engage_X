@@ -1246,9 +1246,12 @@ export default function GazeObservationApp() {
     setEmployeeId("");
     setEmployeeSearch("");
     setShowEmployeeDropdown(false);
-    setObservationReason("");
+    // Note: Don't clear observationReason to keep user preference
     setStandard("");
-    resetStandardSelection();
+    // Note: Don't call resetStandardSelection to preserve memory - just clear state
+    setSelectedFacility("");
+    setSelectedDepartment("");
+    setSelectedArea("");
     setSelectedStandardData(null);
     setRows([]);
     setOriginalRowOrder([]);
@@ -1275,6 +1278,7 @@ export default function GazeObservationApp() {
     setTempQuantities({});
     setSubmittedQuantities({});
     setIsExplicitStandardSelection(false);
+    // Note: Memory values are preserved so user doesn't have to re-enter selections next time
   };
 
   // Effects
