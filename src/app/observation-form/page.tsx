@@ -1901,6 +1901,7 @@ export default function GazeObservationApp() {
                   value={observationReason}
                   onChange={(e) => {
                     setObservationReason(e.target.value);
+                    observationReasonMemory.setValue(e.target.value);
                     if (e.target.value) {
                       setShowReasonInstructions(true);
                     }
@@ -2165,7 +2166,7 @@ export default function GazeObservationApp() {
                       {highlightedTagGroup.size > 0 && (
                         <div className="flex items-center gap-3 text-yellow-600 mb-1">
                           <span className="flex items-center gap-2">
-                            🏆 Tag group highlighted - Group moved to top with
+                            ��� Tag group highlighted - Group moved to top with
                             gold styling
                           </span>
                           <button
