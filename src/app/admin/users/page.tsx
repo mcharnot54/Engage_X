@@ -361,10 +361,13 @@ export default function UsersAdminPage() {
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Department
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                          Role
+                        <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">
+                          Primary Role
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                        <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">
+                          Additional Roles
+                        </th>
+                        <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">
                           Organization
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
