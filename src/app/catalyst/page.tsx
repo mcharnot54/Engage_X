@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
+import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
 
 type TeamMember = {
   id: string;
