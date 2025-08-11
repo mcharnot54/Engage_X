@@ -1043,7 +1043,7 @@ export async function updateDelayReason(
   });
 }
 
-export async function deleteDelayReason(id: number) {
+export async function deleteDelayReason(id: string) {
   return prisma.delayReason.update({
     where: { id },
     data: { isActive: false },
