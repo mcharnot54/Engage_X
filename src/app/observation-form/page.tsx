@@ -1729,22 +1729,29 @@ export default function GazeObservationApp() {
               <div className="grid grid-cols-3 gap-4">
                 {/* Standard Selection - Multi-level Dropdown */}
                 <div className="relative standard-dropdown">
-                  <button
-                    onClick={() =>
-                      setShowStandardDropdown(!showStandardDropdown)
-                    }
-                    disabled={isObserving}
-                    className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors h-12"
-                  >
-                    <span className={standard ? "text-black" : "text-gray-500"}>
-                      {getSelectedStandardDisplay()}
-                    </span>
-                    <span
-                      className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+                  <div className="relative">
+                    <button
+                      onClick={() =>
+                        setShowStandardDropdown(!showStandardDropdown)
+                      }
+                      disabled={isObserving}
+                      className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 text-left flex justify-between items-center hover:bg-gray-50 transition-colors h-12 ${(selectedFacility || selectedDepartment || selectedArea || standard) ? 'border-green-400 bg-green-50' : ''}`}
                     >
-                      ▼
-                    </span>
-                  </button>
+                      <span className={standard ? "text-black" : "text-gray-500"}>
+                        {getSelectedStandardDisplay()}
+                      </span>
+                      <span
+                        className={`transform transition-transform ${showStandardDropdown ? "rotate-180" : ""}`}
+                      >
+                        ▼
+                      </span>
+                    </button>
+                    {(selectedFacility || selectedDepartment || selectedArea || standard) && (
+                      <div className="absolute -top-2 left-2 text-xs text-green-600 bg-white px-1">
+                        💾 Remembered
+                      </div>
+                    )}
+                  </div>
 
                   {showStandardDropdown && (
                     <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
