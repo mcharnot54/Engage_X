@@ -1963,6 +1963,7 @@ export default function GazeObservationApp() {
                               key={employee.id}
                               onClick={() => {
                                 setEmployeeId(employee.employeeId);
+                                employeeMemory.setValue(employee.employeeId);
                                 setShowEmployeeDropdown(false);
                                 setEmployeeSearch("");
                                 // Load performance data filtered by current standard if selected
