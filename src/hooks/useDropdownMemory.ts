@@ -10,7 +10,8 @@ interface UseDropdownMemoryOptions {
 export function useDropdownMemory({
   key,
   defaultValue = '',
-  excludeValues = ['']
+  excludeValues = [''],
+  disableAutosave = false
 }: UseDropdownMemoryOptions) {
   const [value, setValue] = useState<string>(defaultValue);
 
