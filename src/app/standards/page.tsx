@@ -1136,6 +1136,7 @@ export default function Standards() {
                     value={selectedOrganization}
                     onChange={(e) => {
                       setSelectedOrganization(e.target.value);
+                      organizationMemory.setValue(e.target.value);
                     }}
                     disabled={isLoading}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
