@@ -1740,6 +1740,11 @@ export default function GazeObservationApp() {
                       <div className="p-4 space-y-4">
                         <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded mb-4">
                           ⚡ All fields shown at once - selections are automatically saved for future use
+                          {(selectedFacility || selectedDepartment || selectedArea || standard) && (
+                            <div className="mt-2 text-xs text-green-600">
+                              💾 Pre-populated with your last used values
+                            </div>
+                          )}
                         </div>
 
                         {/* Facility Selection - Always visible */}
@@ -2612,7 +2617,7 @@ export default function GazeObservationApp() {
                                                 className="flex items-center justify-between pl-2 text-xs group"
                                               >
                                                 <span>
-                                                  • {entry.amount} at{" "}
+                                                  �� {entry.amount} at{" "}
                                                   {entry.timestamp}
                                                 </span>
                                                 {!isFinalized && (
@@ -3507,7 +3512,7 @@ export default function GazeObservationApp() {
                         </div>
 
                         <div className="flex items-start gap-2">
-                          <span className="text-orange-600 font-medium">•</span>
+                          <span className="text-orange-600 font-medium">���</span>
                           <span className="text-orange-700">
                             <strong>Current UOM Entries:</strong>{" "}
                             {selectedStandardData.uomEntries?.length || 0}{" "}
