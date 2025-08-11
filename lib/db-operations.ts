@@ -1030,7 +1030,7 @@ export async function createDelayReason(data: {
 }
 
 export async function updateDelayReason(
-  id: number,
+  id: string,
   data: {
     name?: string;
     description?: string;
