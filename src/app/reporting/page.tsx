@@ -1045,12 +1045,13 @@ export default function ReportingPage() {
                 </label>
                 <select
                   value={filters.selectedStandard}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setFilters((prev) => ({
                       ...prev,
                       selectedStandard: e.target.value,
-                    }))
-                  }
+                    }));
+                    standardFilterMemory.setValue(e.target.value);
+                  }}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Standards</option>
