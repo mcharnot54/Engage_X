@@ -17,6 +17,8 @@ export function useDropdownMemory({
 
   // Load remembered value on mount
   useEffect(() => {
+    if (disableAutosave) return;
+
     try {
       const remembered = localStorage.getItem(`dropdown_${key}`);
       if (remembered && !excludeValues.includes(remembered)) {
@@ -25,7 +27,7 @@ export function useDropdownMemory({
     } catch (error) {
       console.warn(`Failed to load dropdown memory for ${key}:`, error);
     }
-  }, [key, excludeValues]);
+  }, [key, excludeValues, disableAutosave]);
 
   // Function to update value and save to localStorage
   const updateValue = (newValue: string) => {
