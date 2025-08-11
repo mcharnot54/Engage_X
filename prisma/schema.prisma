@@ -188,7 +188,7 @@ model ObservationData {
 }
 
 model Role {
-  id              String           @id
+  id              String           @id @default(cuid())
   name            String           @unique
   description     String?
   isActive        Boolean          @default(true)
