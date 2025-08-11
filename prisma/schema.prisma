@@ -202,7 +202,7 @@ model Role {
 }
 
 model Permission {
-  id              String           @id
+  id              String           @id @default(cuid())
   name            String           @unique
   description     String?
   module          String
