@@ -100,13 +100,19 @@ export default function GazeObservationApp() {
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
 
-  const facilityMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'facility') });
-  const departmentMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'department') });
-  const areaMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'area') });
+  // Enhanced multi-dropdown memory for all standard selection fields
+  const standardSelectionMemory = useMultiDropdownMemory({
+    keys: [
+      createDropdownKey('observation-form', 'facility'),
+      createDropdownKey('observation-form', 'department'),
+      createDropdownKey('observation-form', 'area'),
+      createDropdownKey('observation-form', 'standard')
+    ]
+  });
 
-  const [selectedFacility, setSelectedFacility] = useState(facilityMemory.value);
-  const [selectedDepartment, setSelectedDepartment] = useState(departmentMemory.value);
-  const [selectedArea, setSelectedArea] = useState(areaMemory.value);
+  const [selectedFacility, setSelectedFacility] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
   const [observedPerformance, setObservedPerformance] = useState(0);
   const [isFinalized, setIsFinalized] = useState(false);
   const [isPumpAssessmentActive, setIsPumpAssessmentActive] = useState(false);
