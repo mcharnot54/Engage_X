@@ -860,9 +860,25 @@ END:VCALENDAR`;
 
           <main className="flex-1 p-6 bg-white overflow-x-auto overflow-y-auto min-w-0">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-semibold text-red-600">
-                Catalyst - Leadership Dashboard
-              </h1>
+              <div>
+                <h1 className="text-2xl font-semibold text-red-600">
+                  Catalyst - Leadership Dashboard
+                </h1>
+                <div className="flex items-center mt-2 text-sm text-gray-600">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
+                    👤 {getCurrentUser().name} ({getCurrentUser().role})
+                  </span>
+                  <span className="ml-3 text-gray-500">
+                    Employee ID: {getCurrentUser().employeeId}
+                  </span>
+                </div>
+              </div>
+              <a
+                href="/observation-form"
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-lg flex items-center gap-2"
+              >
+                📝 Conduct Observation
+              </a>
             </div>
 
             {/* Goal Settings and Progress Section */}
