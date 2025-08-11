@@ -1734,7 +1734,11 @@ export default function GazeObservationApp() {
                   {showStandardDropdown && (
                     <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
                       <div className="p-4 space-y-4">
-                        {/* Facility Selection */}
+                        <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded mb-4">
+                          ⚡ All fields shown at once - selections are automatically saved for future use
+                        </div>
+
+                        {/* Facility Selection - Always visible */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             1. Select Facility
@@ -1742,11 +1746,18 @@ export default function GazeObservationApp() {
                           <select
                             value={selectedFacility}
                             onChange={(e) => {
+                              const facilityKey = createDropdownKey('observation-form', 'facility');
                               setSelectedFacility(e.target.value);
-                              facilityMemory.setValue(e.target.value);
-                              setSelectedDepartment("");
-                              setSelectedArea("");
-                              setStandard("");
+                              standardSelectionMemory.updateValue(facilityKey, e.target.value);
+                              // Clear dependent fields when facility changes
+                              if (e.target.value !== selectedFacility) {
+                                setSelectedDepartment("");
+                                setSelectedArea("");
+                                setStandard("");
+                                standardSelectionMemory.updateValue(createDropdownKey('observation-form', 'department'), "");
+                                standardSelectionMemory.updateValue(createDropdownKey('observation-form', 'area'), "");
+                                standardSelectionMemory.updateValue(createDropdownKey('observation-form', 'standard'), "");
+                              }
                             }}
                             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
@@ -1759,86 +1770,102 @@ export default function GazeObservationApp() {
                           </select>
                         </div>
 
-                        {/* Department Selection */}
-                        {selectedFacility && (
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              2. Select Department
-                            </label>
-                            <select
-                              value={selectedDepartment}
-                              onChange={(e) => {
-                                setSelectedDepartment(e.target.value);
-                                departmentMemory.setValue(e.target.value);
+                        {/* Department Selection - Always visible */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            2. Select Department
+                          </label>
+                          <select
+                            value={selectedDepartment}
+                            onChange={(e) => {
+                              const departmentKey = createDropdownKey('observation-form', 'department');
+                              setSelectedDepartment(e.target.value);
+                              standardSelectionMemory.updateValue(departmentKey, e.target.value);
+                              // Clear dependent fields when department changes
+                              if (e.target.value !== selectedDepartment) {
                                 setSelectedArea("");
                                 setStandard("");
-                              }}
-                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            >
-                              <option value="">Choose Department</option>
-                              {getUniqueDepartments(selectedFacility).map(
-                                (dept) => (
-                                  <option key={dept.id} value={dept.name}>
-                                    {dept.name}
-                                  </option>
-                                ),
-                              )}
-                            </select>
-                          </div>
-                        )}
+                                standardSelectionMemory.updateValue(createDropdownKey('observation-form', 'area'), "");
+                                standardSelectionMemory.updateValue(createDropdownKey('observation-form', 'standard'), "");
+                              }
+                            }}
+                            disabled={!selectedFacility}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">
+                              {selectedFacility ? "Choose Department" : "Select Facility First"}
+                            </option>
+                            {selectedFacility && getUniqueDepartments(selectedFacility).map(
+                              (dept) => (
+                                <option key={dept.id} value={dept.name}>
+                                  {dept.name}
+                                </option>
+                              ),
+                            )}
+                          </select>
+                        </div>
 
-                        {/* Area Selection */}
-                        {selectedDepartment && (
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              3. Select Area
-                            </label>
-                            <select
-                              value={selectedArea}
-                              onChange={(e) => {
-                                setSelectedArea(e.target.value);
-                                areaMemory.setValue(e.target.value);
+                        {/* Area Selection - Always visible */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            3. Select Area
+                          </label>
+                          <select
+                            value={selectedArea}
+                            onChange={(e) => {
+                              const areaKey = createDropdownKey('observation-form', 'area');
+                              setSelectedArea(e.target.value);
+                              standardSelectionMemory.updateValue(areaKey, e.target.value);
+                              // Clear dependent fields when area changes
+                              if (e.target.value !== selectedArea) {
                                 setStandard("");
-                              }}
-                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            >
-                              <option value="">Choose Area</option>
-                              {getUniqueAreas(
-                                selectedFacility,
-                                selectedDepartment,
-                              ).map((area) => (
-                                <option key={area.id} value={area.name}>
-                                  {area.name}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
+                                standardSelectionMemory.updateValue(createDropdownKey('observation-form', 'standard'), "");
+                              }
+                            }}
+                            disabled={!selectedDepartment}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">
+                              {selectedDepartment ? "Choose Area" : "Select Department First"}
+                            </option>
+                            {selectedDepartment && getUniqueAreas(
+                              selectedFacility,
+                              selectedDepartment,
+                            ).map((area) => (
+                              <option key={area.id} value={area.name}>
+                                {area.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
-                        {/* Standard Selection */}
-                        {selectedArea && (
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              4. Select Standard
-                            </label>
-                            <select
-                              value={standard}
-                              onChange={(e) => {
-                                setStandard(e.target.value);
-                                setIsExplicitStandardSelection(true);
-                                setShowStandardDropdown(false);
-                              }}
-                              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            >
-                              <option value="">Choose Standard</option>
-                              {getFilteredStandards().map((std) => (
-                                <option key={std.id} value={std.id}>
-                                  {std.name}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
+                        {/* Standard Selection - Always visible */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            4. Select Standard
+                          </label>
+                          <select
+                            value={standard}
+                            onChange={(e) => {
+                              const standardKey = createDropdownKey('observation-form', 'standard');
+                              setStandard(e.target.value);
+                              standardSelectionMemory.updateValue(standardKey, e.target.value);
+                              setIsExplicitStandardSelection(true);
+                              setShowStandardDropdown(false);
+                            }}
+                            disabled={!selectedArea}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">
+                              {selectedArea ? "Choose Standard" : "Select Area First"}
+                            </option>
+                            {selectedArea && getFilteredStandards().map((std) => (
+                              <option key={std.id} value={std.id}>
+                                {std.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
                         {/* Action Buttons */}
                         <div className="flex justify-between pt-3 border-t border-gray-200">
@@ -1846,7 +1873,7 @@ export default function GazeObservationApp() {
                             onClick={resetStandardSelection}
                             className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
                           >
-                            Clear Selection
+                            Clear All Selections
                           </button>
                           <button
                             onClick={() => setShowStandardDropdown(false)}
