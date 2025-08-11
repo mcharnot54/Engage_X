@@ -275,6 +275,16 @@ export default function GazeObservationApp() {
     }
   }, [observationReasonMemory.value]);
 
+  useEffect(() => {
+    if (employeeMemory.value && employeeMemory.value !== employeeId) {
+      setEmployeeId(employeeMemory.value);
+      // Load performance data for remembered employee
+      const currentStandardId = standard ? Number(standard) : undefined;
+      loadEmployeePerformanceData(employeeMemory.value, currentStandardId);
+      setShowPreviousObservations(true);
+    }
+  }, [employeeMemory.value]);
+
   // Sync standard selection values from memory
   useEffect(() => {
     const facilityKey = createDropdownKey('observation-form', 'facility');
