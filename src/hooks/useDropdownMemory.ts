@@ -4,6 +4,7 @@ interface UseDropdownMemoryOptions {
   key: string;
   defaultValue?: string;
   excludeValues?: string[]; // Values to not remember (like empty strings)
+  disableAutosave?: boolean; // Disable localStorage saving completely
 }
 
 export function useDropdownMemory({
