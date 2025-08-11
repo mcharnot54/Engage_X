@@ -253,6 +253,37 @@ export default function GazeObservationApp() {
     useState(false);
   const [showReasonInstructions, setShowReasonInstructions] = useState(false);
 
+  // Sync memory values with state when they load
+  useEffect(() => {
+    if (observationReasonMemory.value && observationReasonMemory.value !== observationReason) {
+      setObservationReason(observationReasonMemory.value);
+    }
+  }, [observationReasonMemory.value]);
+
+  useEffect(() => {
+    if (facilityMemory.value && facilityMemory.value !== selectedFacility) {
+      setSelectedFacility(facilityMemory.value);
+    }
+  }, [facilityMemory.value]);
+
+  useEffect(() => {
+    if (departmentMemory.value && departmentMemory.value !== selectedDepartment) {
+      setSelectedDepartment(departmentMemory.value);
+    }
+  }, [departmentMemory.value]);
+
+  useEffect(() => {
+    if (areaMemory.value && areaMemory.value !== selectedArea) {
+      setSelectedArea(areaMemory.value);
+    }
+  }, [areaMemory.value]);
+
+  useEffect(() => {
+    if (delayReasonMemory.value && delayReasonMemory.value !== delayReason) {
+      setDelayReason(delayReasonMemory.value);
+    }
+  }, [delayReasonMemory.value]);
+
   // Load employee performance data dynamically with standard filtering
   const loadEmployeePerformanceData = async (
     employeeId: string,
@@ -2188,7 +2219,7 @@ export default function GazeObservationApp() {
                       )}
                       {isDynamicGroupingActive && (
                         <div className="flex items-center gap-2 text-green-600">
-                          ⚡️ Smart grouping active - Active tag groups moved to
+                          ���️ Smart grouping active - Active tag groups moved to
                           top
                         </div>
                       )}
@@ -3484,7 +3515,7 @@ export default function GazeObservationApp() {
 
                         <div className="mt-3 pt-3 border-t border-orange-300">
                           <p className="text-orange-800 font-medium text-xs">
-                            💡 Review version notes above to understand specific
+                            ��� Review version notes above to understand specific
                             changes made between versions
                           </p>
                         </div>
