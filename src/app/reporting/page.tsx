@@ -1021,12 +1021,13 @@ export default function ReportingPage() {
                 </label>
                 <select
                   value={filters.selectedEmployee}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setFilters((prev) => ({
                       ...prev,
                       selectedEmployee: e.target.value,
-                    }))
-                  }
+                    }));
+                    employeeFilterMemory.setValue(e.target.value);
+                  }}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Employees</option>
