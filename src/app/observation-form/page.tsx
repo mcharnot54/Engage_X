@@ -94,7 +94,7 @@ export default function GazeObservationApp() {
   // Dropdown memory hooks
   const observationReasonMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'observationReason') });
   const [observationReason, setObservationReason] = useState(observationReasonMemory.value);
-  const employeeMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'employee') });
+  const employeeMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'employee'), disableAutosave: true });
   const [employeeId, setEmployeeId] = useState(employeeMemory.value);
   const [standard, setStandard] = useState("");
 
