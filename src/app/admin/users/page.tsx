@@ -28,6 +28,11 @@ interface User {
   facilityId?: number;
   departmentId?: number;
   areaId?: number;
+  primaryRole?: {
+    id: string;
+    name: string;
+    description?: string;
+  };
   user_roles?: {
     id: number;
     roles: {
@@ -356,10 +361,13 @@ export default function UsersAdminPage() {
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                           Department
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                          Role
+                        <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">
+                          Primary Role
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                        <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">
+                          Additional Roles
+                        </th>
+                        <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">
                           Organization
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
@@ -391,13 +399,24 @@ export default function UsersAdminPage() {
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {user.department || "���"}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-500">
+                          <td className="px-4 py-3 text-sm text-center">
+                            {user.primaryRole ? (
+                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                {user.primaryRole.name}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 italic">
+                                No primary role
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-center">
                             {user.user_roles && user.user_roles.length > 0 ? (
-                              <div className="flex flex-wrap gap-1">
+                              <div className="flex flex-wrap gap-1 justify-center">
                                 {user.user_roles.map((userRole) => (
                                   <span
                                     key={userRole.id}
-                                    className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
+                                    className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
                                   >
                                     {userRole.roles?.name}
                                   </span>
@@ -405,11 +424,11 @@ export default function UsersAdminPage() {
                               </div>
                             ) : (
                               <span className="text-gray-400 italic">
-                                No roles assigned
+                                None
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-500">
+                          <td className="px-4 py-3 text-sm text-center">
                             {user.organization ? (
                               <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                                 {user.organization.name} (

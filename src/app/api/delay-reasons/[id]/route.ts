@@ -8,7 +8,7 @@ export async function PUT(
   try {
     const body = await request.json();
     const { name, description } = body;
-    const id = parseInt(params.id);
+    const id = params.id;
 
     if (!name || !name.trim()) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function DELETE(
   { params }: { params: { id: string } },
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = params.id;
     await deleteDelayReason(id);
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -56,7 +56,7 @@ export async function PATCH(
   try {
     const body = await request.json();
     const { isActive } = body;
-    const id = parseInt(params.id);
+    const id = params.id;
 
     const delayReason = await updateDelayReason(id, { isActive });
     return NextResponse.json(delayReason);

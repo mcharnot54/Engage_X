@@ -188,7 +188,7 @@ model ObservationData {
 }
 
 model Role {
-  id              String           @id
+  id              String           @id @default(cuid())
   name            String           @unique
   description     String?
   isActive        Boolean          @default(true)
@@ -202,7 +202,7 @@ model Role {
 }
 
 model Permission {
-  id              String           @id
+  id              String           @id @default(cuid())
   name            String           @unique
   description     String?
   module          String
@@ -216,7 +216,7 @@ model Permission {
 }
 
 model RolePermission {
-  id           String     @id
+  id           String     @id @default(cuid())
   roleId       String
   permissionId String
   granted      Boolean    @default(true)
@@ -244,7 +244,7 @@ model UserRole {
 }
 
 model DelayReason {
-  id          String   @id
+  id          String   @id @default(cuid())
   name        String   @unique
   description String?
   isActive    Boolean  @default(true)

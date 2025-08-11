@@ -3,6 +3,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
+import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
+import { getCurrentUser, getCurrentUserName } from "../../lib/auth-context";
 
 type Row = {
   id: number;
@@ -90,15 +92,21 @@ export default function GazeObservationApp() {
   const [timeObserved, setTimeObserved] = useState(0);
   const [totalSams, setTotalSams] = useState(0);
   const [employeeId, setEmployeeId] = useState("");
-  const [observationReason, setObservationReason] = useState("");
+  // Dropdown memory hooks
+  const observationReasonMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'observationReason') });
+  const [observationReason, setObservationReason] = useState(observationReasonMemory.value);
   const [standard, setStandard] = useState("");
 
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
 
-  const [selectedFacility, setSelectedFacility] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedArea, setSelectedArea] = useState("");
+  const facilityMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'facility') });
+  const departmentMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'department') });
+  const areaMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'area') });
+
+  const [selectedFacility, setSelectedFacility] = useState(facilityMemory.value);
+  const [selectedDepartment, setSelectedDepartment] = useState(departmentMemory.value);
+  const [selectedArea, setSelectedArea] = useState(areaMemory.value);
   const [observedPerformance, setObservedPerformance] = useState(0);
   const [isFinalized, setIsFinalized] = useState(false);
   const [isPumpAssessmentActive, setIsPumpAssessmentActive] = useState(false);
@@ -128,7 +136,14 @@ export default function GazeObservationApp() {
 
   // Form data
   const [comments, setComments] = useState("");
-  const [supervisorSignature, setSupervisorSignature] = useState("");
+  const [supervisorSignature, setSupervisorSignature] = useState(getCurrentUserName());
+
+  // Make sure the supervisor signature stays consistent
+  useEffect(() => {
+    if (!supervisorSignature || supervisorSignature !== getCurrentUserName()) {
+      setSupervisorSignature(getCurrentUserName());
+    }
+  }, [supervisorSignature]);
   const [teamMemberSignature, setTeamMemberSignature] = useState("");
   const [aiNotes, setAiNotes] = useState("");
 
@@ -146,7 +161,8 @@ export default function GazeObservationApp() {
   // Delay tracking with timer functionality
   const [isDelayActive, setIsDelayActive] = useState(false);
   const [delayStartTime, setDelayStartTime] = useState<number | null>(null);
-  const [delayReason, setDelayReason] = useState("");
+  const delayReasonMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'delayReason') });
+  const [delayReason, setDelayReason] = useState(delayReasonMemory.value);
   const [delays, setDelays] = useState<Delay[]>([]);
   const [delayReasons, setDelayReasons] = useState<
     { id: string; name: string; description?: string }[]
@@ -244,6 +260,37 @@ export default function GazeObservationApp() {
   const [showPreviousObservations, setShowPreviousObservations] =
     useState(false);
   const [showReasonInstructions, setShowReasonInstructions] = useState(false);
+
+  // Sync memory values with state when they load
+  useEffect(() => {
+    if (observationReasonMemory.value && observationReasonMemory.value !== observationReason) {
+      setObservationReason(observationReasonMemory.value);
+    }
+  }, [observationReasonMemory.value]);
+
+  useEffect(() => {
+    if (facilityMemory.value && facilityMemory.value !== selectedFacility) {
+      setSelectedFacility(facilityMemory.value);
+    }
+  }, [facilityMemory.value]);
+
+  useEffect(() => {
+    if (departmentMemory.value && departmentMemory.value !== selectedDepartment) {
+      setSelectedDepartment(departmentMemory.value);
+    }
+  }, [departmentMemory.value]);
+
+  useEffect(() => {
+    if (areaMemory.value && areaMemory.value !== selectedArea) {
+      setSelectedArea(areaMemory.value);
+    }
+  }, [areaMemory.value]);
+
+  useEffect(() => {
+    if (delayReasonMemory.value && delayReasonMemory.value !== delayReason) {
+      setDelayReason(delayReasonMemory.value);
+    }
+  }, [delayReasonMemory.value]);
 
   // Load employee performance data dynamically with standard filtering
   const loadEmployeePerformanceData = async (
@@ -1200,7 +1247,7 @@ export default function GazeObservationApp() {
     setBestPracticesChecked([]);
     setProcessAdherenceChecked([]);
     setComments("");
-    setSupervisorSignature("");
+    setSupervisorSignature(getCurrentUserName()); // Keep current user as supervisor
     setTeamMemberSignature("");
     setObservedPerformance(0);
     setAiNotes("");
@@ -1680,6 +1727,7 @@ export default function GazeObservationApp() {
                             value={selectedFacility}
                             onChange={(e) => {
                               setSelectedFacility(e.target.value);
+                              facilityMemory.setValue(e.target.value);
                               setSelectedDepartment("");
                               setSelectedArea("");
                               setStandard("");
@@ -1705,6 +1753,7 @@ export default function GazeObservationApp() {
                               value={selectedDepartment}
                               onChange={(e) => {
                                 setSelectedDepartment(e.target.value);
+                                departmentMemory.setValue(e.target.value);
                                 setSelectedArea("");
                                 setStandard("");
                               }}
@@ -1732,6 +1781,7 @@ export default function GazeObservationApp() {
                               value={selectedArea}
                               onChange={(e) => {
                                 setSelectedArea(e.target.value);
+                                areaMemory.setValue(e.target.value);
                                 setStandard("");
                               }}
                               className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -1893,6 +1943,7 @@ export default function GazeObservationApp() {
                   value={observationReason}
                   onChange={(e) => {
                     setObservationReason(e.target.value);
+                    observationReasonMemory.setValue(e.target.value);
                     if (e.target.value) {
                       setShowReasonInstructions(true);
                     }
@@ -2176,7 +2227,7 @@ export default function GazeObservationApp() {
                       )}
                       {isDynamicGroupingActive && (
                         <div className="flex items-center gap-2 text-green-600">
-                          ⚡️ Smart grouping active - Active tag groups moved to
+                          ���️ Smart grouping active - Active tag groups moved to
                           top
                         </div>
                       )}
@@ -2653,7 +2704,10 @@ export default function GazeObservationApp() {
                 </button>
                 <select
                   value={delayReason}
-                  onChange={(e) => setDelayReason(e.target.value)}
+                  onChange={(e) => {
+                    setDelayReason(e.target.value);
+                    delayReasonMemory.setValue(e.target.value);
+                  }}
                   disabled={!isObserving || !isDelayActive}
                   className="flex-1 p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
                 >
@@ -3469,7 +3523,7 @@ export default function GazeObservationApp() {
 
                         <div className="mt-3 pt-3 border-t border-orange-300">
                           <p className="text-orange-800 font-medium text-xs">
-                            💡 Review version notes above to understand specific
+                            ���� Review version notes above to understand specific
                             changes made between versions
                           </p>
                         </div>

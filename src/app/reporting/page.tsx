@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
+import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
 
 type User = {
   id: string;
@@ -112,10 +113,16 @@ export default function ReportingPage() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Dropdown memory hooks for filters
+  const employeeFilterMemory = useDropdownMemory({ key: createDropdownKey('reporting', 'employee') });
+  const standardFilterMemory = useDropdownMemory({ key: createDropdownKey('reporting', 'standard') });
+  const supervisorFilterMemory = useDropdownMemory({ key: createDropdownKey('reporting', 'supervisor') });
+
   const [filters, setFilters] = useState<FilterState>({
-    selectedEmployee: "",
-    selectedStandard: "",
-    selectedSupervisor: "",
+    selectedEmployee: employeeFilterMemory.value,
+    selectedStandard: standardFilterMemory.value,
+    selectedSupervisor: supervisorFilterMemory.value,
     dateRange: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
         .toISOString()
@@ -1014,12 +1021,13 @@ export default function ReportingPage() {
                 </label>
                 <select
                   value={filters.selectedEmployee}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setFilters((prev) => ({
                       ...prev,
                       selectedEmployee: e.target.value,
-                    }))
-                  }
+                    }));
+                    employeeFilterMemory.setValue(e.target.value);
+                  }}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Employees</option>
@@ -1037,18 +1045,19 @@ export default function ReportingPage() {
                 </label>
                 <select
                   value={filters.selectedStandard}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setFilters((prev) => ({
                       ...prev,
                       selectedStandard: e.target.value,
-                    }))
-                  }
+                    }));
+                    standardFilterMemory.setValue(e.target.value);
+                  }}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Standards</option>
                   {dashboardData?.standards.map((standard) => (
                     <option key={standard.id} value={standard.id.toString()}>
-                      {standard.name}
+                      {standard.name} ({standard.observationCount} obs, {standard.avgObservedPerformance}% avg)
                     </option>
                   ))}
                 </select>
@@ -1060,12 +1069,13 @@ export default function ReportingPage() {
                 </label>
                 <select
                   value={filters.selectedSupervisor}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setFilters((prev) => ({
                       ...prev,
                       selectedSupervisor: e.target.value,
-                    }))
-                  }
+                    }));
+                    supervisorFilterMemory.setValue(e.target.value);
+                  }}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Supervisors</option>
@@ -1162,40 +1172,126 @@ export default function ReportingPage() {
             </div>
           </div>
 
+          {/* Aggregated Standards Overview */}
+          {dashboardData && dashboardData.standards.length > 0 && (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200 mb-8">
+              <h3 className="text-2xl font-bold text-blue-800 mb-6 flex items-center">
+                <span className="mr-3">📊</span>
+                Standards Performance Overview
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {dashboardData.standards
+                  .sort((a, b) => b.observationCount - a.observationCount)
+                  .slice(0, 9) // Show top 9 standards
+                  .map((standard) => (
+                    <div
+                      key={standard.id}
+                      className="bg-white rounded-lg shadow-md p-5 border border-gray-200 hover:shadow-lg transition-shadow duration-300"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-bold text-gray-800 text-lg leading-tight">
+                          {standard.name}
+                        </h4>
+                        <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
+                          {standard.observationCount} obs
+                        </span>
+                      </div>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Observed Performance:</span>
+                          <span className={`font-bold text-lg ${
+                            standard.avgObservedPerformance >= 100
+                              ? 'text-green-600'
+                              : standard.avgObservedPerformance >= 90
+                                ? 'text-yellow-600'
+                                : 'text-red-600'
+                          }`}>
+                            {standard.avgObservedPerformance}%
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Grade Factor:</span>
+                          <span className="font-bold text-lg text-blue-600">
+                            {standard.avgPumpScore}%
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-xs text-gray-500 space-y-1">
+                        <div><strong>Facility:</strong> {standard.facility.name}</div>
+                        <div><strong>Department:</strong> {standard.department.name}</div>
+                        <div><strong>Area:</strong> {standard.area.name}</div>
+                        {standard.lastObservationDate && (
+                          <div><strong>Last Observation:</strong> {new Date(standard.lastObservationDate).toLocaleDateString()}</div>
+                        )}
+                      </div>
+
+                      {/* Performance indicator bar */}
+                      <div className="mt-3">
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all duration-300 ${
+                              standard.avgObservedPerformance >= 100
+                                ? 'bg-green-500'
+                                : standard.avgObservedPerformance >= 90
+                                  ? 'bg-yellow-500'
+                                  : 'bg-red-500'
+                            }`}
+                            style={{
+                              width: `${Math.min(100, Math.max(0, standard.avgObservedPerformance))}%`
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+
+              {dashboardData.standards.length > 9 && (
+                <div className="text-center mt-6">
+                  <p className="text-blue-700 font-medium">
+                    Showing top 9 of {dashboardData.standards.length} standards with observations
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Summary Statistics */}
           {dashboardData && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-              <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 text-center">
-                <h3 className="text-2xl font-bold text-blue-600">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white text-center shadow-lg">
+                <h3 className="text-3xl font-bold mb-1">
                   {dashboardData.summary.totalObservations}
                 </h3>
-                <p className="text-sm text-gray-600">Total Observations</p>
+                <p className="text-blue-100 text-sm font-medium">Total Observations</p>
               </div>
-              <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 text-center">
-                <h3 className="text-2xl font-bold text-green-600">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white text-center shadow-lg">
+                <h3 className="text-3xl font-bold mb-1">
                   {dashboardData.summary.avgObservedPerformance.toFixed(1)}%
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-green-100 text-sm font-medium">
                   Avg Observed Performance
                 </p>
               </div>
-              <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 text-center">
-                <h3 className="text-2xl font-bold text-orange-600">
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-6 text-white text-center shadow-lg">
+                <h3 className="text-3xl font-bold mb-1">
                   {dashboardData.summary.avgPumpScore.toFixed(1)}%
                 </h3>
-                <p className="text-sm text-gray-600">Avg Grade Factor</p>
+                <p className="text-orange-100 text-sm font-medium">Avg Grade Factor</p>
               </div>
-              <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 text-center">
-                <h3 className="text-2xl font-bold text-purple-600">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white text-center shadow-lg">
+                <h3 className="text-3xl font-bold mb-1">
                   {dashboardData.summary.totalUsers}
                 </h3>
-                <p className="text-sm text-gray-600">Active Employees</p>
+                <p className="text-purple-100 text-sm font-medium">Active Employees</p>
               </div>
-              <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 text-center">
-                <h3 className="text-2xl font-bold text-red-600">
+              <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-6 text-white text-center shadow-lg">
+                <h3 className="text-3xl font-bold mb-1">
                   {dashboardData.summary.totalStandards}
                 </h3>
-                <p className="text-sm text-gray-600">Standards in Use</p>
+                <p className="text-red-100 text-sm font-medium">Standards in Use</p>
               </div>
             </div>
           )}

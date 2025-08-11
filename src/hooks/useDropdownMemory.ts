@@ -1,0 +1,61 @@
+import { useState, useEffect } from 'react';
+
+interface UseDropdownMemoryOptions {
+  key: string;
+  defaultValue?: string;
+  excludeValues?: string[]; // Values to not remember (like empty strings)
+}
+
+export function useDropdownMemory({
+  key,
+  defaultValue = '',
+  excludeValues = ['']
+}: UseDropdownMemoryOptions) {
+  const [value, setValue] = useState<string>(defaultValue);
+
+  // Load remembered value on mount
+  useEffect(() => {
+    try {
+      const remembered = localStorage.getItem(`dropdown_${key}`);
+      if (remembered && !excludeValues.includes(remembered)) {
+        setValue(remembered);
+      }
+    } catch (error) {
+      console.warn(`Failed to load dropdown memory for ${key}:`, error);
+    }
+  }, [key, excludeValues]);
+
+  // Function to update value and save to localStorage
+  const updateValue = (newValue: string) => {
+    setValue(newValue);
+    
+    try {
+      if (!excludeValues.includes(newValue)) {
+        localStorage.setItem(`dropdown_${key}`, newValue);
+      }
+    } catch (error) {
+      console.warn(`Failed to save dropdown memory for ${key}:`, error);
+    }
+  };
+
+  // Function to clear remembered value
+  const clearValue = () => {
+    setValue(defaultValue);
+    try {
+      localStorage.removeItem(`dropdown_${key}`);
+    } catch (error) {
+      console.warn(`Failed to clear dropdown memory for ${key}:`, error);
+    }
+  };
+
+  return {
+    value,
+    setValue: updateValue,
+    clearValue
+  };
+}
+
+// Helper function to create unique keys for different contexts
+export function createDropdownKey(component: string, field: string, context?: string): string {
+  return context ? `${component}_${context}_${field}` : `${component}_${field}`;
+}

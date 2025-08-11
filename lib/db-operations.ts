@@ -618,17 +618,32 @@ export async function getUsers() {
     },
   });
 
-  // Manually fetch organization data for each user
+  // Manually fetch organization data and primary role for each user
   const usersWithOrganizations = await Promise.all(
     users.map(async (user) => {
+      let organization = null;
+      let primaryRole = null;
+
       if (user.organizationid) {
-        const organization = await prisma.organization.findUnique({
+        organization = await prisma.organization.findUnique({
           where: { id: user.organizationid },
           select: { id: true, name: true, code: true },
         });
-        return { ...user, organization };
       }
-      return { ...user, organization: null };
+
+      // Get primary role from users.roleId if it exists
+      if (user.roleId) {
+        primaryRole = await prisma.role.findUnique({
+          where: { id: user.roleId },
+          select: { id: true, name: true, description: true },
+        });
+      }
+
+      return {
+        ...user,
+        organization,
+        primaryRole,
+      };
     }),
   );
 
@@ -1030,7 +1045,7 @@ export async function createDelayReason(data: {
 }
 
 export async function updateDelayReason(
-  id: number,
+  id: string,
   data: {
     name?: string;
     description?: string;
@@ -1043,7 +1058,7 @@ export async function updateDelayReason(
   });
 }
 
-export async function deleteDelayReason(id: number) {
+export async function deleteDelayReason(id: string) {
   return prisma.delayReason.update({
     where: { id },
     data: { isActive: false },

@@ -182,7 +182,7 @@ export default function UserRolesAdminPage() {
         },
         body: JSON.stringify({
           userId: newUserRole.userId,
-          roleId: parseInt(newUserRole.roleId),
+          roleId: newUserRole.roleId,
           organizationId: newUserRole.organizationId
             ? parseInt(newUserRole.organizationId)
             : undefined,

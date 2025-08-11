@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Banner } from "@/components/ui/Banner";
 import CsvExportImport from "@/components/CsvExportImport";
+import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
 
 interface Organization {
   id: number;
@@ -104,12 +105,18 @@ export default function Standards() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [savedStandards, setSavedStandards] = useState<Standard[]>([]);
 
-  // Form state
-  const [selectedOrganization, setSelectedOrganization] = useState("");
-  const [selectedFacility, setSelectedFacility] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedArea, setSelectedArea] = useState("");
-  const [selectedStandard, setSelectedStandard] = useState("");
+  // Form state with dropdown memory
+  const organizationMemory = useDropdownMemory({ key: createDropdownKey('standards', 'organization') });
+  const facilityMemory = useDropdownMemory({ key: createDropdownKey('standards', 'facility') });
+  const departmentMemory = useDropdownMemory({ key: createDropdownKey('standards', 'department') });
+  const areaMemory = useDropdownMemory({ key: createDropdownKey('standards', 'area') });
+  const standardMemory = useDropdownMemory({ key: createDropdownKey('standards', 'standard') });
+
+  const [selectedOrganization, setSelectedOrganization] = useState(organizationMemory.value);
+  const [selectedFacility, setSelectedFacility] = useState(facilityMemory.value);
+  const [selectedDepartment, setSelectedDepartment] = useState(departmentMemory.value);
+  const [selectedArea, setSelectedArea] = useState(areaMemory.value);
+  const [selectedStandard, setSelectedStandard] = useState(standardMemory.value);
   const [standardName, setStandardName] = useState("");
   const [newOrganizationName, setNewOrganizationName] = useState("");
   const [newOrganizationCode, setNewOrganizationCode] = useState("");
@@ -1129,6 +1136,7 @@ export default function Standards() {
                     value={selectedOrganization}
                     onChange={(e) => {
                       setSelectedOrganization(e.target.value);
+                      organizationMemory.setValue(e.target.value);
                     }}
                     disabled={isLoading}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
@@ -1200,7 +1208,10 @@ export default function Standards() {
                   <select
                     value={selectedArea}
                     disabled={!selectedDepartment || isLoading}
-                    onChange={(e) => setSelectedArea(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedArea(e.target.value);
+                      areaMemory.setValue(e.target.value);
+                    }}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                   >
                     <option value="">Select Area</option>
@@ -1215,7 +1226,10 @@ export default function Standards() {
                 <div className="relative">
                   <select
                     value={selectedStandard}
-                    onChange={(e) => setSelectedStandard(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedStandard(e.target.value);
+                      standardMemory.setValue(e.target.value);
+                    }}
                     disabled={isLoading}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-50"
                   >

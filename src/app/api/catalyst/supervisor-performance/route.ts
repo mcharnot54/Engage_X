@@ -36,15 +36,10 @@ export async function GET(request: NextRequest) {
         break;
     }
 
-    // Get observations conducted BY the supervisor (where they are the createdBy)
+    // Get observations conducted BY the supervisor (matching supervisorSignature)
     const observations = await prisma.observation.findMany({
       where: {
-        supervisorSignature: {
-          not: null,
-          not: "",
-        },
-        // We need to add a createdBy field or use supervisorSignature as identifier
-        // For now, let's use a workaround with supervisorSignature matching the supervisor's name/id
+        supervisorSignature: supervisorId, // Match exact supervisor name
         ...(periodStart && {
           createdAt: {
             gte: periodStart,
@@ -57,6 +52,13 @@ export async function GET(request: NextRequest) {
         observedPerformance: true,
         createdAt: true,
         supervisorSignature: true,
+        standardId: true,
+        standard: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         user: {
           select: {
             id: true,
@@ -70,13 +72,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Filter observations by supervisor (this is a temporary solution)
-    // In a production system, you'd want a proper createdBy field
-    const supervisorObservations = observations.filter(
-      (obs) =>
-        obs.supervisorSignature === supervisorId ||
-        obs.supervisorSignature?.includes(supervisorId),
-    );
+    const supervisorObservations = observations;
 
     if (supervisorObservations.length === 0) {
       return NextResponse.json({
