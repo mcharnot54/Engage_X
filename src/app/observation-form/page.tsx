@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
-import { getCurrentUser, getCurrentUserName } from "@/lib/auth-context";
+import { getCurrentUser, getCurrentUserName } from "../../lib/auth-context";
 
 type Row = {
   id: number;
@@ -3466,7 +3466,7 @@ export default function GazeObservationApp() {
                           selectedStandardData.versions[1].uomEntries && (
                             <div className="flex items-start gap-2">
                               <span className="text-orange-600 font-medium">
-                                ��
+                                •
                               </span>
                               <span className="text-orange-700">
                                 <strong>UOM Changes:</strong> From{" "}
