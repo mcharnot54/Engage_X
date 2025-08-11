@@ -216,7 +216,7 @@ model Permission {
 }
 
 model RolePermission {
-  id           String     @id
+  id           String     @id @default(cuid())
   roleId       String
   permissionId String
   granted      Boolean    @default(true)
