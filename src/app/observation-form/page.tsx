@@ -95,6 +95,7 @@ export default function GazeObservationApp() {
   // Dropdown memory hooks
   const observationReasonMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'observationReason') });
   const [observationReason, setObservationReason] = useState(observationReasonMemory.value);
+  const employeeMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'employee') });
   const [standard, setStandard] = useState("");
 
   // Multi-level standard selection state
@@ -2617,7 +2618,7 @@ export default function GazeObservationApp() {
                                                 className="flex items-center justify-between pl-2 text-xs group"
                                               >
                                                 <span>
-                                                  �� {entry.amount} at{" "}
+                                                  • {entry.amount} at{" "}
                                                   {entry.timestamp}
                                                 </span>
                                                 {!isFinalized && (
@@ -3512,7 +3513,7 @@ export default function GazeObservationApp() {
                         </div>
 
                         <div className="flex items-start gap-2">
-                          <span className="text-orange-600 font-medium">���</span>
+                          <span className="text-orange-600 font-medium">•</span>
                           <span className="text-orange-700">
                             <strong>Current UOM Entries:</strong>{" "}
                             {selectedStandardData.uomEntries?.length || 0}{" "}
