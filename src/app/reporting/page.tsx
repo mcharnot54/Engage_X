@@ -1069,12 +1069,13 @@ export default function ReportingPage() {
                 </label>
                 <select
                   value={filters.selectedSupervisor}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setFilters((prev) => ({
                       ...prev,
                       selectedSupervisor: e.target.value,
-                    }))
-                  }
+                    }));
+                    supervisorFilterMemory.setValue(e.target.value);
+                  }}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Supervisors</option>
