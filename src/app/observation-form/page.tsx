@@ -1938,6 +1938,11 @@ export default function GazeObservationApp() {
                   {showEmployeeDropdown && (
                     <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
                       <div className="p-3">
+                        {employeeId && (
+                          <div className="text-xs text-green-600 bg-green-50 p-2 rounded mb-2">
+                            💾 Last selected: {employees.find(emp => emp.employeeId === employeeId)?.name || employeeId}
+                          </div>
+                        )}
                         <input
                           type="text"
                           placeholder="Search by name or employee ID..."
