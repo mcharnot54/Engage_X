@@ -1688,6 +1688,7 @@ export default function GazeObservationApp() {
                             value={selectedFacility}
                             onChange={(e) => {
                               setSelectedFacility(e.target.value);
+                              facilityMemory.setValue(e.target.value);
                               setSelectedDepartment("");
                               setSelectedArea("");
                               setStandard("");
@@ -2166,7 +2167,7 @@ export default function GazeObservationApp() {
                       {highlightedTagGroup.size > 0 && (
                         <div className="flex items-center gap-3 text-yellow-600 mb-1">
                           <span className="flex items-center gap-2">
-                            ��� Tag group highlighted - Group moved to top with
+                            🏆 Tag group highlighted - Group moved to top with
                             gold styling
                           </span>
                           <button
@@ -2564,7 +2565,7 @@ export default function GazeObservationApp() {
                                                 row.id,
                                               )
                                             ? "Click anywhere to close • Hover entries to delete • Click × to clear all"
-                                            : "Click to keep open • Hover entries to delete • Click × to clear all"}
+                                            : "Click to keep open • Hover entries to delete �� Click × to clear all"}
                                       </div>
 
                                       {/* Arrow pointer */}
