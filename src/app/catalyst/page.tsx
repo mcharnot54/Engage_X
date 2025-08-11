@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
-import { getCurrentUser, getCurrentUserId } from "@/lib/auth-context";
+import { getCurrentUser, getCurrentUserId } from "../../lib/auth-context";
 
 type TeamMember = {
   id: string;
