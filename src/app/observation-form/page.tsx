@@ -137,6 +137,13 @@ export default function GazeObservationApp() {
   // Form data
   const [comments, setComments] = useState("");
   const [supervisorSignature, setSupervisorSignature] = useState(getCurrentUserName());
+
+  // Make sure the supervisor signature stays consistent
+  useEffect(() => {
+    if (!supervisorSignature || supervisorSignature !== getCurrentUserName()) {
+      setSupervisorSignature(getCurrentUserName());
+    }
+  }, [supervisorSignature]);
   const [teamMemberSignature, setTeamMemberSignature] = useState("");
   const [aiNotes, setAiNotes] = useState("");
 
@@ -3516,7 +3523,7 @@ export default function GazeObservationApp() {
 
                         <div className="mt-3 pt-3 border-t border-orange-300">
                           <p className="text-orange-800 font-medium text-xs">
-                            ��� Review version notes above to understand specific
+                            ���� Review version notes above to understand specific
                             changes made between versions
                           </p>
                         </div>
