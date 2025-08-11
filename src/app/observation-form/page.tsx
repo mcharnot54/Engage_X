@@ -1714,6 +1714,7 @@ export default function GazeObservationApp() {
                               value={selectedDepartment}
                               onChange={(e) => {
                                 setSelectedDepartment(e.target.value);
+                                departmentMemory.setValue(e.target.value);
                                 setSelectedArea("");
                                 setStandard("");
                               }}
@@ -2565,7 +2566,7 @@ export default function GazeObservationApp() {
                                                 row.id,
                                               )
                                             ? "Click anywhere to close • Hover entries to delete • Click × to clear all"
-                                            : "Click to keep open • Hover entries to delete �� Click × to clear all"}
+                                            : "Click to keep open • Hover entries to delete • Click × to clear all"}
                                       </div>
 
                                       {/* Arrow pointer */}
