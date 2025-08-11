@@ -28,6 +28,11 @@ interface User {
   facilityId?: number;
   departmentId?: number;
   areaId?: number;
+  primaryRole?: {
+    id: string;
+    name: string;
+    description?: string;
+  };
   user_roles?: {
     id: number;
     roles: {
@@ -392,7 +397,23 @@ export default function UsersAdminPage() {
                             {user.department || "���"}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            {user.user_roles && user.user_roles.length > 0 ? (
+                            {user.primaryRole ? (
+                              <div className="flex flex-wrap gap-1">
+                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                  {user.primaryRole.name} (Primary)
+                                </span>
+                                {user.user_roles && user.user_roles.length > 0 && (
+                                  user.user_roles.map((userRole) => (
+                                    <span
+                                      key={userRole.id}
+                                      className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
+                                    >
+                                      {userRole.roles?.name} (Additional)
+                                    </span>
+                                  ))
+                                )}
+                              </div>
+                            ) : user.user_roles && user.user_roles.length > 0 ? (
                               <div className="flex flex-wrap gap-1">
                                 {user.user_roles.map((userRole) => (
                                   <span
