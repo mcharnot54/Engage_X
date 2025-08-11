@@ -590,6 +590,8 @@ export default function GazeObservationApp() {
     setActiveRowIds(new Set());
     setIsDynamicGroupingActive(false);
     setIsExplicitStandardSelection(false);
+    // Clear memory values
+    standardSelectionMemory.clearValues();
   };
 
   const getSelectedStandardDisplay = () => {
