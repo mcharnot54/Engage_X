@@ -292,22 +292,24 @@ export default function GazeObservationApp() {
     const areaKey = createDropdownKey('observation-form', 'area');
     const standardKey = createDropdownKey('observation-form', 'standard');
 
-    const facilityValue = standardSelectionMemory.getValue(facilityKey);
-    const departmentValue = standardSelectionMemory.getValue(departmentKey);
-    const areaValue = standardSelectionMemory.getValue(areaKey);
-    const standardValue = standardSelectionMemory.getValue(standardKey);
+    if (standardSelectionMemory.values && Object.keys(standardSelectionMemory.values).length > 0) {
+      const facilityValue = standardSelectionMemory.getValue(facilityKey);
+      const departmentValue = standardSelectionMemory.getValue(departmentKey);
+      const areaValue = standardSelectionMemory.getValue(areaKey);
+      const standardValue = standardSelectionMemory.getValue(standardKey);
 
-    if (facilityValue && facilityValue !== selectedFacility) {
-      setSelectedFacility(facilityValue);
-    }
-    if (departmentValue && departmentValue !== selectedDepartment) {
-      setSelectedDepartment(departmentValue);
-    }
-    if (areaValue && areaValue !== selectedArea) {
-      setSelectedArea(areaValue);
-    }
-    if (standardValue && standardValue !== standard) {
-      setStandard(standardValue);
+      if (facilityValue && facilityValue !== selectedFacility) {
+        setSelectedFacility(facilityValue);
+      }
+      if (departmentValue && departmentValue !== selectedDepartment) {
+        setSelectedDepartment(departmentValue);
+      }
+      if (areaValue && areaValue !== selectedArea) {
+        setSelectedArea(areaValue);
+      }
+      if (standardValue && standardValue !== standard) {
+        setStandard(standardValue);
+      }
     }
   }, [standardSelectionMemory.values]);
 
