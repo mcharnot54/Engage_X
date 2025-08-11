@@ -105,12 +105,18 @@ export default function Standards() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [savedStandards, setSavedStandards] = useState<Standard[]>([]);
 
-  // Form state
-  const [selectedOrganization, setSelectedOrganization] = useState("");
-  const [selectedFacility, setSelectedFacility] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedArea, setSelectedArea] = useState("");
-  const [selectedStandard, setSelectedStandard] = useState("");
+  // Form state with dropdown memory
+  const organizationMemory = useDropdownMemory({ key: createDropdownKey('standards', 'organization') });
+  const facilityMemory = useDropdownMemory({ key: createDropdownKey('standards', 'facility') });
+  const departmentMemory = useDropdownMemory({ key: createDropdownKey('standards', 'department') });
+  const areaMemory = useDropdownMemory({ key: createDropdownKey('standards', 'area') });
+  const standardMemory = useDropdownMemory({ key: createDropdownKey('standards', 'standard') });
+
+  const [selectedOrganization, setSelectedOrganization] = useState(organizationMemory.value);
+  const [selectedFacility, setSelectedFacility] = useState(facilityMemory.value);
+  const [selectedDepartment, setSelectedDepartment] = useState(departmentMemory.value);
+  const [selectedArea, setSelectedArea] = useState(areaMemory.value);
+  const [selectedStandard, setSelectedStandard] = useState(standardMemory.value);
   const [standardName, setStandardName] = useState("");
   const [newOrganizationName, setNewOrganizationName] = useState("");
   const [newOrganizationCode, setNewOrganizationCode] = useState("");
