@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
-import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
+import { useDropdownMemory, useMultiDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
 import { getCurrentUser, getCurrentUserName } from "../../lib/auth-context";
 
 type Row = {
