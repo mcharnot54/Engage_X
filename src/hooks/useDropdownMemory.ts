@@ -47,6 +47,9 @@ export function useDropdownMemory({
   // Function to clear remembered value
   const clearValue = () => {
     setValue(defaultValue);
+
+    if (disableAutosave) return;
+
     try {
       localStorage.removeItem(`dropdown_${key}`);
     } catch (error) {
