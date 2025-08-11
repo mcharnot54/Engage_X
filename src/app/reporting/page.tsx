@@ -113,10 +113,16 @@ export default function ReportingPage() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Dropdown memory hooks for filters
+  const employeeFilterMemory = useDropdownMemory({ key: createDropdownKey('reporting', 'employee') });
+  const standardFilterMemory = useDropdownMemory({ key: createDropdownKey('reporting', 'standard') });
+  const supervisorFilterMemory = useDropdownMemory({ key: createDropdownKey('reporting', 'supervisor') });
+
   const [filters, setFilters] = useState<FilterState>({
-    selectedEmployee: "",
-    selectedStandard: "",
-    selectedSupervisor: "",
+    selectedEmployee: employeeFilterMemory.value,
+    selectedStandard: standardFilterMemory.value,
+    selectedSupervisor: supervisorFilterMemory.value,
     dateRange: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
         .toISOString()
