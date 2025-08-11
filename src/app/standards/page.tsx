@@ -1208,7 +1208,10 @@ export default function Standards() {
                   <select
                     value={selectedArea}
                     disabled={!selectedDepartment || isLoading}
-                    onChange={(e) => setSelectedArea(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedArea(e.target.value);
+                      areaMemory.setValue(e.target.value);
+                    }}
                     className="w-full p-2 rounded-md border border-gray-300 bg-white disabled:opacity-60"
                   >
                     <option value="">Select Area</option>
