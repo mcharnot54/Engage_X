@@ -93,10 +93,11 @@ export async function GET(request: NextRequest) {
         break;
     }
 
-    // Count observations in the current period
+    // Count observations conducted BY the supervisor in the current period
+    // We use supervisorSignature to identify observations conducted by this supervisor
     const observationsCompleted = await prisma.observation.count({
       where: {
-        userId: userId,
+        supervisorSignature: user.name, // Match observations conducted by this supervisor
         createdAt: {
           gte: periodStart,
         },
