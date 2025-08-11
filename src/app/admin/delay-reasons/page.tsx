@@ -115,7 +115,7 @@ export default function DelayReasonsAdminPage() {
     }
   };
 
-  const handleDeleteDelayReason = async (id: number) => {
+  const handleDeleteDelayReason = async (id: string) => {
     if (!confirm("Are you sure you want to deactivate this delay reason?"))
       return;
 
