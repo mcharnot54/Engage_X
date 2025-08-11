@@ -1152,7 +1152,7 @@ END:VCALENDAR`;
             {/* Metrics Tables */}
             <div className="bg-gray-100 rounded-lg p-6 border border-gray-300 mb-6">
               <h3 className="text-lg font-semibold mb-4">
-                Performance Metrics
+                Your Performance Metrics
               </h3>
               <div className="grid grid-cols-2 gap-6">
                 <div className="bg-white p-4 rounded-lg border">
@@ -1179,6 +1179,9 @@ END:VCALENDAR`;
                           : "→ Stable"}
                     </span>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Average across all observations you've conducted
+                  </p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border">
                   <h4 className="font-semibold mb-3">Observed Performance</h4>
@@ -1190,6 +1193,40 @@ END:VCALENDAR`;
                       From {performanceMetrics.totalObservationsCompleted}{" "}
                       observations
                     </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Performance of team members you've observed
+                  </p>
+                </div>
+              </div>
+
+              {/* Observation Activity Summary */}
+              <div className="bg-white p-4 rounded-lg border mt-4">
+                <h4 className="font-semibold mb-3">Recent Activity</h4>
+                <div className="grid grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {goalMetrics.totalObservations}
+                    </div>
+                    <div className="text-xs text-gray-600">This {goalSettings.goalType.slice(0, -2) || goalSettings.goalType}</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {goalMetrics.goalObservations}
+                    </div>
+                    <div className="text-xs text-gray-600">Target Goal</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-orange-600">
+                      {Math.max(0, goalMetrics.remainingObservations)}
+                    </div>
+                    <div className="text-xs text-gray-600">Remaining</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {Math.round((goalMetrics.totalObservations / Math.max(1, goalMetrics.goalObservations)) * 100)}%
+                    </div>
+                    <div className="text-xs text-gray-600">Progress</div>
                   </div>
                 </div>
               </div>
