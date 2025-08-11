@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
+import { getCurrentUser, getCurrentUserId } from "@/lib/auth-context";
 
 type TeamMember = {
   id: string;
@@ -207,8 +208,8 @@ export default function CatalystPage() {
 
   const loadGoalMetrics = async () => {
     try {
-      // Get current user ID (for now using a default supervisor)
-      const currentUserId = "admin-001"; // This should come from auth context
+      // Get current user ID from auth context
+      const currentUserId = getCurrentUserId();
       const period = getPeriodForGoalType(goalSettings.goalType);
       const response = await fetch(
         `/api/catalyst/goals?userId=${currentUserId}&period=${period}`,
@@ -267,10 +268,11 @@ export default function CatalystPage() {
 
   const loadPerformanceMetrics = async () => {
     try {
-      // Get current user ID (for now using a default supervisor)
-      const currentUserId = "admin-001"; // This should come from auth context
+      // Get current user ID from auth context
+      const currentUserId = getCurrentUserId();
+      const currentUser = getCurrentUser();
       const response = await fetch(
-        `/api/catalyst/supervisor-performance?supervisorId=${currentUserId}&period=month`,
+        `/api/catalyst/supervisor-performance?supervisorId=${currentUser.name}&period=month`,
       );
 
       if (response.ok) {
@@ -497,7 +499,7 @@ END:VCALENDAR`;
           scheduledTime: selectedTime,
           notes: schedulerNotes,
           observationReason: selectedObservationReason,
-          createdBy: "admin-001", // This should come from auth context
+          createdBy: getCurrentUserId(), // Current user creating the observation
         }),
       });
 
