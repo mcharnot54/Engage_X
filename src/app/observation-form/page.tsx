@@ -1742,6 +1742,7 @@ export default function GazeObservationApp() {
                               value={selectedArea}
                               onChange={(e) => {
                                 setSelectedArea(e.target.value);
+                                areaMemory.setValue(e.target.value);
                                 setStandard("");
                               }}
                               className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
