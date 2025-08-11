@@ -2665,7 +2665,10 @@ export default function GazeObservationApp() {
                 </button>
                 <select
                   value={delayReason}
-                  onChange={(e) => setDelayReason(e.target.value)}
+                  onChange={(e) => {
+                    setDelayReason(e.target.value);
+                    delayReasonMemory.setValue(e.target.value);
+                  }}
                   disabled={!isObserving || !isDelayActive}
                   className="flex-1 p-3 rounded-lg border border-gray-300 disabled:opacity-50 bg-white"
                 >
