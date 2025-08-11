@@ -1057,7 +1057,7 @@ export default function ReportingPage() {
                   <option value="">All Standards</option>
                   {dashboardData?.standards.map((standard) => (
                     <option key={standard.id} value={standard.id.toString()}>
-                      {standard.name}
+                      {standard.name} ({standard.observationCount} obs, {standard.avgObservedPerformance}% avg)
                     </option>
                   ))}
                 </select>
