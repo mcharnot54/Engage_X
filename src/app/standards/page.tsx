@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Banner } from "@/components/ui/Banner";
 import CsvExportImport from "@/components/CsvExportImport";
+import { useDropdownMemory, createDropdownKey } from "@/hooks/useDropdownMemory";
 
 interface Organization {
   id: number;
