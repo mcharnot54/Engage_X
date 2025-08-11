@@ -91,15 +91,21 @@ export default function GazeObservationApp() {
   const [timeObserved, setTimeObserved] = useState(0);
   const [totalSams, setTotalSams] = useState(0);
   const [employeeId, setEmployeeId] = useState("");
-  const [observationReason, setObservationReason] = useState("");
+  // Dropdown memory hooks
+  const observationReasonMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'observationReason') });
+  const [observationReason, setObservationReason] = useState(observationReasonMemory.value);
   const [standard, setStandard] = useState("");
 
   // Multi-level standard selection state
   const [showStandardDropdown, setShowStandardDropdown] = useState(false);
 
-  const [selectedFacility, setSelectedFacility] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedArea, setSelectedArea] = useState("");
+  const facilityMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'facility') });
+  const departmentMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'department') });
+  const areaMemory = useDropdownMemory({ key: createDropdownKey('observation-form', 'area') });
+
+  const [selectedFacility, setSelectedFacility] = useState(facilityMemory.value);
+  const [selectedDepartment, setSelectedDepartment] = useState(departmentMemory.value);
+  const [selectedArea, setSelectedArea] = useState(areaMemory.value);
   const [observedPerformance, setObservedPerformance] = useState(0);
   const [isFinalized, setIsFinalized] = useState(false);
   const [isPumpAssessmentActive, setIsPumpAssessmentActive] = useState(false);
