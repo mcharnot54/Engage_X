@@ -5,7 +5,7 @@ import { Banner } from "@/components/ui/Banner";
 import { Sidebar } from "@/components/Sidebar";
 
 interface DelayReason {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   isActive: boolean;
