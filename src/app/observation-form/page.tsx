@@ -2008,25 +2008,32 @@ export default function GazeObservationApp() {
                   )}
                 </div>
 
-                <select
-                  value={observationReason}
-                  onChange={(e) => {
-                    setObservationReason(e.target.value);
-                    observationReasonMemory.setValue(e.target.value);
-                    if (e.target.value) {
-                      setShowReasonInstructions(true);
-                    }
-                  }}
-                  disabled={isObserving}
-                  className="w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 h-12"
-                >
-                  <option value="">Select Observation Reason</option>
-                  {observationReasons.map((reason) => (
-                    <option key={reason.id} value={reason.name}>
-                      {reason.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={observationReason}
+                    onChange={(e) => {
+                      setObservationReason(e.target.value);
+                      observationReasonMemory.setValue(e.target.value);
+                      if (e.target.value) {
+                        setShowReasonInstructions(true);
+                      }
+                    }}
+                    disabled={isObserving}
+                    className={`w-full p-3 rounded-lg border border-gray-300 bg-white disabled:opacity-70 h-12 ${observationReason ? 'border-green-400 bg-green-50' : ''}`}
+                  >
+                    <option value="">Select Observation Reason</option>
+                    {observationReasons.map((reason) => (
+                      <option key={reason.id} value={reason.name}>
+                        {reason.name}
+                      </option>
+                    ))}
+                  </select>
+                  {observationReason && (
+                    <div className="absolute -top-2 left-2 text-xs text-green-600 bg-white px-1">
+                      💾 Remembered
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
